@@ -15,9 +15,9 @@ Extend the perception stack beyond monocular vision by integrating LiDAR data an
 
 ### Tasks
 
-- Add LiDAR sensor to CARLA vehicle
-- Publish LiDAR point clouds through ROS2
-- Visualize point cloud data
+- Add LiDAR sensor to CARLA vehicle (complete)
+- Publish LiDAR point clouds through ROS2 (complete)
+- Visualize point cloud data (complete)
 - Validate camera-LiDAR synchronization
 
 ### Focus Areas
