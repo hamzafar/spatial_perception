@@ -15,17 +15,23 @@ Extend the perception stack beyond monocular vision by integrating LiDAR data an
 
 ### Tasks
 
-- Add LiDAR sensor to CARLA vehicle (complete)
-- Publish LiDAR point clouds through ROS2 (complete)
-- Visualize point cloud data (complete)
-- Validate camera-LiDAR synchronization
+- Add LiDAR sensor to CARLA vehicle (completed)
+- Publish LiDAR point clouds through ROS2 (completed)
+- Visualize point cloud data (completed)
+
 
 ### Focus Areas
 
 - Point cloud processing
-- ROS2 sensor integration
-- Multi-sensor synchronization
 
+### Deliverable
+<p align="center">
+  <img src="assets/phase7A_pipeline.gif" width="450" height="300"/>
+</p>
+
+<p align="center">
+  CARLA Online RGB Camera + LiDAR Integration
+</p>
 
 ## 7.2 Camera–LiDAR Calibration
 
