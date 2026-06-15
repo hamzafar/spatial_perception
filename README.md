@@ -25,8 +25,9 @@ Extend the perception stack beyond monocular vision by integrating LiDAR data an
 - Point cloud processing
 
 ### Deliverable
+
 <p align="center">
-  <img src="assets/phase7A_pipeline.gif" width="450" height="300"/>
+  <img src="assets/phase7A_pipeline.gif" width="700"/>
 </p>
 
 <p align="center">
