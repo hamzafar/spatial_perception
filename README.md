@@ -34,18 +34,103 @@ Extend the perception stack beyond monocular vision by integrating LiDAR data an
   CARLA Online RGB Camera + LiDAR Integration
 </p>
 
-## 7.2 Camera–LiDAR Calibration
+# 7.2 Camera–LiDAR Calibration & Projection
 
-### Tasks
+## Tasks
 
-- Extract camera intrinsic parameters
-- Extract LiDAR extrinsic parameters
-- Transform LiDAR points into camera coordinates
-- Project LiDAR points onto image plane
+- Extract camera intrinsic parameters (completed)
+- Extract LiDAR extrinsic parameters (completed)
+- Validate camera–LiDAR synchronization (completed)
+- Transform LiDAR points into camera coordinates (completed)
+- Project LiDAR points onto image plane (completed)
+- Visualize projected LiDAR points on RGB images (completed)
 
-### Goal
+## Completed
 
-Create a unified camera-LiDAR representation.
+- ✅ Camera intrinsics extracted from ROS2 CameraInfo
+- ✅ Camera matrix validated
+- ✅ LiDAR extrinsics derived from CARLA sensor configuration
+- ✅ ROS2 TimeSynchronizer implemented
+- ✅ Exact camera–LiDAR timestamp synchronization verified
+- ✅ PointCloud2 parsing implemented
+- ✅ LiDAR → camera coordinate transformation implemented
+- ✅ Perspective projection implemented
+- ✅ Image bounds filtering implemented
+- ✅ OpenCV overlay visualization implemented
+- ✅ Depth-colored projection visualization implemented
+
+## Camera Configuration
+
+Topic:
+- `/carla/ego_vehicle/rgb_front/image`
+
+Resolution:
+- 640 × 480
+
+FOV:
+- 90°
+
+Position:
+- x = -1.5
+- y = 0.0
+- z = 2.4
+
+## LiDAR Configuration
+
+Topic:
+- `/carla/ego_vehicle/lidar`
+
+Position:
+- x = 0.0
+- y = 0.0
+- z = 2.4
+
+Parameters:
+- Range: 50 m
+- Channels: 32
+- Points/sec: 56000
+- Rotation Frequency: 10 Hz
+
+## Camera Intrinsics
+
+fx = 320.0
+
+fy = 320.0
+
+cx = 320.0
+
+cy = 240.0
+
+Camera Matrix:
+
+| 320 | 0 | 320 |
+|------|------|------|
+| 0 | 320 | 240 |
+| 0 | 0 | 1 |
+
+## Synchronization Validation
+
+Used:
+
+- ROS2 `message_filters.TimeSynchronizer`
+
+Results:
+
+```text
+Image TS : 3045.320203
+LiDAR TS : 3045.320203
+Delta    : 0.000 ms
+```
+
+### Deliverable
+
+<p align="center">
+  <img src="assets/phase7B_pipeline.gif" width="700"/>
+</p>
+
+<p align="center">
+  CARLA Online RGB Camera + LiDAR Integration
+</p>
 
 
 ## 7.3 2D–3D Association
