@@ -137,16 +137,20 @@ Delta    : 0.000 ms
 
 ### Tasks
 
-- Run YOLOv8 perception pipeline
-- Associate LiDAR points with detected objects
-- Filter object-specific point clusters
-- Estimate object distance
+- Run YOLOv8m-seg TensorRT perception pipeline (completed)
+- Associate projected LiDAR points with detected objects (completed)
+- Filter object-specific point clusters using segmentation masks (completed)
+- Record synchronized camera–LiDAR data (completed)
+- Implement deterministic offline replay pipeline
+- Validate object association on recorded datasets
 
 ### Outputs
 
-- Object Class
-- Bounding Box
-- Estimated Distance
+- Object class
+- Bounding box
+- Segmentation mask
+- Object-specific LiDAR point cloud
+- Synchronized camera–LiDAR dataset
 
 ### Example
 
