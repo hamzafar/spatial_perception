@@ -141,7 +141,7 @@ Delta    : 0.000 ms
 - Associate projected LiDAR points with detected objects (completed)
 - Filter object-specific point clusters using segmentation masks (completed)
 - Record synchronized camera–LiDAR data (completed)
-- Implement deterministic offline replay pipeline
+- Implement deterministic offline replay pipeline (completed)
 - Validate object association on recorded datasets
 
 ### Outputs
