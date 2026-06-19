@@ -141,24 +141,31 @@ Delta    : 0.000 ms
 - Associate projected LiDAR points with detected objects (completed)
 - Filter object-specific point clusters using segmentation masks (completed)
 - Record synchronized camera–LiDAR data (completed)
-- Implement deterministic offline replay pipeline (completed)
-- Validate object association on recorded datasets
+- Build deterministic camera–LiDAR dataset (completed)
+- Implement ROS2 camera–LiDAR replay publisher (completed)
+- Validate object association on recorded datasets (completed)
 
-### Outputs
+## Completed
 
-- Object class
-- Bounding box
-- Segmentation mask
-- Object-specific LiDAR point cloud
-- Synchronized camera–LiDAR dataset
+- ✅ YOLOv8m-seg TensorRT inference integrated
+- ✅ Segmentation mask extraction implemented
+- ✅ Projected LiDAR points associated with segmented objects
+- ✅ Object-specific LiDAR point filtering implemented
+- ✅ CARLA synchronous recording pipeline implemented
+- ✅ Synchronized camera–LiDAR dataset generation implemented
+- ✅ Camera image recording implemented
+- ✅ LiDAR point cloud recording implemented
+- ✅ Frame-level timestamp logging implemented
+- ✅ Deterministic offline replay pipeline implemented
+- ✅ ROS2 Image publisher implemented
+- ✅ ROS2 PointCloud2 publisher implemented
+- ✅ Adjustable replay FPS implemented
+- ✅ Exact camera–LiDAR timestamp synchronization during replay verified
+- ✅ Existing perception pipeline validated on replayed datasets
+- ✅ Repeatable offline testing workflow established
 
-### Example
 
-Car: 18.4 m
-
-Truck: 27.1 m
-
-Pedestrian: 12.3 m
+### Deliverable
 
 
 ## 7.4 Sensor Fusion Pipeline
