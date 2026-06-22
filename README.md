@@ -166,7 +166,13 @@ Delta    : 0.000 ms
 
 
 ### Deliverable
+<p align="center">
+  <img src="assets/phase7C_pipeline.gif" width="700"/>
+</p>
 
+<p align="center">
+  Offline detection point clouds
+</p>
 
 ## 7.4 Sensor Fusion Pipeline
 
