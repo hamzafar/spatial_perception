@@ -174,20 +174,31 @@ Delta    : 0.000 ms
   Offline detection point clouds
 </p>
 
-## 7.4 Sensor Fusion Pipeline
+## 7.4 Monocular vs LiDAR vs Sensor Fusion Distance
 
 ### Tasks
 
-- Fuse camera detections with LiDAR measurements
-- Generate distance-aware detections
-- Evaluate fusion robustness
-- Analyze fusion performance
+- Compute Monocular Camera Distance (completed)
+- Compute LiDAR Distance (completed)
+- Compute Sensor Fusion (Camera + LiDAR) Distance (completed)
+
+### Completed
+
+- ✅ Monocular camera distance estimation implemented
+- ✅ LiDAR distance estimation using object-specific LiDAR point clusters implemented
+- ✅ Camera and LiDAR distance visualization integrated into perception pipeline
+- ✅ Weighted camera–LiDAR fusion distance estimation implemented
+- ✅ Object-level distance estimation validated on synchronized camera–LiDAR streams
+- ✅ End-to-end RGB + LiDAR distance estimation pipeline established
 
 ### Focus Areas
 
-- Multi-modal perception
-- Detection enhancement
-- Scene understanding
+- Monocular geometric distance estimation
+- LiDAR-based object range estimation
+- Camera–LiDAR sensor fusion
+- Object-level metric scene understanding
+- Multi-modal perception validation
+
 
 
 ## 7.5 3D Perception Foundations
