@@ -201,14 +201,19 @@ Delta    : 0.000 ms
 
 
 
-## 7.5 3D Perception Foundations
+## 7.5 3D Semantic Bird Eye View(BEV)
 
 ### Tasks
 
-- Generate Bird's-Eye View representation
-- Visualize projected point clouds
-- Estimate object positions
-- Build spatial awareness pipeline
+- Deterministic 4 cameras and LiDAR Recording (completed)
+- Generate 360 degree camera view
+- Project Lidar points on 360 Image View
+- Perform detection and extract objects point clouds
+- Estimate Distance of surronding objects
+- Generate BEV
+- Unified world representation
+- Object localization in world coordinates
+- Scene-level perception analysis
 
 ### Goal
 
