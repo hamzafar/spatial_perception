@@ -10,6 +10,8 @@ ROS2 Autonomous Perception Stack — [2D Perception](https://github.com/hamzafar
 
 Extend the perception stack beyond monocular vision by integrating LiDAR data and basic sensor fusion techniques.
 
+Question: What is this object and how far away is it in 3D World?
+
 
 ## 7.1 LiDAR Integration
 
@@ -259,6 +261,8 @@ Transition from camera-only perception toward multi-modal robotics perception.
 
 Expand perception coverage using multiple synchronized cameras.
 
+Question: Can I perceive my surroundings in all directions in 3D World?
+
 
 ## Scope
 
@@ -274,9 +278,11 @@ Expand perception coverage using multiple synchronized cameras.
 - Multi-camera ROS2 integration
 - Camera synchronization
 - Multi-stream visualization
-- Cross-camera object tracking
 - Overlapping field-of-view analysis
 - Unified perception visualization
+- Project Lidar points on 360 Image View
+- Perform detection and extract objects point clouds
+- Estimate Distance of surronding objects
 
 ### Focus Areas
 
@@ -305,6 +311,7 @@ Expand perception coverage from a single viewpoint to full-surround awareness.
 
 Combine camera, LiDAR, and multi-camera perception into a unified perception system.
 
+Question : Where is everything relative to me in a unified world representation?
 
 ## Scope
 
