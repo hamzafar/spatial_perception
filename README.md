@@ -203,7 +203,7 @@ Delta    : 0.000 ms
 
 
 
-## 7.5 3D Semantic Bird Eye View(BEV)
+<!-- ## 7.5 3D Semantic Bird Eye View(BEV)
 
 ### Tasks
 
@@ -252,7 +252,7 @@ Transition from 2D perception toward 3D scene understanding.
 
 ## Outcome
 
-Transition from camera-only perception toward multi-modal robotics perception.
+Transition from camera-only perception toward multi-modal robotics perception. -->
 ---
 
 # Phase 8 — Multi-Camera Perception
@@ -343,6 +343,16 @@ Question : Where is everything relative to me in a unified world representation?
 ## Outcome
 
 Build a complete multi-modal perception stack resembling modern autonomous systems.
+
+---
+# Phase 9-10 — Optimization & Final Evaluation
+
+Once the full multi-camera + LiDAR system is in place:
+
+Evaluate distance against ground truth.
+Compare single-camera vs multi-camera vs fused estimates.
+Analyze how BEV/world representation affects localization.
+Optimize the distance estimation strategy if needed.
 
 ---
 
