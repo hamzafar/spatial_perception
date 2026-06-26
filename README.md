@@ -201,7 +201,14 @@ Delta    : 0.000 ms
 - Object-level metric scene understanding
 - Multi-modal perception validation
 
+### Deliverable
+<p align="center">
+  <img src="assets/phase7D_pipeline.gif" width="700"/>
+</p>
 
+<p align="center">
+  Camera, LiDAR, and Fused Distance Estimation
+</p>
 
 <!-- ## 7.5 3D Semantic Bird Eye View(BEV)
 
