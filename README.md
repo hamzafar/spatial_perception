@@ -307,12 +307,12 @@ Question: Can I perceive my surroundings in all directions in 3D World?
 
 ### Tasks
 
-- Multi-camera ROS2 integration
-- Camera synchronization
-- Multi-stream visualization
-- Overlapping field-of-view analysis
-- Unified perception visualization
-- Project Lidar points on 360 Image View
+- Multi-camera ROS2 integration (completed)
+- Camera synchronization (completed)
+- Multi-stream visualization (completed)
+- Unified perception visualization (completed)
+- Multi-camera object detection (completed)
+- Project LiDAR onto all camera views
 - Perform detection and extract objects point clouds
 - Estimate Distance of surronding objects
 
@@ -350,6 +350,7 @@ Question : Where is everything relative to me in a unified world representation?
 ### Tasks
 
 - Multi-camera and LiDAR synchronization
+- Overlapping field-of-view analysis
 - Multi-modal data association
 - Bird's-Eye View generation
 - Unified world representation
