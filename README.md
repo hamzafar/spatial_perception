@@ -264,6 +264,31 @@ Transition from camera-only perception toward multi-modal robotics perception. -
 
 # Phase 8 — Multi-Camera Perception
 
+## Architecture
+
+```text
+                 Replay Node
+  (Publishes 5 sensor topics, cameras, lidar)
+                     │
+                     ▼
+            Synchronization Node
+     (Receive & validate all sensors)
+                     │
+                     ▼
+             Perception Node
+      ├── Stitch images
+      ├── YOLO inference
+      ├── LiDAR projection
+      ├── 2D–3D association
+      ├── Distance estimation
+      └── BEV (later)
+                     │
+                     ▼
+           Visualization Node
+     (Display images, overlays, FPS, BEV)
+
+```
+
 ## Objectives
 
 Expand perception coverage using multiple synchronized cameras.
