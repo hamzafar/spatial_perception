@@ -262,7 +262,7 @@ Transition from 2D perception toward 3D scene understanding.
 Transition from camera-only perception toward multi-modal robotics perception. -->
 ---
 
-# Phase 8 — Multi-Camera Perception
+# Phase 8 — 360° Multi-Sensor Perception
 
 ## Architecture
 
