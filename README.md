@@ -312,8 +312,8 @@ Question: Can I perceive my surroundings in all directions in 3D World?
 - Multi-stream visualization (completed)
 - Unified perception visualization (completed)
 - Multi-camera object detection (completed)
-- Project LiDAR onto all camera views
-- Perform detection and extract objects point clouds
+- Project LiDAR onto all camera views (completed)
+- Perform detection and extract objects point clouds (completed)
 - Estimate Distance of surronding objects
 
 ### Focus Areas
