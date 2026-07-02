@@ -296,15 +296,6 @@ Expand perception coverage using multiple synchronized cameras.
 Question: Can I perceive my surroundings in all directions in 3D World?
 
 
-## Scope
-
-### Camera Configuration
-
-- Front camera
-- Rear camera
-- Left camera
-- Right camera
-
 ### Tasks
 
 - Multi-camera ROS2 integration (completed)
@@ -316,25 +307,23 @@ Question: Can I perceive my surroundings in all directions in 3D World?
 - Perform detection and extract objects point clouds (completed)
 - Estimate Distance of surronding objects (completed)
 
-### Focus Areas
+## Completed
 
-- 360° scene awareness
-- Multi-camera architecture
-- Perception scalability
-- Sensor synchronization
+- ✅ Multi-camera (front, rear, left, right) ROS2 perception pipeline implemented
+- ✅ 360° synchronized multi-camera perception established
+- ✅ Camera–LiDAR projection implemented for all camera views
+- ✅ Multi-camera 2D–3D object association implemented
+- ✅ Object-specific LiDAR point cloud extraction implemented
+- ✅ Per-object LiDAR distance estimation across all camera views implemented
+- ✅ Unified 360° perception visualization with detections, point clouds, and distance overlays integrated
+- ✅ End-to-end 360° camera–LiDAR perception pipeline established
+
 
 
 ## Deliverables
 
-- Multi-camera ROS2 pipeline
-- 360° perception visualization
-- Multi-camera benchmarking report
-- Multi-camera perception demonstration
 
 
-## Outcome
-
-Expand perception coverage from a single viewpoint to full-surround awareness.
 
 ---
 # Phase 9 — Advanced Multi-Modal Perception
@@ -345,33 +334,42 @@ Combine camera, LiDAR, and multi-camera perception into a unified perception sys
 
 Question : Where is everything relative to me in a unified world representation?
 
-## Scope
+# Phase 9.1
 
 ### Tasks
 
-- Multi-camera and LiDAR synchronization
-- Overlapping field-of-view analysis
 - Multi-modal data association
-- Bird's-Eye View generation
+- Objects localization in the ego coordinate frame
 - Unified world representation
-- Object localization in world coordinates
-- Scene-level perception analysis
-
-### Focus Areas
-
-- Advanced sensor fusion
-- 3D scene understanding
-- Spatial reasoning
-- Autonomous perception architecture
+- Bird's-Eye View generation
 
 
 ## Deliverables
 
-- Multi-camera + LiDAR fusion pipeline
-- Bird's-Eye View visualization
-- Unified perception framework
-- Multi-modal benchmarking report
+# Phase 9.2
 
+### Tasks
+
+- Improvement to phase9.1
+- Overlapping field-of-view analysis
+- merge object if seeing twice in cameras intersection
+- compare it in bev, 9.1 and 9.2
+
+
+## Deliverables
+
+# Phase 9.3
+
+### Tasks
+
+- how good is perception.
+- identify each object differently (may be yolo instance segmentation)
+- get ground truth distances from the Carla simulator
+- compare it with the  phase 9.2/phase9.1
+- and check the difference
+
+
+## Deliverables
 
 ## Outcome
 
