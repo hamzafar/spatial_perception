@@ -334,7 +334,7 @@ Combine camera, LiDAR, and multi-camera perception into a unified perception sys
 
 Question : Where is everything relative to me in a unified world representation?
 
-# Phase 9.1
+# Phase 9.1 - Unified Spatial Perception
 
 ### Tasks
 
@@ -384,6 +384,9 @@ Evaluate distance against ground truth.
 Compare single-camera vs multi-camera vs fused estimates.
 Analyze how BEV/world representation affects localization.
 Optimize the distance estimation strategy if needed.
+
+Which object is which over time? deepsort etc..
+
 
 ---
 
