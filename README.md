@@ -314,7 +314,7 @@ Question: Can I perceive my surroundings in all directions in 3D World?
 - Multi-camera object detection (completed)
 - Project LiDAR onto all camera views (completed)
 - Perform detection and extract objects point clouds (completed)
-- Estimate Distance of surronding objects
+- Estimate Distance of surronding objects (completed)
 
 ### Focus Areas
 
