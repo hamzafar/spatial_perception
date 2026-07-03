@@ -338,10 +338,9 @@ Question : Where is everything relative to me in a unified world representation?
 
 ### Tasks
 
-- Multi-modal data association
-- Objects localization in the ego coordinate frame
-- Unified world representation
-- Bird's-Eye View generation
+- Objects localization in the ego coordinate frame (completed)
+- Unified world representation (completed)
+- Bird's-Eye View generation (completed)
 
 
 ## Deliverables
