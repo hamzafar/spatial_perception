@@ -342,6 +342,19 @@ Question : Where is everything relative to me in a unified world representation?
 - Unified world representation (completed)
 - Bird's-Eye View generation (completed)
 
+## Completed
+- ✅ Multi-camera object detection (Front, Rear, Left, Right)
+- ✅ LiDAR point projection into each camera
+- ✅ Object-specific LiDAR point cloud extraction using segmentation masks
+- ✅ Object-level LiDAR distance estimation
+- ✅ Object localization in the ego coordinate frame
+- ✅ Unified world representation from four camera views
+- ✅ Bird's-Eye View (BEV) generation
+- ✅ Synchronized replay pipeline for deterministic evaluation
+- ✅ Ground-truth recording pipeline (CARLA actor poses in ego coordinates)
+- ✅ Ground-truth loading and BEV visualization
+- ✅ CARLA-to-YOLO class mapping for evaluation
+- ✅ Initial LiDAR vs. Ground Truth BEV comparison framework
 
 ## Deliverables
 
