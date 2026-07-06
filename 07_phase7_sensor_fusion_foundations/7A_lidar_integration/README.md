@@ -32,6 +32,20 @@ RViz2 Visualization
 
 ---
 
+## Project Structure
+
+```text
+7A_lidar_integration/
+├── assets/
+├── config/
+│   └── ego_rgb_lidar.json
+├── launch/
+├── ros2_package/
+└── README.md
+```
+
+---
+
 ## Key Components
 
 ### LiDAR Integration
@@ -41,9 +55,30 @@ Integrated a 3D LiDAR sensor with the CARLA ego vehicle.
 Completed:
 
 - LiDAR sensor configuration
-- LiDAR attachment to ego vehicle
+- LiDAR attachment to the ego vehicle
 - Point cloud generation
 - ROS2 PointCloud2 publishing
+
+---
+
+### Sensor Configuration
+
+Configured synchronized RGB camera and LiDAR sensors for the CARLA ego vehicle.
+
+Configuration includes:
+
+- RGB camera pose
+- LiDAR pose
+- Camera intrinsic parameters
+- LiDAR range and field of view
+- Point cloud generation parameters
+
+Configuration file:
+
+```text
+config/
+└── ego_rgb_lidar.json
+```
 
 ---
 
@@ -98,4 +133,4 @@ CARLA RGB Camera and LiDAR integration with synchronized ROS2 visualization.
 
 ## Outcome
 
-Phase 7A successfully extended the perception stack from monocular RGB vision to synchronized camera and LiDAR sensing, providing the foundation for spatial perception and the remaining sensor fusion milestones.
+Phase 7A successfully extended the perception stack from monocular RGB perception to synchronized camera–LiDAR sensing, establishing the foundation for 3D spatial perception and the remaining sensor fusion milestones.
