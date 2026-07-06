@@ -126,7 +126,7 @@ Delta    : 0.000 ms
 ### Deliverable
 
 <p align="center">
-  <img src="assets/phase7B_pipeline.gif" width="700"/>
+  <img src="../assets/gifs/phase7B_pipeline.gif" width="700"/>
 </p>
 
 <p align="center">
@@ -168,7 +168,7 @@ Delta    : 0.000 ms
 
 ### Deliverable
 <p align="center">
-  <img src="assets/phase7C_pipeline.gif" width="700"/>
+  <img src="../assets/gifs/phase7C_pipeline.gif" width="700"/>
 </p>
 
 <p align="center">
@@ -202,7 +202,7 @@ Delta    : 0.000 ms
 
 ### Deliverable
 <p align="center">
-  <img src="assets/phase7D_pipeline.gif" width="700"/>
+  <img src="../assets/gifs/phase7D_pipeline.gif" width="700"/>
 </p>
 
 <p align="center">
