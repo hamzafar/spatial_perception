@@ -1,0 +1,51 @@
+{
+  "objects": [
+    {
+      "type": "vehicle.tesla.model3",
+      "id": "ego_vehicle",
+      "role_name": "ego_vehicle",
+      "autopilot": true,
+
+      "sensors": [
+        {
+          "type": "sensor.camera.rgb",
+          "id": "rgb_front",
+
+          "spawn_point": {
+            "x": -1.5,
+            "y": 0.0,
+            "z": 2.4,
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0
+          },
+
+          "image_size_x": 640,
+          "image_size_y": 480,
+          "fov": 90
+        },
+
+        {
+          "type": "sensor.lidar.ray_cast",
+          "id": "lidar",
+
+          "spawn_point": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 2.4,
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0
+          },
+
+          "range": 50,
+          "channels": 32,
+          "points_per_second": 56000,
+          "rotation_frequency": 10,
+          "upper_fov": 10,
+          "lower_fov": -30
+        }
+      ]
+    }
+  ]
+}
