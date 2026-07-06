@@ -27,9 +27,8 @@ Question: What is this object and how far away is it in 3D World?
 - Point cloud processing
 
 ### Deliverable
-
 <p align="center">
-  <img src="assets/phase7A_pipeline.gif" width="700"/>
+  <img src="../assets/gifs/phase7A_pipeline.gif" width="700"/>
 </p>
 
 <p align="center">
