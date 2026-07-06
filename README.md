@@ -358,7 +358,7 @@ Question : Where is everything relative to me in a unified world representation?
 
 ## Deliverables
 
-# Phase 9.2
+# Phase 9.2 - Spatial Perception Evaluation & Validation
 
 ### Tasks
 
