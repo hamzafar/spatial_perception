@@ -89,7 +89,7 @@ Documentation will be published after project milestone release.
 <h2 align="center">Phase 7 — Sensor Fusion Foundations</h2>
 
 <p align="center">
-  <img src="assets/gifs/phase7A_pipeline.gif" width="700"/>
+  <img src="assets/gifs/phase7A_pipeline.gif" width="400"/>
 </p>
 
 <p align="center">
