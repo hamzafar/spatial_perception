@@ -320,6 +320,13 @@ Question: Can I perceive my surroundings in all directions in 3D World?
 
 
 ## Deliverables
+<p align="center">
+  <img src="../assets/gifs/phase8_pipeline.gif" width="1280"/>
+</p>
+
+<p align="center">
+  360 Degree 3D-Perception with Distance Estimation
+</p>
 
 
 
