@@ -364,6 +364,15 @@ Question : Where is everything relative to me in a unified world representation?
 
 ## Deliverables
 
+## Deliverables
+<p align="center">
+  <img src="../assets/gifs/phase9A_pipeline.gif" width="1280"/>
+</p>
+
+<p align="center">
+  Bird Eye View in 360 Spatial Perception
+</p>
+
 # Phase 9.2 - Spatial Perception Evaluation & Validation
 
 ### Tasks
