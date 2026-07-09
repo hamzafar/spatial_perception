@@ -388,19 +388,19 @@ This is where perception becomes more intelligent rather than simply combining s
 
 ## Possible tasks:
 
-Duplicate object detection
-Same car detected by front + left cameras.
-Same pedestrian detected by front + right.
-Identify duplicate observations.
-Duplicate object merging
-Merge duplicate detections into one world object.
-Overlapping FoV reasoning
-Determine which cameras observe each object.
-Study overlap regions.
-Unified object tracking ID
-One object ID regardless of camera.
-Occlusion reasoning
-Object partially visible in one camera, fully visible in another.
+- Duplicate object detection
+- Same car detected by front + left cameras.
+- Same pedestrian detected by front + right.
+- Identify duplicate observations.
+- Duplicate object merging
+- Merge duplicate detections into one world object.
+- Overlapping FoV reasoning
+- Determine which cameras observe each object.
+- Study overlap regions.
+- Unified object tracking ID
+- One object ID regardless of camera.
+- Occlusion reasoning
+- Object partially visible in one camera, fully visible in another.
 
 The key question becomes:
 
@@ -412,14 +412,14 @@ This makes the project much stronger from an engineering perspective.
 
 ## Tasks:
 
-Ground truth extraction from CARLA
-Localization error (X, Y)
-Distance error
-IoU of projected LiDAR
-Precision / Recall
-BEV localization accuracy
-Sensor synchronization validation
-Camera vs LiDAR comparison
+- Ground truth extraction from CARLA
+- Localization error (X, Y)
+- Distance error
+- IoU of projected LiDAR
+- Precision / Recall
+- BEV localization accuracy
+- Sensor synchronization validation
+- Camera vs LiDAR comparison
 
 This answers:
 
