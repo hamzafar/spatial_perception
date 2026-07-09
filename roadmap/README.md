@@ -373,30 +373,67 @@ Question : Where is everything relative to me in a unified world representation?
   Bird Eye View in 360 Spatial Perception
 </p>
 
-# Phase 9.2 - Spatial Perception Evaluation & Validation
+# Phase 9B — Multi-Camera Perception Fusion
 
-### Tasks
+This is where perception becomes more intelligent rather than simply combining sensors.
 
-- Improvement to phase9.1
-- Overlapping field-of-view analysis
-- merge object if seeing twice in cameras intersection
-- compare it in bev, 9.1 and 9.2
+## Possible tasks:
+
+Duplicate object detection
+Same car detected by front + left cameras.
+Same pedestrian detected by front + right.
+Identify duplicate observations.
+Duplicate object merging
+Merge duplicate detections into one world object.
+Overlapping FoV reasoning
+Determine which cameras observe each object.
+Study overlap regions.
+Unified object tracking ID
+One object ID regardless of camera.
+Occlusion reasoning
+Object partially visible in one camera, fully visible in another.
+
+The key question becomes:
+
+"How many unique objects are around me?"
+
+# Phase 9C — Perception Validation & Evaluation
+
+This makes the project much stronger from an engineering perspective.
+
+## Tasks:
+
+Ground truth extraction from CARLA
+Localization error (X, Y)
+Distance error
+IoU of projected LiDAR
+Precision / Recall
+BEV localization accuracy
+Sensor synchronization validation
+Camera vs LiDAR comparison
+
+This answers:
+
+"How accurate is my perception?"
+
+# Phase 9D — Deep Learning based BEV:
+
+BEV Former
+
+BEV Fusion
 
 
-## Deliverables
 
-# Phase 9.3
+# Possible Phase 9E — Scene Understanding
 
-### Tasks
+## Once unique objects exist:
 
-- how good is perception.
-- identify each object differently (may be yolo instance segmentation)
-- get ground truth distances from the Carla simulator
-- compare it with the  phase 9.2/phase9.1
-- and check the difference
+Dynamic vs static classification
+Road occupancy map
+Free-space map
+Object relationships
+Ego-centric semantic map
 
-
-## Deliverables
 
 ## Outcome
 
