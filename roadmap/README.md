@@ -373,6 +373,15 @@ Question : Where is everything relative to me in a unified world representation?
   Bird Eye View in 360 Spatial Perception
 </p>
 
+<p align="center">
+  <img src="../assets/gifs/phase9A_1_pipeline.gif" width="1280"/>
+</p>
+
+<p align="center">
+  BEV-based localization validation and coordinate transformation debugging
+</p>
+
+
 # Phase 9B — Multi-Camera Perception Fusion
 
 This is where perception becomes more intelligent rather than simply combining sensors.
