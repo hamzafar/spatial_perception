@@ -53,16 +53,29 @@ Unified World Representation
 
 ### 🚧 Phase 7 — Sensor Fusion Foundations
 
-Established the foundation for spatial perception by integrating LiDAR with RGB cameras, calibrating multi-sensor geometry, associating 2D detections with 3D point clouds, and estimating object distances.
+Established the foundation for spatial perception by integrating LiDAR with RGB cameras, calibrating multi-sensor geometry, associating 2D detections with 3D point clouds, and preparing the perception pipeline for object-level distance estimation.
 
-####  Milestones
+#### Milestones
 
 - ✅ **7A — LiDAR Integration**
-    -  📁 [View Phase 7A](07_phase7_sensor_fusion_foundations/7A_lidar_integration/)
-    
-- 🚧 **7B — Camera–LiDAR Calibration**
-- 🚧 **7C — 2D–3D Association**
+  - Integrated a 32-channel LiDAR sensor with the RGB perception pipeline.
+  - Published synchronized `PointCloud2` data and validated real-time visualization.
+  - 📁 [View Phase 7A](07_phase7_sensor_fusion_foundations/7A_lidar_integration/)
+
+- ✅ **7B — Camera–LiDAR Calibration**
+  - Calibrated RGB camera and LiDAR sensors using intrinsic and extrinsic parameters.
+  - Implemented point cloud projection and verified exact timestamp synchronization.
+  - 📁 [View Phase 7B](07_phase7_sensor_fusion_foundations/7B_camera_lidar_calibration/)
+
+- ✅ **7C — 2D–3D Association**
+  - Associated projected LiDAR points with YOLOv8 segmentation masks to generate object-specific point clouds.
+  - Developed deterministic recording and offline replay pipelines for repeatable perception experiments.
+  - 📁 [View Phase 7C](07_phase7_sensor_fusion_foundations/7C_2d_3d_association/)
+
 - 🚧 **7D — Object Distance Estimation**
+  - LiDAR-based object distance estimation
+  - Monocular distance estimation
+  - Camera–LiDAR distance fusion
 
 
 
