@@ -389,18 +389,13 @@ This is where perception becomes more intelligent rather than simply combining s
 ## Possible tasks:
 
 - Duplicate object detection
-- Same car detected by front + left cameras.
-- Same pedestrian detected by front + right.
-- Identify duplicate observations.
+- Association candidate generation
+- Hungarian-based object association
 - Duplicate object merging
-- Merge duplicate detections into one world object.
-- Overlapping FoV reasoning
-- Determine which cameras observe each object.
-- Study overlap regions.
-- Unified object tracking ID
-- One object ID regardless of camera.
-- Occlusion reasoning
-- Object partially visible in one camera, fully visible in another.
+- Unified object representation
+- Cross-camera visibility reasoning
+- Association visualization
+- Association performance analysis
 
 The key question becomes:
 
