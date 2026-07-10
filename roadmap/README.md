@@ -386,7 +386,7 @@ Question : Where is everything relative to me in a unified world representation?
 
 This is where perception becomes more intelligent rather than simply combining sensors.
 
-## Possible tasks:
+## Tasks:
 
 - Duplicate object detection
 - Association candidate generation
