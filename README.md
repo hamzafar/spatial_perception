@@ -97,18 +97,45 @@ Documentation will be published after project milestone release.
 
 ---
 
-## Demonstration
+## Demonstrations
 
 <h2 align="center">Phase 7 — Sensor Fusion Foundations</h2>
 
+<h3 align="center">7A — LiDAR Integration</h3>
+
 <p align="center">
-  <img src="assets/gifs/phase7A_pipeline.gif" width="400"/>
+  <img src="assets/gifs/phase7A_pipeline.gif" width="650" height="350"/>
 </p>
 
 <p align="center">
-RGB camera and LiDAR integration establishing the foundation for 3D spatial perception.
+Integrated a 32-channel LiDAR sensor into the ROS2 perception pipeline and validated synchronized PointCloud2 visualization in RViz2.
 </p>
 
+---
+
+<h3 align="center">7B — Camera–LiDAR Calibration</h3>
+
+<p align="center">
+  <img src="assets/gifs/phase7B_pipeline.gif" width="650" height="350"/>
+</p>
+
+<p align="center">
+Projected LiDAR points onto synchronized RGB images through camera calibration, coordinate transformation, and perspective projection.
+</p>
+
+---
+
+<h3 align="center">7C — 2D–3D Association</h3>
+
+<p align="center">
+  <img src="assets/gifs/phase7C_pipeline.gif" width="650" height="350"/>
+</p>
+
+<p align="center">
+Associated projected LiDAR points with YOLOv8 segmentation masks to generate object-specific point clouds using a deterministic offline replay pipeline.
+</p>
+
+---
 ---
 
 ## Future Work
