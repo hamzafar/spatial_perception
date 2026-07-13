@@ -390,6 +390,7 @@ This is where perception becomes more intelligent rather than simply combining s
 
 - Duplicate object detection
 - Association candidate generation
+- Bearing-based association filtering
 - Hungarian-based object association
 - Duplicate object merging
 - Unified object representation
@@ -397,6 +398,17 @@ This is where perception becomes more intelligent rather than simply combining s
 - Association visualization
 - Association performance analysis
 
+Completed
+- ✅ Cross-camera association candidate generation
+- ✅ Bearing-based overlap filtering for candidate selection
+- ✅ Centroid distance cost matrix construction
+- ✅ Hungarian-based optimal object assignment
+- ✅ Duplicate object merging across overlapping cameras
+- ✅ Unified object representation in the ego coordinate frame
+- ✅ Bird's-Eye View (BEV) visualization of associated objects
+- ✅ Modular object association pipeline implementation
+- ✅ Configurable association thresholds (bearing margin and distance threshold)
+- ✅ Deterministic multi-camera association using synchronized replay
 The key question becomes:
 
 "How many unique objects are around me?"
