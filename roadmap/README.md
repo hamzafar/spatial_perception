@@ -412,6 +412,20 @@ Completed
 - ✅ Configurable association thresholds (bearing overlap margin and distance threshold)
 - ✅ Deterministic multi-camera association using synchronized replay
 
+### Bearing-Based Overlap Filtering
+
+Only detections located within the overlapping field of view (FoV) between adjacent cameras are considered as association candidates.
+
+The overlap regions are defined using the object bearing in the ego coordinate frame, reducing unnecessary comparisons between cameras that cannot observe the same physical object.
+
+<p align="center">
+  <img src="../assets/images/camera_intersection.png" width="500"/>
+</p>
+
+<p align="center">
+<b>Figure:</b> Bearing-based overlap regions (highlighted in red) used for cross-camera association candidate filtering. Only objects whose bearings fall within these overlap regions are considered for duplicate association.
+</p>
+
 ## Deliverables
 <p align="center">
   <img src="../assets/gifs/phase9B_pipeline.gif" width="1280"/>
