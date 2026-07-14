@@ -386,32 +386,41 @@ Question : Where is everything relative to me in a unified world representation?
 
 This is where perception becomes more intelligent rather than simply combining sensors.
 
+Question: "How many unique objects are around me?"
+
 ## Tasks:
 
-- Duplicate object detection
-- Association candidate generation
-- Bearing-based association filtering
-- Hungarian-based object association
-- Duplicate object merging
-- Unified object representation
-- Cross-camera visibility reasoning
-- Association visualization
-- Association performance analysis
+- Duplicate object detection (completed)
+- Association candidate generation (completed)
+- Bearing-based association filtering (completed)
+- Hungarian-based object association (completed)
+- Duplicate object merging (completed)
+- Unified object representation (completed)
+- Cross-camera association visualization (completed)
 
 Completed
 - ✅ Cross-camera association candidate generation
 - ✅ Bearing-based overlap filtering for candidate selection
-- ✅ Centroid distance cost matrix construction
+- ✅ Centroid-distance cost matrix construction
 - ✅ Hungarian-based optimal object assignment
 - ✅ Duplicate object merging across overlapping cameras
 - ✅ Unified object representation in the ego coordinate frame
 - ✅ Bird's-Eye View (BEV) visualization of associated objects
+- ✅ Camera-wise object visualization (Front, Rear, Left, Right)
+- ✅ Merged object visualization with association overlay
 - ✅ Modular object association pipeline implementation
-- ✅ Configurable association thresholds (bearing margin and distance threshold)
+- ✅ Configurable association thresholds (bearing overlap margin and distance threshold)
 - ✅ Deterministic multi-camera association using synchronized replay
-The key question becomes:
 
-"How many unique objects are around me?"
+## Deliverables
+<p align="center">
+  <img src="../assets/gifs/phase9B_pipeline.gif" width="1280"/>
+</p>
+
+<p align="center">
+Cross-camera duplicate object association and merging in Bird's-Eye View (BEV)
+</p>
+
 
 # Phase 9C — Perception Validation & Evaluation
 
@@ -450,6 +459,43 @@ Free-space map
 Object relationships
 Ego-centric semantic map
 
+
+```text
+Current
+        │
+        ▼
+Finish Phase 9B
+        │
+        ▼
+Phase 9C
+Perception Validation & Evaluation
+        │
+        ▼
+Dynamic Perception
+(MOT + ReID + Kalman)
+        │
+        ▼
+SLAM / Visual Odometry
+        │
+        ▼
+Radar Fusion
+        │
+        ▼
+Modern 3D Detection
+(PointPillars / CenterPoint)
+        │
+        ▼
+Event Cameras
+        │
+        ▼
+Learned BEV
+(BEVFormer / BEVFusion)
+
+```
+
+Phase 10 – Dynamic Perception (MOT, ReID, Kalman)	⭐⭐⭐⭐⭐	Highest priority
+Phase 11 – SLAM / Visual Odometry	⭐⭐⭐⭐☆	High priority (especially for robotics)
+Phase 12 – Scene Understanding	⭐⭐⭐☆☆	Valuable, but after Phase 11
 
 ## Outcome
 
