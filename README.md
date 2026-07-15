@@ -72,11 +72,11 @@ Established the foundation for spatial perception by integrating LiDAR with RGB 
   - Developed deterministic recording and offline replay pipelines for repeatable perception experiments.
   - 📁 [View Phase 7C](07_phase7_sensor_fusion_foundations/7C_2d_3d_association/)
 
-- 🚧 **7D — Object Distance Estimation**
+- ✅ **7D — Object Distance Estimation**
   - LiDAR-based object distance estimation
   - Monocular distance estimation
   - Camera–LiDAR distance fusion
-
+  - 📁 [View Phase 7D](07_phase7_sensor_fusion_foundations/7D_distance_estimation/)
 
 
 ---
@@ -136,6 +136,17 @@ Associated projected LiDAR points with YOLOv8 segmentation masks to generate obj
 </p>
 
 ---
+
+<h3 align="center">7D — Object Distance Estimation</h3>
+
+<p align="center">
+  <img src="assets/gifs/phase7D_pipeline.gif" width="650" height="350"/>
+</p>
+
+<p align="center">
+Estimated object distances using monocular camera geometry, LiDAR point clouds, and camera–LiDAR sensor fusion.
+</p>
+
 ---
 
 ## Future Work
