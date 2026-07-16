@@ -438,7 +438,7 @@ Cross-camera duplicate object association and merging in Bird's-Eye View (BEV)
 
 # Phase 9C — Perception Validation & Evaluation
 
-This makes the project much stronger from an engineering perspective.
+This makes the project much stronger from an engineering perspective. (Pause for now)
 
 ## Tasks:
 
@@ -460,13 +460,13 @@ This makes the project much stronger from an engineering perspective.
 | Matched objects              | 1,098 |
 
 
-Localization RMSE
-Distance MAE/RMSE
-Precision
-Recall
-Duplicate reduction
+- Localization RMSE
+- Distance MAE/RMSE
+- Precision
+- Recall
+- Duplicate reduction
 
-Animate it.
+<!-- Animate it.
 
 Frame 1
 
@@ -485,7 +485,7 @@ Frame 4
 Metric panel appears
 
 Then repeat.
-+++
++++ -->
 This answers:
 
 "How accurate is my perception?"
