@@ -450,7 +450,42 @@ This makes the project much stronger from an engineering perspective.
 - BEV localization accuracy
 - Sensor synchronization validation
 - Camera vs LiDAR comparison
+- campare for raw, yaw and unique with ground truth at  (Near-field perception (0–20 m)) for N frames
 
+
+| Metric                       | Value |
+| ---------------------------- | ----: |
+| Ground-truth objects (≤20 m) | 1,250 |
+| Detected objects (≤20 m)     | 1,142 |
+| Matched objects              | 1,098 |
+
+
+Localization RMSE
+Distance MAE/RMSE
+Precision
+Recall
+Duplicate reduction
+
+Animate it.
+
+Frame 1
+
+Only GT
+
+Frame 2
+
+Prediction appears
+
+Frame 3
+
+Matching line appears
+
+Frame 4
+
+Metric panel appears
+
+Then repeat.
++++
 This answers:
 
 "How accurate is my perception?"
