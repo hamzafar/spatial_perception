@@ -263,37 +263,19 @@ Transition from camera-only perception toward multi-modal robotics perception. -
 
 # Phase 8 — 360° Multi-Sensor Perception
 
-## Architecture
+## Objective
 
-```text
-                 Replay Node
-  (Publishes 5 sensor topics, cameras, lidar)
-                     │
-                     ▼
-            Synchronization Node
-     (Receive & validate all sensors)
-                     │
-                     ▼
-             Perception Node
-      ├── Stitch images
-      ├── YOLO inference
-      ├── LiDAR projection
-      ├── 2D–3D association
-      ├── Distance estimation
-      └── BEV (later)
-                     │
-                     ▼
-           Visualization Node
-     (Display images, overlays, FPS, BEV)
+Expand perception from a single forward-facing sensor to a complete 360° multi-camera perception system using synchronized RGB cameras and LiDAR.
 
-```
+**Question:** Can I perceive my surroundings in all directions in a 3D world?
 
-## Objectives
+---
 
-Expand perception coverage using multiple synchronized cameras.
+# Phase 8.1 — 360° Multi-Camera Perception & LiDAR Projection
 
-Question: Can I perceive my surroundings in all directions in 3D World?
+## Objective
 
+Build the multi-camera perception infrastructure and project LiDAR into every camera view.
 
 ### Tasks
 
@@ -301,31 +283,60 @@ Question: Can I perceive my surroundings in all directions in 3D World?
 - Camera synchronization (completed)
 - Multi-stream visualization (completed)
 - Unified perception visualization (completed)
-- Multi-camera object detection (completed)
+- 360° image stitching (completed)
 - Project LiDAR onto all camera views (completed)
-- Perform detection and extract objects point clouds (completed)
-- Estimate Distance of surronding objects (completed)
 
-## Completed
+### Completed
 
 - ✅ Multi-camera (front, rear, left, right) ROS2 perception pipeline implemented
 - ✅ 360° synchronized multi-camera perception established
+- ✅ Unified 360° perception visualization implemented
 - ✅ Camera–LiDAR projection implemented for all camera views
+- ✅ End-to-end 360° image stitching pipeline established
+
+### Deliverables
+
+## Deliverables
+<p align="center">
+  <img src="../assets/gifs/phase8B_pipeline.gif" width="1280"/>
+</p>
+
+<p align="center">
+  <b>Phase 8.1:</b> 360° multi-camera perception with camera–LiDAR projection across synchronized camera views.
+</p>
+
+---
+
+# Phase 8.2 — Multi-Camera 3D Object Perception
+
+## Objective
+
+Extend the 360° perception pipeline to perform object-level 3D perception using LiDAR.
+
+### Tasks
+
+- Multi-camera object detection (completed)
+- Perform 2D–3D object association (completed)
+- Extract object-specific LiDAR point clouds (completed)
+- Estimate per-object LiDAR distance (completed)
+
+### Completed
+
+- ✅ Multi-camera object detection implemented
 - ✅ Multi-camera 2D–3D object association implemented
 - ✅ Object-specific LiDAR point cloud extraction implemented
 - ✅ Per-object LiDAR distance estimation across all camera views implemented
 - ✅ Unified 360° perception visualization with detections, point clouds, and distance overlays integrated
 - ✅ End-to-end 360° camera–LiDAR perception pipeline established
 
+### Deliverables
 
-
-## Deliverables
 <p align="center">
-  <img src="../assets/gifs/phase8_pipeline.gif" width="1280"/>
+  <img src="../assets/gifs/phase8A_pipeline.gif" width="1280"/>
 </p>
 
 <p align="center">
-  360 Degree 3D-Perception with Distance Estimation
+  <b>Phase 8.2:</b> 360° multi-camera 3D perception with object-specific LiDAR point clouds and per-object distance estimation.
 </p>
 
 
