@@ -447,7 +447,7 @@ Cross-camera duplicate object association and merging in Bird's-Eye View (BEV)
 </p>
 
 
-# Phase 9C — Perception Validation & Evaluation
+<!-- # Phase 9C — Perception Validation & Evaluation
 
 This makes the project much stronger from an engineering perspective. (Pause for now)
 
@@ -551,7 +551,48 @@ Event Cameras
 Learned BEV
 (BEVFormer / BEVFusion)
 
-```
+``` 
+# Phase 10: Temporal Perception & Multi-Object Tracking
+
+Objective
+
+Extend the existing spatial perception pipeline with temporal reasoning by implementing 2D and 3D multi-object tracking, and demonstrate how temporal information improves autonomous driving perception.
+
+## Phase 10.1 — 2D Multi-Object Tracking (ByteTrack)
+
+### Task
+- Upgrade detector to YOLO26m
+- Export and optimize with TensorRT FP16
+- Implement ByteTrack
+- Handle Detection Dropout Recovery
+- Evaluate tracking performance (ID persistence, FPS, ID switches)
+
+### Deliverables
+- Persistent IDs
+- Track trajectories
+- Detection dropout handling
+- Performance comparison
+
+## Phase 10.2 — Temporal Safety Analysis
+
+### Task
+- Using ByteTrack outputs:
+- Estimate object velocity
+- Compute relative velocity
+- Compute Time-To-Collision (TTC)
+- Evaluate the 3-second following rule
+- Generate collision warnings
+
+# Phase 10.3 — 3D Multi-Object Tracking (360° AB3DMOT)
+
+### Task
+- Track objects in ego coordinates
+- Maintain persistent IDs across frames
+- Handle temporary occlusions
+- Handle detection dropouts
+- Track objects across camera transitions
+- Visualize trajectories in BEV
+---
 
 Phase 10 – Dynamic Perception (MOT, ReID, Kalman)	⭐⭐⭐⭐⭐	Highest priority
 Phase 11 – SLAM / Visual Odometry	⭐⭐⭐⭐☆	High priority (especially for robotics)
