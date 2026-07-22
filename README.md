@@ -51,7 +51,7 @@ Unified World Representation
 
 ## Completed Phases
 
-### 🚧 Phase 7 — Sensor Fusion Foundations
+### ✅ Phase 7 — Sensor Fusion Foundations
 
 Established the foundation for spatial perception by integrating LiDAR with RGB cameras, calibrating multi-sensor geometry, associating 2D detections with 3D point clouds, and preparing the perception pipeline for object-level distance estimation.
 
@@ -83,9 +83,17 @@ Established the foundation for spatial perception by integrating LiDAR with RGB 
 
 ### 🚧 Phase 8 — Multi-Sensor Perception
 
-Documentation will be published after project milestone release.
+Expanded the perception pipeline from a single forward-facing camera to a synchronized **360° multi-sensor perception system** by integrating multiple RGB cameras and LiDAR. This phase establishes the foundation for surround perception, multi-camera sensor fusion, and unified environmental understanding.
 
-📁 [View Phase 8](08_phase8_multi_sensor_perception)
+#### Milestones
+
+- ✅ **8A — 360° Camera–LiDAR Perception**
+  - Developed a synchronized 360° perception pipeline using four RGB cameras and a 32-channel LiDAR sensor.
+  - Implemented deterministic recording, offline replay, multi-camera perception, and LiDAR projection for repeatable perception experiments.
+  - 📁 [View Phase 8A](08_phase8_multi_sensor_perception/8A_360_camera_lidar_perception/)
+
+- 🚧 **8B — 360° Camera–LiDAR Distance Estimation**
+  - Documentation will be published after project milestone release.
 
 ---
 
@@ -145,6 +153,18 @@ Associated projected LiDAR points with YOLOv8 segmentation masks to generate obj
 
 <p align="center">
 Estimated object distances using monocular camera geometry, LiDAR point clouds, and camera–LiDAR sensor fusion.
+</p>
+
+---
+
+<h3 align="center">8A — 360° Camera–LiDAR Perception</h3>
+
+<p align="center">
+  <img src="assets/gifs/phase8B_pipeline.gif" width="650" height="350"/>
+</p>
+
+<p align="center">
+Established a synchronized 360° perception pipeline using four RGB cameras and LiDAR with deterministic recording, offline replay, and unified surround-view perception.
 </p>
 
 ---
