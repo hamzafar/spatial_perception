@@ -368,10 +368,6 @@ Question : Where is everything relative to me in a unified world representation?
 - ✅ Unified world representation from four camera views
 - ✅ Bird's-Eye View (BEV) generation
 - ✅ Synchronized replay pipeline for deterministic evaluation
-- ✅ Ground-truth recording pipeline (CARLA actor poses in ego coordinates)
-- ✅ Ground-truth loading and BEV visualization
-- ✅ CARLA-to-YOLO class mapping for evaluation
-- ✅ Initial LiDAR vs. Ground Truth BEV comparison framework
 
 ## Deliverables
 
@@ -567,8 +563,7 @@ Extend the existing spatial perception pipeline with temporal reasoning by imple
 - Persistent object ID assignment (completed)
 - Track lifecycle management (completed)
 - Tracking visualization with object IDs (completed)
-- Detection dropout recovery 
-- Tracking performance evaluation 
+
 
 ### Completed
 
@@ -577,17 +572,21 @@ Extend the existing spatial perception pipeline with temporal reasoning by imple
 - ✅ Persistent object identity assignment across consecutive frames
 - ✅ Multi-object tracking using ByteTrack's Kalman filter and data association
 - ✅ Automatic track initialization, update, and termination
-- ✅ Detection dropout recovery using ByteTrack's tracking-by-detection framework
 - ✅ Tracking ID visualization over YOLO detection results
 - ✅ Modular tracking pipeline integrated with the existing perception framework
 - ✅ Tracking validated on synchronized offline replay data
-- ✅ Tracking performance verified through persistent ID consistency and runtime evaluation
+
 
 ### Deliverables
-- Persistent IDs
-- Track trajectories
-- Detection dropout handling
-- Performance comparison
+
+## Deliverables
+<p align="center">
+  <img src="../assets/gifs/phase10A_pipeline.gif" width="600"/>
+</p>
+
+<p align="center">
+Multi-object tracking with unique object IDs using YOLO26m TensorRT FP16 and ByteTrack.
+</p>
 
 ## Phase 10.2 — Temporal Safety Analysis
 
