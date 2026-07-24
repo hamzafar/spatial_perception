@@ -596,6 +596,18 @@ Multi-object tracking with unique object IDs using YOLO26m TensorRT FP16 and Byt
 - Parse tracker outputs into internal Track objects.
 - Visualize persistent 3D Track IDs.
 
+### ✅ Completed
+- Integrate synchronized Front Camera and LiDAR pipeline.
+- Project LiDAR point clouds into the camera image plane.
+- Associate LiDAR points with YOLO instance segmentation masks.
+- Extract object-specific 3D point clouds.
+- Remove point cloud outliers using DBSCAN clustering.
+- Estimate object 3D positions from front-surface LiDAR points.
+- Estimate 3D object dimensions from filtered point clouds.
+- Estimate object orientation (yaw) using PCA.
+- Generate AB3DMOT-compatible 3D detections.
+- Visualize 3D detections with persistent 3D bounding boxes.
+
 ## Phase 10.3 — 3D Multi-Object Tracking (360° AB3DMOT)
 
 ### Task
