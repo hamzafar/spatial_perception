@@ -579,7 +579,6 @@ Extend the existing spatial perception pipeline with temporal reasoning by imple
 
 ### Deliverables
 
-## Deliverables
 <p align="center">
   <img src="../assets/gifs/phase10A_pipeline.gif" width="600"/>
 </p>
@@ -588,17 +587,16 @@ Extend the existing spatial perception pipeline with temporal reasoning by imple
 Multi-object tracking with unique object IDs using YOLO26m TensorRT FP16 and ByteTrack.
 </p>
 
-## Phase 10.2 — Temporal Safety Analysis
+## Phase 10.2 — 3D Multi-Object Tracking (Single Camera +LiDAR)
 
 ### Task
-- Using ByteTrack outputs:
-- Estimate object velocity
-- Compute relative velocity
-- Compute Time-To-Collision (TTC)
-- Evaluate the 3-second following rule
-- Generate collision warnings
+- Generate 3D detections using Front Camera + LiDAR.
+- Convert detections to the AB3DMOT input format.
+- Integrate the official AB3DMOT tracker.
+- Parse tracker outputs into internal Track objects.
+- Visualize persistent 3D Track IDs.
 
-# Phase 10.3 — 3D Multi-Object Tracking (360° AB3DMOT)
+## Phase 10.3 — 3D Multi-Object Tracking (360° AB3DMOT)
 
 ### Task
 - Track objects in ego coordinates
