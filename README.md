@@ -161,7 +161,7 @@ Estimated object distances using monocular camera geometry, LiDAR point clouds, 
 <h3 align="center">8A — 360° Camera–LiDAR Perception</h3>
 
 <p align="center">
-  <img src="assets/gifs/phase8B_pipeline.gif" width="650" height="350"/>
+  <img src="assets/gifs/phase8A_pipeline.gif" width="650" height="350"/>
 </p>
 
 <p align="center">

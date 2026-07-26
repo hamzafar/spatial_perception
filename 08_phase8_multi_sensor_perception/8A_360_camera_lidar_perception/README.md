@@ -146,7 +146,7 @@ This milestone provides the perception foundation required for:
 ## Deliverable
 
 <p align="center">
-  <img src="../../assets/gifs/phase8B_pipeline.gif" width="700"/>
+  <img src="../../assets/gifs/phase8A_pipeline.gif" width="700"/>
 </p>
 
 <p align="center">
