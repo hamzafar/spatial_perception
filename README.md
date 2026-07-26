@@ -1,16 +1,12 @@
 # Spatial Perception
 
-# Spatial Perception
+A robotics perception engineering project focused on building **3D spatial understanding** using synchronized RGB cameras and LiDAR.
 
-A robotics perception engineering project focused on building 3D spatial understanding using synchronized RGB cameras and LiDAR.
-
-Built using CARLA, ROS2, OpenCV, and YOLOv8, the project progresses from camera–LiDAR integration to multi-camera perception, unified spatial understanding, and 360° environmental perception.
+Built using CARLA, ROS2, OpenCV, and YOLO, the project progresses from camera–LiDAR integration to multi-camera perception, panoramic distance estimation, and unified spatial understanding for autonomous robotic systems.
 
 This project builds upon the 2D perception stack developed in the companion repository:
 
 **ROS2 Autonomous Perception Stack** — [2D Perception](https://github.com/hamzafar/autonomous_perception)
-
----
 
 ---
 
@@ -38,10 +34,13 @@ RGB Cameras + LiDAR
 Sensor Synchronization
           │
           ▼
-Multi-Modal Perception
+Multi-Camera Perception
           │
           ▼
-Spatial Understanding
+LiDAR Projection & Distance Estimation
+          │
+          ▼
+360° Panoramic Perception
           │
           ▼
 Unified World Representation
@@ -81,7 +80,7 @@ Established the foundation for spatial perception by integrating LiDAR with RGB 
 
 ---
 
-### 🚧 Phase 8 — Multi-Sensor Perception
+### ✅ Phase 8 — Multi-Sensor Perception
 
 Expanded the perception pipeline from a single forward-facing camera to a synchronized **360° multi-sensor perception system** by integrating multiple RGB cameras and LiDAR. This phase establishes the foundation for surround perception, multi-camera sensor fusion, and unified environmental understanding.
 
@@ -92,8 +91,10 @@ Expanded the perception pipeline from a single forward-facing camera to a synchr
   - Implemented deterministic recording, offline replay, multi-camera perception, and LiDAR projection for repeatable perception experiments.
   - 📁 [View Phase 8A](08_phase8_multi_sensor_perception/8A_360_camera_lidar_perception/)
 
-- 🚧 **8B — 360° Camera–LiDAR Distance Estimation**
-  - Documentation will be published after project milestone release.
+- ✅ **8B — 360° Panoramic Distance Estimation**
+  - Extended the 360° perception pipeline with panoramic image generation and LiDAR-based object distance estimation.
+  - Implemented multi-camera object detection, camera–LiDAR projection, object-level point association, cylindrical panoramic stitching, and distance-aware surround visualization.
+  - 📁 [View Phase 8B](08_phase8_multi_sensor_perception/8B_360_panoramic_distance_estimation/)
 
 ---
 
@@ -165,6 +166,18 @@ Estimated object distances using monocular camera geometry, LiDAR point clouds, 
 
 <p align="center">
 Established a synchronized 360° perception pipeline using four RGB cameras and LiDAR with deterministic recording, offline replay, and unified surround-view perception.
+</p>
+
+---
+
+<h3 align="center">8B — 360° Panoramic Distance Estimation</h3>
+
+<p align="center">
+  <img src="assets/gifs/phase8B_pipeline.gif" width="650" height="350"/>
+</p>
+
+<p align="center">
+Extended the 360° Camera–LiDAR perception pipeline with panoramic image generation, LiDAR-based object distance estimation, and distance-aware surround visualization using synchronized multi-camera perception.
 </p>
 
 ---
