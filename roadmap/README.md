@@ -607,6 +607,21 @@ Multi-object tracking with unique object IDs using YOLO26m TensorRT FP16 and Byt
 - Estimate object orientation (yaw) using PCA.
 - Generate AB3DMOT-compatible 3D detections.
 - Visualize 3D detections with persistent 3D bounding boxes.
+- Integrate the OpenPCDet PointPillars 3D object detector into the ROS2 perception pipeline.
+- Convert ROS2 PointCloud2 messages into the OpenPCDet inference format with XYZI (x, y, z, intensity) features.
+- Implement preprocessing, batching, GPU inference, and postprocessing for real-time PointPillars inference.
+- Generate 3D object detections directly from LiDAR point clouds.
+- Decode PointPillars predictions into 3D bounding boxes, confidence scores, and semantic classes.
+- Convert PointPillars outputs into the official AB3DMOT detection format.
+- Integrate the official AB3DMOT multi-object tracking framework.
+- Perform frame-by-frame multi-object data association and track management.
+- Parse AB3DMOT outputs into internal Track objects for downstream perception modules.
+- Maintain persistent and consistent 3D Track IDs across consecutive frames.
+- Project tracked 3D bounding boxes from LiDAR coordinates onto the synchronized front camera image.
+- Visualize 3D bounding boxes with object class information.
+- Visualize persistent 3D Track IDs overlaid on the front camera image.
+- Build a modular perception architecture by separating detector, tracker, and visualization pipelines into reusable components.
+- Validate the complete 3D detection and tracking pipeline using deterministic offline replay with synchronized CARLA sensor recordings.
 
 ## Phase 10.3 — 3D Multi-Object Tracking (360° AB3DMOT)
 
