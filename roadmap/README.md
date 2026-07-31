@@ -607,6 +607,16 @@ Multi-object tracking with unique object IDs using YOLO26m TensorRT FP16 and Byt
 - Validate the complete 3D detection and tracking pipeline using deterministic offline replay with synchronized CARLA sensor recordings.
 - Compare geometry-based and PointPillars-based 3D detection within the same tracking framework
 
+### Deliverables
+
+<p align="center">
+  <img src="../assets/gifs/phase10B_pipeline.gif" width="600"/>
+</p>
+
+<p align="center">
+Geometric-based and Deep Learning-based 3D Multi-object tracking with unique object IDs.
+</p>
+
 ## Phase 10.3 — 3D Multi-Object Tracking (360° AB3DMOT)
 
 ### Task
