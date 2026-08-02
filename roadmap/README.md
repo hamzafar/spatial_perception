@@ -617,15 +617,20 @@ Multi-object tracking with unique object IDs using YOLO26m TensorRT FP16 and Byt
 Geometric-based and Deep Learning-based 3D Multi-object tracking with unique object IDs.
 </p>
 
-## Phase 10.3 — 3D Multi-Object Tracking (360° AB3DMOT)
+## Phase 10.3 — Geometric Based 3D Multi-Object Tracking (360° AB3DMOT)
 
 ### Task
-- Track objects in ego coordinates
+- Track objects in ego coordinates (completed)
 - Maintain persistent IDs across frames
 - Handle temporary occlusions
 - Handle detection dropouts
 - Track objects across camera transitions
 - Visualize trajectories in BEV
+
+
+## Phase 10.3 — BevFusion Based 3D Multi-Object Tracking (360° AB3DMOT)
+
+### Task
 ---
 
 Phase 10 – Dynamic Perception (MOT, ReID, Kalman)	⭐⭐⭐⭐⭐	Highest priority
