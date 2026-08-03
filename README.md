@@ -2,7 +2,7 @@
 
 A robotics perception engineering project focused on building **3D spatial understanding** using synchronized RGB cameras and LiDAR.
 
-Built using CARLA, ROS2, OpenCV, and YOLO, the project progresses from camera–LiDAR integration to multi-camera perception, panoramic distance estimation, and unified spatial understanding for autonomous robotic systems.
+Built using CARLA, ROS2, OpenCV, and YOLO, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, and unified spatial perception, establishing the foundation for 360° environmental understanding and multi-object tracking.
 
 This project builds upon the 2D perception stack developed in the companion repository:
 
@@ -37,13 +37,16 @@ Sensor Synchronization
 Multi-Camera Perception
           │
           ▼
-LiDAR Projection & Distance Estimation
+Camera–LiDAR Fusion
           │
           ▼
 360° Panoramic Perception
           │
           ▼
-Unified World Representation
+Unified Spatial Perception
+          │
+          ▼
+Bird's-Eye View & World Representation
 ```
 
 ---
@@ -114,6 +117,12 @@ Developed a unified spatial perception framework by transforming synchronized mu
   - Develop cross-camera association and duplicate removal to improve spatial consistency before temporal tracking.
 
 ---
+
+### 🚧 Phase 10 — Multi-Object Tracking
+
+Documentation will be published after project milestone release.
+
+--- 
 
 ## Demonstrations
 
