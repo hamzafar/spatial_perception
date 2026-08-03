@@ -203,7 +203,7 @@ Extended the 360° Camera–LiDAR perception pipeline with panoramic image gener
 <h3 align="center">BEV Generation</h3>
 
 <p align="center">
-  <img src="../../assets/gifs/phase9A_pipeline.gif" width="700"/>
+  <img src="assets/gifs/phase9A_pipeline.gif" width="700"/>
 </p>
 
 <p align="center">
@@ -214,7 +214,7 @@ Unified spatial perception with ego-coordinate object localization and Bird's-Ey
 <h3 align="center">Camera Yaw Correction & BEV Validation</h3>
 
 <p align="center">
-  <img src="../../assets/gifs/phase9A_1_pipeline.gif" width="700"/>
+  <img src="assets/gifs/phase9A_1_pipeline.gif" width="700"/>
 </p>
 
 <p align="center">
