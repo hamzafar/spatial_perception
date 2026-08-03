@@ -191,6 +191,29 @@ Extended the 360° Camera–LiDAR perception pipeline with panoramic image gener
 
 ---
 
+<h3 align="center">BEV Generation</h3>
+
+<p align="center">
+  <img src="../../assets/gifs/phase9A_pipeline.gif" width="700"/>
+</p>
+
+<p align="center">
+Unified spatial perception with ego-coordinate object localization and Bird's-Eye View generation from synchronized multi-camera and LiDAR observations.
+</p>
+
+
+<h3 align="center">Camera Yaw Correction & BEV Validation</h3>
+
+<p align="center">
+  <img src="../../assets/gifs/phase9A_1_pipeline.gif" width="700"/>
+</p>
+
+<p align="center">
+Bird's-Eye View visualization used to validate ego-coordinate transformations and correct left and right camera yaw, resulting in consistent object localization across all synchronized camera views.
+</p>
+
+---
+
 ## Future Work
 
 Planned areas of development include:
