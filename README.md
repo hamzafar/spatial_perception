@@ -98,11 +98,20 @@ Expanded the perception pipeline from a single forward-facing camera to a synchr
 
 ---
 
-### 🚧 Phase 9 — Unified Spatial Perception
+### ✅ Phase 9 — Unified Spatial Perception
 
-Documentation will be published after project milestone release.
+Developed a unified spatial perception framework by transforming synchronized multi-camera detections and LiDAR observations into a common ego-centric world representation. This phase establishes the foundation for spatial scene understanding through object localization, Bird's-Eye View generation, and cross-camera object reasoning.
 
-📁 [View Phase 9](09_phase9_unified_spatial_perception)
+#### Milestones
+
+- ✅ **9A — Unified Spatial Perception**
+  - Localized detected objects from four synchronized RGB cameras into a unified ego coordinate frame using Camera–LiDAR fusion.
+  - Generated a unified Bird's-Eye View (BEV) and validated coordinate transformations through camera-specific yaw correction.
+  - 📁 [View Phase 9A](09_phase9_unified_spatial_perception/9A_unified_spatial_perception/)
+
+- 🚧 **9B — Cross-Camera Object Merging**
+  - Merge duplicate object detections observed across overlapping camera fields of view into a unified object representation.
+  - Develop cross-camera association and duplicate removal to improve spatial consistency before temporal tracking.
 
 ---
 
