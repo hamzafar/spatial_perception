@@ -209,56 +209,7 @@ Delta    : 0.000 ms
   Camera, LiDAR, and Fused Distance Estimation
 </p>
 
-<!-- ## 7.5 3D Semantic Bird Eye View(BEV)
 
-### Tasks
-
-- Deterministic 4 cameras and LiDAR Recording (completed)
-- Generate 360 degree camera view
-- Project Lidar points on 360 Image View
-- Perform detection and extract objects point clouds
-- Estimate Distance of surronding objects
-- Generate BEV
-- Unified world representation
-- Object localization in world coordinates
-- Scene-level perception analysis
-
-### Goal
-
-Transition from 2D perception toward 3D scene understanding.
-
-
-## 7.6 Benchmarking & Analysis
-
-### Comparison
-
-| Pipeline | Detection | Distance Estimation | Spatial Awareness |
-|-----------|-----------|-----------|-----------|
-| Camera Only | ✓ | ✗ | Limited |
-| Camera + LiDAR | ✓ | ✓ | Improved |
-
-### Metrics
-
-- Distance estimation accuracy
-- Sensor synchronization stability
-- Fusion processing latency
-- Perception throughput
-
-
-## Deliverables
-
-- ROS2 LiDAR integration
-- Camera-LiDAR calibration pipeline
-- Distance-aware object detection
-- Sensor fusion perception pipeline
-- Basic 3D perception framework
-- Fusion benchmarking report
-- Multi-modal perception demonstration
-
-
-## Outcome
-
-Transition from camera-only perception toward multi-modal robotics perception. -->
 ---
 
 # Phase 8 — 360° Multi-Sensor Perception
@@ -338,7 +289,6 @@ Extend the 360° perception pipeline to perform object-level 3D perception using
 <p align="center">
   <b>Phase 8.2:</b> 360° multi-camera 3D perception with object-specific LiDAR point clouds and per-object distance estimation.
 </p>
-
 
 
 
@@ -443,114 +393,9 @@ Cross-camera duplicate object association and merging in Bird's-Eye View (BEV)
 </p>
 
 
-<!-- # Phase 9C — Perception Validation & Evaluation
-
-This makes the project much stronger from an engineering perspective. (Pause for now)
-
-## Tasks:
-
-- Ground truth extraction from CARLA
-- Localization error (X, Y)
-- Distance error
-- IoU of projected LiDAR
-- Precision / Recall
-- BEV localization accuracy
-- Sensor synchronization validation
-- Camera vs LiDAR comparison
-- campare for raw, yaw and unique with ground truth at  (Near-field perception (0–20 m)) for N frames
-
-
-| Metric                       | Value |
-| ---------------------------- | ----: |
-| Ground-truth objects (≤20 m) | 1,250 |
-| Detected objects (≤20 m)     | 1,142 |
-| Matched objects              | 1,098 |
-
-
-- Localization RMSE
-- Distance MAE/RMSE
-- Precision
-- Recall
-- Duplicate reduction
-
-<!-- Animate it.
-
-Frame 1
-
-Only GT
-
-Frame 2
-
-Prediction appears
-
-Frame 3
-
-Matching line appears
-
-Frame 4
-
-Metric panel appears
-
-Then repeat.
-+++ -->
-This answers:
-
-"How accurate is my perception?"
-
-# Phase 9D — Deep Learning based BEV:
-
-BEV Former
-
-BEV Fusion
-
-
-
-# Possible Phase 9E — Scene Understanding
-
-## Once unique objects exist:
-
-Dynamic vs static classification
-Road occupancy map
-Free-space map
-Object relationships
-Ego-centric semantic map
-
-
-```text
-Current
-        │
-        ▼
-Finish Phase 9B
-        │
-        ▼
-Phase 9C
-Perception Validation & Evaluation
-        │
-        ▼
-Dynamic Perception
-(MOT + ReID + Kalman)
-        │
-        ▼
-SLAM / Visual Odometry
-        │
-        ▼
-Radar Fusion
-        │
-        ▼
-Modern 3D Detection
-(PointPillars / CenterPoint)
-        │
-        ▼
-Event Cameras
-        │
-        ▼
-Learned BEV
-(BEVFormer / BEVFusion)
-
-``` 
 # Phase 10: Temporal Perception & Multi-Object Tracking
 
-Objective
+## Objective
 
 Extend the existing spatial perception pipeline with temporal reasoning by implementing 2D and 3D multi-object tracking, and demonstrate how temporal information improves autonomous driving perception.
 
@@ -627,11 +472,35 @@ Geometric-based and Deep Learning-based 3D Multi-object tracking with unique obj
 - Track objects across camera transitions
 - Visualize trajectories in BEV
 
+---
 
-## Phase 10.3 — BevFusion Based 3D Multi-Object Tracking (360° AB3DMOT)
+# Phase 11: Multi-Sensor Perception & Sensor Fusion
+
+## Objective
+
+Extend the existing perception stack by integrating complementary sensors (RGB Camera, LiDAR, Radar, IMU, and GNSS) to estimate ego motion and surrounding object motion, laying the foundation for a complete multi-sensor perception system.
+
+## Phase 11.1 — Estimate Ego Vehicle Motion (IMU + GNSS)
 
 ### Task
+
+
+## Phase 11.2 — Estimate Surrounding Object Motion (Radar)
+
+### Task
+
 ---
+
+# Phase 12 — Full Perception Stack
+This will show all cams, lidar, radar, imu, gnss
+
+each object will show distance, speed, posistion etc
+
+
+### Task
+
+---
+
 
 Phase 10 – Dynamic Perception (MOT, ReID, Kalman)	⭐⭐⭐⭐⭐	Highest priority
 Phase 11 – SLAM / Visual Odometry	⭐⭐⭐⭐☆	High priority (especially for robotics)
