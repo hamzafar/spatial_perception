@@ -483,7 +483,28 @@ Extend the existing perception stack by integrating complementary sensors (RGB C
 ## Phase 11.1 — Estimate Ego Vehicle Motion (IMU + GNSS)
 
 ### Task
+- Determine position (GNSS)
+- Determine speed (GNSS)
+- Determine Acceleration (IMU)
+- Determine Angular velocity/Yaw rate (IMU)
+- Determine Heading (IMU) 
+- Ego Motion State (Moving Forward, Turning Left, Accelerating)
 
+### Deliverable:
+
+Position      : (52.421, 13.085)
+Speed         : 8.43 m/s
+Acceleration  : 0.74 m/s²
+Yaw Rate      : -0.21 rad/s
+Heading       : 72.4°
+Motion State  : Moving Forward, Turning Right
+
+Front camera visualization
+Ego trajectory visualization (from GNSS)
+Speed plot
+Acceleration plot
+Heading visualization
+Motion state overlay on the camera image
 
 ## Phase 11.2 — Estimate Surrounding Object Motion (Radar)
 
