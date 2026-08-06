@@ -2,7 +2,7 @@
 
 A robotics perception engineering project focused on building **3D spatial understanding** using synchronized RGB cameras and LiDAR.
 
-Built using CARLA, ROS2, OpenCV, and YOLO, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, and unified spatial perception, establishing the foundation for 360° environmental understanding and multi-object tracking.
+Built using CARLA, ROS2, OpenCV, and YOLO, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, unified spatial perception, and cross-camera object association, establishing the foundation for 360° environmental understanding and multi-object tracking.
 
 This project builds upon the 2D perception stack developed in the companion repository:
 
@@ -46,7 +46,10 @@ Camera–LiDAR Fusion
 Unified Spatial Perception
           │
           ▼
-Bird's-Eye View & World Representation
+Cross-Camera Object Association
+          │
+          ▼
+Unified World Representation
 ```
 
 ---
@@ -112,9 +115,10 @@ Developed a unified spatial perception framework by transforming synchronized mu
   - Generated a unified Bird's-Eye View (BEV) and validated coordinate transformations through camera-specific yaw correction.
   - 📁 [View Phase 9A](09_phase9_unified_spatial_perception/9A_unified_spatial_perception/)
 
-- 🚧 **9B — Cross-Camera Object Merging**
-  - Merge duplicate object detections observed across overlapping camera fields of view into a unified object representation.
-  - Develop cross-camera association and duplicate removal to improve spatial consistency before temporal tracking.
+- ✅ **9B — Cross-Camera Object Merging**
+  - Associated duplicate object detections across overlapping camera views using bearing-based overlap filtering and Hungarian assignment.
+  - Merged duplicate observations into a unified object representation for consistent 360° spatial perception.
+  - 📁 [View Phase 9B](09_phase9_unified_spatial_perception/9B_cross_camera_object_merging/)
 
 ---
 
@@ -219,6 +223,16 @@ Unified spatial perception with ego-coordinate object localization and Bird's-Ey
 
 <p align="center">
 Bird's-Eye View visualization used to validate ego-coordinate transformations and correct left and right camera yaw, resulting in consistent object localization across all synchronized camera views.
+</p>
+
+<h3 align="center">Cross-Camera Object Association</h3>
+
+<p align="center">
+  <img src="assets/gifs/phase9B_pipeline.gif" width="700"/>
+</p>
+
+<p align="center">
+Associated duplicate object detections across overlapping camera views using bearing-based overlap filtering and Hungarian assignment.
 </p>
 
 ---
