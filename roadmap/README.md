@@ -509,7 +509,12 @@ Motion state overlay on the camera image
 ## Phase 11.2 — Estimate Surrounding Object Motion (Radar)
 
 ### Task
-
+- Detect surrounding objects (YOLO)
+- Determine object range (Radar)
+- Determine object bearing (Radar)
+- Determine object radial velocity (Radar)
+- Associate radar targets with YOLO detections
+- Determine object motion state (Approaching, Receding, Stationary)
 ---
 
 # Phase 12 — Full Perception Stack
