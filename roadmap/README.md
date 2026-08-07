@@ -493,6 +493,7 @@ Geometric-based and Deep Learning-based 3D Multi-object tracking with unique obj
 <p align="center">
 360° Geometry-Based 3D Multi-Object Tracking with Persistent Track IDs using Four Cameras, LiDAR, and AB3DMOT.
 </p>
+
 ---
 
 # Phase 11: Multi-Sensor Perception & Sensor Fusion
@@ -504,28 +505,37 @@ Extend the existing perception stack by integrating complementary sensors (RGB C
 ## Phase 11.1 — Estimate Ego Vehicle Motion (IMU + GNSS)
 
 ### Task
-- Determine position (GNSS)
-- Determine speed (GNSS)
-- Determine Acceleration (IMU)
-- Determine Angular velocity/Yaw rate (IMU)
-- Determine Heading (IMU) 
-- Ego Motion State (Moving Forward, Turning Left, Accelerating)
 
-### Deliverable:
+- Synchronize Front Camera, IMU, and GNSS data.
+- Convert GNSS coordinates into a local ENU reference frame.
+- Estimate ego vehicle position and speed from GNSS measurements.
+- Estimate ego vehicle acceleration, yaw rate, and heading from IMU measurements.
+- Infer ego motion state (Stationary, Moving Forward, Accelerating, Braking, Turning).
+- Visualize ego vehicle motion using telemetry overlays, trajectory, and heading indicators.
 
-Position      : (52.421, 13.085)
-Speed         : 8.43 m/s
-Acceleration  : 0.74 m/s²
-Yaw Rate      : -0.21 rad/s
-Heading       : 72.4°
-Motion State  : Moving Forward, Turning Right
+### Completed
 
-Front camera visualization
-Ego trajectory visualization (from GNSS)
-Speed plot
-Acceleration plot
-Heading visualization
-Motion state overlay on the camera image
+- ✅ Integrate synchronized Front Camera, IMU, and GNSS replay pipeline.
+- ✅ Convert GNSS latitude, longitude, and altitude into local ENU coordinates.
+- ✅ Estimate ego vehicle position relative to the local reference frame.
+- ✅ Estimate ego vehicle speed from consecutive GNSS measurements.
+- ✅ Process IMU linear acceleration and angular velocity measurements.
+- ✅ Recover ego vehicle heading from the recorded compass orientation.
+- ✅ Estimate ego vehicle yaw rate from IMU gyroscope data.
+- ✅ Classify ego motion state (Stationary, Moving Forward, Accelerating, Braking, Turning Left, Turning Right).
+- ✅ Build modular GNSS, IMU, and visualization pipelines for reusable ego-motion estimation.
+- ✅ Visualize synchronized front camera, telemetry, ego trajectory, heading, and motion-state indicators.
+- ✅ Validate the complete ego-motion estimation pipeline using deterministic offline replay with synchronized camera, IMU, and GNSS recordings.
+
+### Deliverables
+
+<p align="center">
+  <img src="../assets/gifs/phase11A_pipeline.gif" width="600"/>
+</p>
+
+<p align="center">
+Ego Vehicle Motion Estimation using synchronized Front Camera, IMU, and GNSS with position, speed, heading, trajectory, and motion-state visualization.
+</p>
 
 ## Phase 11.2 — Estimate Surrounding Object Motion (Radar)
 
