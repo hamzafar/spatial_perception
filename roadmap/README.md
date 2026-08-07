@@ -540,12 +540,45 @@ Ego Vehicle Motion Estimation using synchronized Front Camera, IMU, and GNSS wit
 ## Phase 11.2 — Estimate Surrounding Object Motion (Radar)
 
 ### Task
-- Detect surrounding objects (YOLO)
-- Determine object range (Radar)
-- Determine object bearing (Radar)
-- Determine object radial velocity (Radar)
-- Associate radar targets with YOLO detections
-- Determine object motion state (Approaching, Receding, Stationary)
+
+- Synchronize Front Camera and Radar data.
+- Detect surrounding objects using YOLO instance segmentation.
+- Convert radar detections into Cartesian coordinates.
+- Project radar targets into the camera image plane.
+- Associate radar targets with YOLO detections.
+- Estimate detected object range, bearing, and radial velocity.
+- Infer surrounding object motion state (Approaching, Receding, Stationary).
+- Visualize fused camera-radar perception with object motion overlays.
+
+### Completed
+
+- ✅ Integrate synchronized Front Camera and Radar replay pipeline.
+- ✅ Detect surrounding objects using YOLO TensorRT inference.
+- ✅ Convert radar spherical measurements into Cartesian coordinates.
+- ✅ Transform radar targets into the camera coordinate system.
+- ✅ Project radar detections onto the camera image plane.
+- ✅ Associate radar targets with detected objects using geometric projection.
+- ✅ Estimate object range from radar depth measurements.
+- ✅ Estimate object bearing relative to the ego vehicle.
+- ✅ Estimate object radial velocity from radar Doppler measurements.
+- ✅ Classify surrounding object motion state (Approaching, Receding, Stationary).
+- ✅ Build modular detection, radar perception, and visualization pipelines for reusable object-motion estimation.
+- ✅ Visualize synchronized camera-radar perception with object class, range, velocity, motion-state indicators, and projected radar targets.
+- ✅ Validate the complete surrounding object motion estimation pipeline using deterministic offline replay with synchronized camera and radar recordings.
+
+### Deliverables
+
+<p align="center">
+  <img src="../assets/gifs/phase11B_pipeline.gif" width="600"/>
+</p>
+
+<p align="center">
+Surrounding Object Motion Estimation using synchronized Front Camera and Radar with object detection, radar association, range, bearing, radial velocity, and motion-state visualization.
+</p>
+
+---
+
+
 ---
 
 # Phase 12 — Full Perception Stack
