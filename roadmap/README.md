@@ -424,9 +424,9 @@ Extend the existing spatial perception pipeline with temporal reasoning by imple
 
 ### Deliverables
 
-<p align="center">
+<!-- <p align="center">
   <img src="../assets/gifs/phase10A_pipeline.gif" width="600"/>
-</p>
+</p> -->
 
 <p align="center">
 Multi-object tracking with unique object IDs using YOLO26m TensorRT FP16 and ByteTrack.
@@ -454,9 +454,9 @@ Multi-object tracking with unique object IDs using YOLO26m TensorRT FP16 and Byt
 
 ### Deliverables
 
-<p align="center">
+<!-- <p align="center">
   <img src="../assets/gifs/phase10B_pipeline.gif" width="600"/>
-</p>
+</p> -->
 
 <p align="center">
 Geometric-based and Deep Learning-based 3D Multi-object tracking with unique object IDs.
@@ -486,9 +486,9 @@ Geometric-based and Deep Learning-based 3D Multi-object tracking with unique obj
 
 ### Deliverables
 
-<p align="center">
+<!-- <p align="center">
   <img src="../assets/gifs/phase10C_pipeline.gif" width="600"/>
-</p>
+</p> -->
 
 <p align="center">
 360° Geometry-Based 3D Multi-Object Tracking with Persistent Track IDs using Four Cameras, LiDAR, and AB3DMOT.
@@ -529,9 +529,9 @@ Extend the existing perception stack by integrating complementary sensors (RGB C
 
 ### Deliverables
 
-<p align="center">
+<!-- <p align="center">
   <img src="../assets/gifs/phase11A_pipeline.gif" width="600"/>
-</p>
+</p> -->
 
 <p align="center">
 Ego Vehicle Motion Estimation using synchronized Front Camera, IMU, and GNSS with position, speed, heading, trajectory, and motion-state visualization.
@@ -568,9 +568,9 @@ Ego Vehicle Motion Estimation using synchronized Front Camera, IMU, and GNSS wit
 
 ### Deliverables
 
-<p align="center">
+<!-- <p align="center">
   <img src="../assets/gifs/phase11B_pipeline.gif" width="600"/>
-</p>
+</p> -->
 
 <p align="center">
 Surrounding Object Motion Estimation using synchronized Front Camera and Radar with object detection, radar association, range, bearing, radial velocity, and motion-state visualization.
