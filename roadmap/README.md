@@ -441,16 +441,16 @@ Multi-object tracking with unique object IDs using YOLO26m TensorRT FP16 and Byt
 - Parse tracker outputs into internal Track objects.
 - Visualize persistent 3D Track IDs.
 
-### ✅ Completed
-- Integrate synchronized Front Camera and LiDAR perception.
-- Implement geometry-based 3D object detection using LiDAR projection, instance segmentation, DBSCAN filtering, and PCA-based pose estimation.
-- Integrate the OpenPCDet PointPillars 3D object detector into the ROS2 perception pipeline.
-- Convert geometry-based and PointPillars detections into the official AB3DMOT input format.
-- Integrate the official AB3DMOT multi-object tracking framework for persistent 3D object tracking.
-- Visualize tracked 3D bounding boxes and persistent Track IDs on the synchronized front camera image.
-- Build a modular perception architecture with interchangeable detector, tracker, and visualization pipelines.
-- Validate the complete 3D detection and tracking pipeline using deterministic offline replay with synchronized CARLA sensor recordings.
-- Compare geometry-based and PointPillars-based 3D detection within the same tracking framework
+### Completed
+- ✅ Integrate synchronized Front Camera and LiDAR perception.
+- ✅ Implement geometry-based 3D object detection using LiDAR projection, instance segmentation, DBSCAN filtering, and PCA-based pose estimation.
+- ✅ Integrate the OpenPCDet PointPillars 3D object detector into the ROS2 perception pipeline.
+- ✅ Convert geometry-based and PointPillars detections into the official AB3DMOT input format.
+- ✅ Integrate the official AB3DMOT multi-object tracking framework for persistent 3D object tracking.
+- ✅ Visualize tracked 3D bounding boxes and persistent Track IDs on the synchronized front camera image.
+- ✅ Build a modular perception architecture with interchangeable detector, tracker, and visualization pipelines.
+- ✅ Validate the complete 3D detection and tracking pipeline using deterministic offline replay with synchronized CARLA sensor recordings.
+- ✅ Compare geometry-based and PointPillars-based 3D detection within the same tracking framework
 
 ### Deliverables
 
@@ -465,13 +465,34 @@ Geometric-based and Deep Learning-based 3D Multi-object tracking with unique obj
 ## Phase 10.3 — Geometric Based 3D Multi-Object Tracking (360° AB3DMOT)
 
 ### Task
-- Track objects in ego coordinates (completed)
-- Maintain persistent IDs across frames
-- Handle temporary occlusions
-- Handle detection dropouts
-- Track objects across camera transitions
-- Visualize trajectories in BEV
+- Generate unified 3D detections from four synchronized RGB cameras and LiDAR.
+- Associate duplicate detections across overlapping camera views.
+- Convert unified detections to the AB3DMOT input format.
+- Integrate the official AB3DMOT tracker for persistent 360° object tracking.
+- Visualize persistent 3D Track IDs in a unified Bird's-Eye View (BEV).
 
+### Completed
+- ✅ Integrate synchronized four-camera and LiDAR perception pipeline.
+- ✅ Generate geometry-based 3D object detections using YOLO instance segmentation and LiDAR.
+- ✅ Estimate object positions, dimensions, and orientation (yaw).
+- ✅ Localize objects into a unified ego-centric coordinate frame.
+- ✅ Associate and merge duplicate detections across overlapping camera views.
+- ✅ Convert unified detections into the official AB3DMOT input format.
+- ✅ Integrate the official AB3DMOT multi-object tracking framework.
+- ✅ Maintain persistent 3D Track IDs across consecutive frames.
+- ✅ Visualize color-coded Track IDs in a unified Bird's-Eye View (BEV).
+- ✅ Build a modular perception architecture with reusable perception, association, tracking, and visualization pipelines.
+- ✅ Validate the complete 360° 3D detection and tracking pipeline using deterministic offline replay with synchronized multi-camera and LiDAR recordings.
+
+### Deliverables
+
+<p align="center">
+  <img src="../assets/gifs/phase10C_pipeline.gif" width="600"/>
+</p>
+
+<p align="center">
+360° Geometry-Based 3D Multi-Object Tracking with Persistent Track IDs using Four Cameras, LiDAR, and AB3DMOT.
+</p>
 ---
 
 # Phase 11: Multi-Sensor Perception & Sensor Fusion
