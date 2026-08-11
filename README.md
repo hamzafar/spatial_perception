@@ -2,7 +2,7 @@
 
 A robotics perception engineering project focused on building **3D spatial understanding** using synchronized RGB cameras and LiDAR.
 
-Built using CARLA, ROS2, OpenCV, and YOLO, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, unified spatial perception, and cross-camera object association, establishing the foundation for 360° environmental understanding and multi-object tracking.
+Built using CARLA, ROS2, OpenCV, and YOLO, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, unified spatial perception, cross-camera object association, and temporal multi-object tracking, establishing a foundation for 360° environmental understanding and dynamic scene perception.
 
 This project builds upon the 2D perception stack developed in the companion repository:
 
@@ -12,16 +12,16 @@ This project builds upon the 2D perception stack developed in the companion repo
 
 ## Technology Stack
 
-| Category | Technologies |
-|-----------|-------------|
-| Simulation | CARLA 0.9.15 |
-| Robotics Middleware | ROS2 Humble |
-| Computer Vision | OpenCV |
-| Object Detection | YOLOv8m-seg TensorRT INT8 |
-| 3D Sensor | LiDAR |
-| Programming Language | Python |
-| Communication | CycloneDDS |
-| Environment | Windows 11 + WSL2 Ubuntu 22.04 |
+| Category             | Technologies                   |
+| -------------------- | ------------------------------ |
+| Simulation           | CARLA 0.9.15                   |
+| Robotics Middleware  | ROS2 Humble                    |
+| Computer Vision      | OpenCV                         |
+| Object Detection     | YOLOv8m-seg TensorRT INT8      |
+| 3D Sensor            | LiDAR                          |
+| Programming Language | Python                         |
+| Communication        | CycloneDDS                     |
+| Environment          | Windows 11 + WSL2 Ubuntu 22.04 |
 
 ---
 
@@ -50,8 +50,10 @@ Cross-Camera Object Association
           │
           ▼
 Unified World Representation
+          │
+          ▼
+Temporal Multi-Object Tracking
 ```
-
 ---
 
 ## Completed Phases
@@ -124,8 +126,19 @@ Developed a unified spatial perception framework by transforming synchronized mu
 
 ### 🚧 Phase 10 — Multi-Object Tracking
 
-Documentation will be published after project milestone release.
+Extending the perception pipeline with temporal multi-object tracking using YOLO26m TensorRT FP16 and ByteTrack.
 
+#### Milestones
+
+- ✅ **10A — 2D Multi-Object Tracking**
+
+  - Integrated YOLO26m TensorRT FP16 with the official ByteTrack implementation for persistent 2D object identities across consecutive frames.
+  - Implemented track lifecycle management and tracking-focused visualization using synchronized offline replay data.
+  - 📁 [View Phase 10A](10_phase10_multi_object_tracking/10A_2d_multi_object_tracking/)
+
+- 🚧 **10B — 3D Multi-Object Tracking**
+
+  - Documentation will be published after project milestone release.
 --- 
 
 ## Demonstrations
@@ -233,6 +246,16 @@ Bird's-Eye View visualization used to validate ego-coordinate transformations an
 
 <p align="center">
 Associated duplicate object detections across overlapping camera views using bearing-based overlap filtering and Hungarian assignment.
+</p>
+
+<h3 align="center">2D Multi-Object Tracking</h3>
+
+<p align="center">
+  <img src="assets/gifs/phase10A_pipeline.gif" width="700"/>
+</p>
+
+<p align="center">
+Persistent 2D object identities maintained across consecutive frames using YOLO26m TensorRT FP16 and ByteTrack on synchronized offline replay data.
 </p>
 
 ---
