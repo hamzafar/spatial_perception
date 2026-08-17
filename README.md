@@ -1,8 +1,8 @@
 # Spatial Perception
 
-A robotics perception engineering project focused on building **3D spatial understanding** using synchronized RGB cameras and LiDAR.
+A robotics perception engineering project focused on building **3D spatial understanding and temporal perception** using synchronized RGB cameras and LiDAR.
 
-Built using CARLA, ROS2, OpenCV, and YOLO, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, unified spatial perception, cross-camera object association, and temporal multi-object tracking, establishing a foundation for 360° environmental understanding and dynamic scene perception.
+Built using CARLA, ROS2, OpenCV, YOLO, and LiDAR-based 3D detection, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, unified spatial perception, cross-camera object association, and 2D/3D multi-object tracking, establishing a foundation for 360° environmental understanding and dynamic scene perception.
 
 This project builds upon the 2D perception stack developed in the companion repository:
 
@@ -18,6 +18,8 @@ This project builds upon the 2D perception stack developed in the companion repo
 | Robotics Middleware  | ROS2 Humble                    |
 | Computer Vision      | OpenCV                         |
 | Object Detection     | YOLOv8m-seg TensorRT INT8      |
+| 3D Detection         | PointPillars / OpenPCDet       |
+| 3D Tracking          | AB3DMOT                        |
 | 3D Sensor            | LiDAR                          |
 | Programming Language | Python                         |
 | Communication        | CycloneDDS                     |
@@ -52,7 +54,10 @@ Cross-Camera Object Association
 Unified World Representation
           │
           ▼
-Temporal Multi-Object Tracking
+2D Multi-Object Tracking
+          │
+          ▼
+3D Multi-Object Tracking
 ```
 ---
 
@@ -136,7 +141,13 @@ Extending the perception pipeline with temporal multi-object tracking using YOLO
   - Implemented track lifecycle management and tracking-focused visualization using synchronized offline replay data.
   - 📁 [View Phase 10A](10_phase10_multi_object_tracking/10A_2d_multi_object_tracking/)
 
-- 🚧 **10B — 3D Multi-Object Tracking**
+- ✅ **10B — 3D Multi-Object Tracking**
+
+  - Integrated geometry-based and PointPillars-based 3D detection with AB3DMOT for persistent 3D object tracking.
+  - Enabled modular comparison of 3D detection approaches using a common tracking and visualization framework.
+  - 📁 [View Phase 10B](10_phase10_multi_object_tracking/10B_3d_multi_object_tracking/)
+
+- 🚧 **10C — Multi-Camera 3D Multi-Object Tracking**
 
   - Documentation will be published after project milestone release.
 --- 
@@ -256,6 +267,16 @@ Associated duplicate object detections across overlapping camera views using bea
 
 <p align="center">
 Persistent 2D object identities maintained across consecutive frames using YOLO26m TensorRT FP16 and ByteTrack on synchronized offline replay data.
+</p>
+
+<h3 align="center">3D Multi-Object Tracking</h3>
+
+<p align="center">
+  <img src="assets/gifs/phase10B_pipeline.gif" width="350"/>
+</p>
+
+<p align="center">
+Persistent 3D object identities maintained across consecutive LiDAR frames using PointPillars 3D detection and AB3DMOT tracking with synchronized front-camera visualization.
 </p>
 
 ---
