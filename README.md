@@ -262,7 +262,7 @@ Associated duplicate object detections across overlapping camera views using bea
 <h3 align="center">2D Multi-Object Tracking</h3>
 
 <p align="center">
-  <img src="assets/gifs/phase10A_pipeline.gif" width="700"/>
+  <img src="assets/gifs/phase10A_pipeline.gif" width="350"/>
 </p>
 
 <p align="center">
