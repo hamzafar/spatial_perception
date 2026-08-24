@@ -129,7 +129,7 @@ Developed a unified spatial perception framework by transforming synchronized mu
 
 ---
 
-### 🚧 Phase 10 — Multi-Object Tracking
+### ✅ Phase 10 — Multi-Object Tracking
 
 Extending the perception pipeline with temporal multi-object tracking using YOLO26m TensorRT FP16 and ByteTrack.
 
@@ -295,7 +295,7 @@ Persistent 3D object identities maintained across consecutive LiDAR frames using
 <h3 align="center">Multi-Camera 3D Multi-Object Tracking</h3>
 
 <p align="center">
-  <img src="assets/gifs/phase10C_pipeline.gif" width="350"/>
+  <img src="assets/gifs/phase10C_pipeline.gif" width="700"/>
 </p>
 
 <p align="center">
