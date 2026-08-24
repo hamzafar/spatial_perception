@@ -1,6 +1,6 @@
 # Spatial Perception
 
-A robotics perception engineering project focused on building **3D spatial understanding and temporal perception** using synchronized RGB cameras and LiDAR.
+A robotics perception engineering project focused on building **3D spatial understanding, multi-object tracking, and temporal perception** using synchronized RGB cameras and LiDAR.
 
 Built using CARLA, ROS2, OpenCV, YOLO, and LiDAR-based 3D detection, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, unified spatial perception, cross-camera object association, and 2D/3D multi-object tracking, establishing a foundation for 360° environmental understanding and dynamic scene perception.
 
@@ -12,18 +12,18 @@ This project builds upon the 2D perception stack developed in the companion repo
 
 ## Technology Stack
 
-| Category             | Technologies                   |
-| -------------------- | ------------------------------ |
-| Simulation           | CARLA 0.9.15                   |
-| Robotics Middleware  | ROS2 Humble                    |
-| Computer Vision      | OpenCV                         |
-| Object Detection     | YOLOv8m-seg TensorRT INT8      |
-| 3D Detection         | PointPillars / OpenPCDet       |
-| 3D Tracking          | AB3DMOT                        |
-| 3D Sensor            | LiDAR                          |
-| Programming Language | Python                         |
-| Communication        | CycloneDDS                     |
-| Environment          | Windows 11 + WSL2 Ubuntu 22.04 |
+| Category             | Technologies                     |
+| -------------------- | -------------------------------- |
+| Simulation           | CARLA 0.9.15                     |
+| Robotics Middleware  | ROS2 Humble                      |
+| Computer Vision      | OpenCV                           |
+| Object Detection     | YOLOv8m-seg INT8 / YOLO26m FP16 |
+| 3D Detection         | PointPillars / OpenPCDet         |
+| 3D Tracking          | AB3DMOT                          |
+| 3D Sensor            | LiDAR                            |
+| Programming Language | Python                           |
+| Communication        | CycloneDDS                       |
+| Environment           | Windows 11 + WSL2 Ubuntu 22.04  |
 
 ---
 
@@ -147,11 +147,24 @@ Extending the perception pipeline with temporal multi-object tracking using YOLO
   - Enabled modular comparison of 3D detection approaches using a common tracking and visualization framework.
   - 📁 [View Phase 10B](10_phase10_multi_object_tracking/10B_3d_multi_object_tracking/)
 
-- 🚧 **10C — Multi-Camera 3D Multi-Object Tracking**
+- ✅ **10C — Multi-Camera 3D Multi-Object Tracking**
 
-  - Documentation will be published after project milestone release.
+  - Extended 3D tracking to four synchronized RGB cameras and LiDAR with geometric cross-camera association and duplicate object merging.
+
+  - Integrated AB3DMOT to maintain persistent 3D Track IDs across the unified 360° ego-centric scene.
+
+  - 📁 [View Phase 10C](10_phase10_multi_object_tracking/10C_multi_camera_3d_multi_object_tracking/)
 --- 
 
+### 🚧 Phase 11 Motion Estimation
+  - Documentation will be published after project milestone release.
+
+#### Milestones
+
+- ✅ **11A — Ego Motion Estimation**
+- ✅ **11B — Ego Surrounding Object Motion Estimation**
+
+---
 ## Demonstrations
 
 <h2 align="center">Phase 7 — Sensor Fusion Foundations</h2>
@@ -279,8 +292,18 @@ Persistent 2D object identities maintained across consecutive frames using YOLO2
 Persistent 3D object identities maintained across consecutive LiDAR frames using PointPillars 3D detection and AB3DMOT tracking with synchronized front-camera visualization.
 </p>
 
----
+<h3 align="center">Multi-Camera 3D Multi-Object Tracking</h3>
 
+<p align="center">
+  <img src="assets/gifs/phase10C_pipeline.gif" width="350"/>
+</p>
+
+<p align="center">
+Unified 360° 3D object tracking using four synchronized RGB cameras, LiDAR, geometric cross-camera association, and AB3DMOT with persistent 3D Track IDs.
+</p>
+
+---
+<!-- 
 ## Future Work
 
 Planned areas of development include:
@@ -290,8 +313,7 @@ Planned areas of development include:
 - Unified world representation
 - Bird's-Eye View generation
 - Multi-camera overlap resolution
-- Spatial perception evaluation
-
+- Spatial perception evaluation -->
 ---
 
 ## Project Journal
