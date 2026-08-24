@@ -38,8 +38,10 @@ from pathlib import Path
 from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parent
-BYTE_TRACK_ROOT = ROOT.parent.parent / "third_party" / "ByteTrack"
+# BYTE_TRACK_ROOT = ROOT.parent.parent / "third_party" / "ByteTrack"
+BYTE_TRACK_ROOT = Path.home() / "ros2_cv_ws/scripts/third_party/ByteTrack"
 sys.path.insert(0, str(BYTE_TRACK_ROOT))
+
 from yolox.tracker.byte_tracker import BYTETracker
 from yolox.tracker.basetrack import BaseTrack
 
@@ -363,9 +365,9 @@ class PerceptionStack(Node):
             "nearest_objects": nearest_objects
         }
 
-        # self.dashboard.push(dashboard_data)
+        self.dashboard.push(dashboard_data)
 
-        self.recorder.record(dashboard_data)
+        # self.recorder.record(dashboard_data)
 
         # self.dashboard.push({
         #     "sensors": {
