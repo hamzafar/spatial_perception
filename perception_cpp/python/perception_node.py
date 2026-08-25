@@ -37,15 +37,18 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
-ROOT = Path(__file__).resolve().parent
-# BYTE_TRACK_ROOT = ROOT.parent.parent / "third_party" / "ByteTrack"
+ROOT = Path(__file__).resolve().parent.parent
+
 BYTE_TRACK_ROOT = Path.home() / "ros2_cv_ws/scripts/third_party/ByteTrack"
 sys.path.insert(0, str(BYTE_TRACK_ROOT))
 
 from yolox.tracker.byte_tracker import BYTETracker
 from yolox.tracker.basetrack import BaseTrack
 
+CPP_BUILD = ROOT / "build"
+sys.path.insert(0, str(CPP_BUILD))
 
+import perception_cpp
 
 class PerceptionStack(Node):
 
@@ -100,6 +103,9 @@ class PerceptionStack(Node):
         self.rear_tracker = BYTETracker(self.tracker_args, frame_rate=10)
         self.left_tracker = BYTETracker(self.tracker_args, frame_rate=10)
         self.right_tracker = BYTETracker(self.tracker_args, frame_rate=10)
+
+        # Initialize cpp 3D perception pipeline
+        self.pipeline_3d_cpp = perception_cpp.Perception3DPipeline()
 
         # Initialize 3D perception pipeline
         self.pipeline_3d = Perception3DPipeline()
@@ -267,7 +273,13 @@ class PerceptionStack(Node):
         # BEV(Lidar)
         lidar = self.pipeline_3d.convert_ros_to_numpy(lidar_msg)
 
-        front, front_u, front_v, front_projected = self.pipeline_3d.project_lidar(front, lidar, "front")
+        # front, front_u, front_v, front_projected = self.pipeline_3d.project_lidar(front, lidar, "front")
+        # C++ LiDAR projection
+        result = self.pipeline_3d_cpp.project_lidar(lidar, "front", front.shape[1], front.shape[0])
+        front_u = result.u
+        front_v = result.v
+        front_projected = result.ego_points
+
         rear, rear_u, rear_v, rear_projected = self.pipeline_3d.project_lidar(rear, lidar, "rear")
         left, left_u, left_v, left_projected = self.pipeline_3d.project_lidar(left, lidar, "left")
         right, right_u, right_v, right_projected = self.pipeline_3d.project_lidar(right, lidar, "right")
