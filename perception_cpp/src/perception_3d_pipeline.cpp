@@ -3,6 +3,18 @@
 #include <cmath>
 #include <stdexcept>
 
+Perception3DPipeline::Perception3DPipeline()
+    : fx(320.0f),
+      fy(320.0f),
+      cx(320.0f),
+      cy(240.0f)
+{
+    camera_yaw["front"] = 0.0f;
+    camera_yaw["rear"]  = 180.0f;
+    camera_yaw["left"]  = -90.0f;
+    camera_yaw["right"] = 90.0f;
+}
+
 Perception3DPipeline::ProjectionResult
 Perception3DPipeline::project_lidar(
     const std::vector<Eigen::Vector3f>& lidar,
@@ -11,21 +23,14 @@ Perception3DPipeline::project_lidar(
     int image_height
 )
 {
-    ProjectionResult result;
+    ProjectionResult result;    
+    
 
     // Camera configuration
-    float yaw = 0.0f;
+    float yaw_deg = camera_yaw.at(camera_name);
 
-    if (camera_name == "front")
-        yaw = -camera_yaw.front();
-    else if (camera_name == "rear")
-        yaw = -camera_yaw.rear();
-    else if (camera_name == "left")
-        yaw = -camera_yaw.left();
-    else if (camera_name == "right")
-        yaw = -camera_yaw.right();
-    else
-        throw std::runtime_error("Unknown camera: " + camera_name);
+    float yaw =
+        -yaw_deg * static_cast<float>(M_PI) / 180.0f;
 
     // Rotation matrix
     Eigen::Matrix3f R;

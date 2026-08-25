@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <Eigen/Dense>
 
@@ -9,6 +10,8 @@ class Perception3DPipeline
 {
 public:
 
+    Perception3DPipeline();
+    
     struct ProjectionResult
     {
         std::vector<int> u;
@@ -29,4 +32,5 @@ private:
     float fy;
     float cx;
     float cy;
+    std::unordered_map<std::string, float> camera_yaw;
 };
