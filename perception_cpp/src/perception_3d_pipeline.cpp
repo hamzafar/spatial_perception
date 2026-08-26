@@ -79,3 +79,81 @@ Perception3DPipeline::project_lidar(
 
     return result;
 }
+std::vector<Perception3DPipeline::ObjectCloud>
+Perception3DPipeline::extract_object_clouds(
+    const std::vector<cv::Mat>& masks,
+    const std::vector<Eigen::Vector4f>& boxes,
+    const std::vector<int>& classes,
+    const std::vector<std::string>& class_names,
+    const std::vector<int>& u,
+    const std::vector<int>& v,
+    const std::vector<Eigen::Vector3f>& projected_points,
+    int image_width,
+    int image_height
+)
+{
+    std::vector<ObjectCloud> object_clouds;
+
+    for (size_t object_id = 0; object_id < masks.size(); ++object_id)
+    {
+        // Resize mask to image resolution
+        cv::Mat mask_uint8;
+        masks[object_id].convertTo(mask_uint8, CV_8U);
+
+        cv::Mat resized_mask;
+
+        cv::resize(
+            mask_uint8,
+            resized_mask,
+            cv::Size(image_width, image_height),
+            0.0,
+            0.0,
+            cv::INTER_NEAREST
+        );
+
+        // Class
+        int class_id = classes[object_id];
+
+        std::string class_name = "unknown";
+
+        if (class_id >= 0 &&
+            class_id < static_cast<int>(class_names.size()))
+        {
+            class_name = class_names[class_id];
+        }
+
+        // Create object cloud
+        ObjectCloud object;
+
+        for (size_t i = 0; i < u.size(); ++i)
+        {
+            int x = u[i];
+            int y = v[i];
+
+            if (x < 0 || x >= image_width ||
+                y < 0 || y >= image_height)
+            {
+                continue;
+            }
+
+            if (resized_mask.at<uint8_t>(y, x) > 0)
+            {
+                ObjectPoint point;
+
+                point.u = x;
+                point.v = y;
+                point.xyz = projected_points[i];
+
+                object.cloud.push_back(point);
+            }
+        }
+
+        // Object metadata
+        object.box = boxes[object_id];
+        object.class_name = class_name;
+
+        object_clouds.push_back(object);
+    }
+
+    return object_clouds;
+}
