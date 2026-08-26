@@ -274,15 +274,27 @@ class PerceptionStack(Node):
         lidar = self.pipeline_3d.convert_ros_to_numpy(lidar_msg)
 
         # front, front_u, front_v, front_projected = self.pipeline_3d.project_lidar(front, lidar, "front")
-        # C++ LiDAR projection
+        ## C++ LiDAR projection Front 
         result = self.pipeline_3d_cpp.project_lidar(lidar, "front", front.shape[1], front.shape[0])
-        front_u = result.u
-        front_v = result.v
-        front_projected = result.ego_points
+        front_u, front_v, front_projected = result.u, result.v, result.ego_points
+    
+        # rear, rear_u, rear_v, rear_projected = self.pipeline_3d.project_lidar(rear, lidar, "rear")
+        ## C++ LiDAR projection Rear
+        result = self.pipeline_3d_cpp.project_lidar(lidar, "rear", rear.shape[1], rear.shape[0])
+        rear_u, rear_v, rear_projected = result.u, result.v, result.ego_points
+    
+        # left, left_u, left_v, left_projected = self.pipeline_3d.project_lidar(left, lidar, "left")
+        ## C++ LiDAR projection Left
+        result = self.pipeline_3d_cpp.project_lidar(lidar, "left", left.shape[1], left.shape[0])
+        left_u, left_v, left_projected = result.u, result.v, result.ego_points   
 
-        rear, rear_u, rear_v, rear_projected = self.pipeline_3d.project_lidar(rear, lidar, "rear")
-        left, left_u, left_v, left_projected = self.pipeline_3d.project_lidar(left, lidar, "left")
-        right, right_u, right_v, right_projected = self.pipeline_3d.project_lidar(right, lidar, "right")
+        # right, right_u, right_v, right_projected = self.pipeline_3d.project_lidar(right, lidar, "right")
+        ## C++ LiDAR projection Left
+        result = self.pipeline_3d_cpp.project_lidar(lidar, "right", right.shape[1], right.shape[0])
+        right_u, right_v, right_projected = result.u, result.v, result.ego_points   
+        
+        # self.validate_cpp_projection(python_u,python_v,python_projected,cpp_u,cpp_v,cpp_projected,tolerance=1e-5)
+
 
         front_clouds = self.pipeline_3d.extract_object_clouds(front, front_u, front_v, front_projected, front_results)
         rear_clouds = self.pipeline_3d.extract_object_clouds(rear, rear_u, rear_v, rear_projected, rear_results)
@@ -381,51 +393,128 @@ class PerceptionStack(Node):
 
         # self.recorder.record(dashboard_data)
 
-        # self.dashboard.push({
-        #     "sensors": {
-        #         "cam": True,
-        #         "radar": True,
-        #         "gnss": True,
-        #         "imu": True,
-        #         "lidar": True
-        #     },
 
-        #     "frame_idx": front_msg.header.stamp.nanosec,
 
-        #     "fps": metrics["fps"],
-        #     "latency_ms": metrics["latency_ms"],
-        #     "gpu_pct": metrics["gpu_pct"],
-        #     "cpu_pct": metrics["cpu_pct"],
+    def validate_cpp_projection(
+        self,
+        python_u,
+        python_v,
+        python_projected,
+        cpp_u,
+        cpp_v,
+        cpp_projected,
+        tolerance=1e-5
+    ):
+        """
+        Compare Python and C++ LiDAR projection results.
 
-        #     "objects_count": object_counts,
+        Returns:
+            True  -> PASS
+            False -> FAIL
+        """
 
-        #     "trajectory_reset": self.trajectory_reset,
+        # Compare number of projected points
+        if len(python_u) != len(cpp_u):
+            print(
+                f"[FAIL] u size mismatch: "
+                f"Python={len(python_u)}, C++={len(cpp_u)}"
+            )
+            return False
 
-        #     "ego": {
-        #         "heading_deg": float(heading_deg),
-        #         "speed_mps": float(gnss["speed"]),
+        if len(python_v) != len(cpp_v):
+            print(
+                f"[FAIL] v size mismatch: "
+                f"Python={len(python_v)}, C++={len(cpp_v)}"
+            )
+            return False
 
-        #         "accelerating": "Accelerating" in imu["motion_state"],
-        #         "braking": "Braking" in imu["motion_state"],
+        if len(python_projected) != len(cpp_projected):
+            print(
+                f"[FAIL] ego_points size mismatch: "
+                f"Python={len(python_projected)}, C++={len(cpp_projected)}"
+            )
+            return False
 
-        #         "turning_left": "Turning Left" in imu["motion_state"],
-        #         "turning_right": "Turning Right" in imu["motion_state"],
+        # Compare pixel coordinates
+        # python_u = np.asarray(python_u)
+        # cpp_u = np.asarray(cpp_u)
 
-        #         "world_x": float(gnss["position"][0]),
-        #         "world_y": float(gnss["position"][1]),
-        #     },
+        # if not np.array_equal(python_u, cpp_u):
+        #     print("[FAIL] u coordinates mismatch")
+        #     print("Python:", python_u)
+        #     print("C++   :", cpp_u)
 
-        #     "cameras": {
-        #         "front": front_camera,
-        #         "left": left_camera,
-        #         "rear": rear_camera,
-        #         "right": right_camera,
-        #     },
+        #     diff = python_u != cpp_u
+        #     print("Indices:", np.where(diff)[0])
+        #     print("Python mismatch:", python_u[diff])
+        #     print("C++ mismatch   :", cpp_u[diff])
+        #     return False
+
+        if not np.array_equal(
+            np.asarray(python_u),
+            np.asarray(cpp_u)
+        ):
+            print("[FAIL] u coordinates mismatch")
             
-        #     "bev_objects": bev_objects,
-        #     "nearest_objects": nearest_objects
-            
-        # })
+            python_u = np.asarray(python_u)
+            cpp_u = np.asarray(cpp_u)
+
+            diff = np.abs(
+                python_u.astype(np.int32) -
+                cpp_u.astype(np.int32)
+            )
+
+            print(
+                f"[INFO] u max diff={diff.max()}, "
+                f"mean diff={diff.mean():.6f}, "
+                f"different={np.count_nonzero(diff)}"
+            )
+
+            return False
+
+        if not np.array_equal(
+            np.asarray(python_v),
+            np.asarray(cpp_v)
+        ):
+            print("[FAIL] v coordinates mismatch")
+            python_v = np.asarray(python_v)
+            cpp_v = np.asarray(cpp_v)
+
+            diff = np.abs(
+                python_v.astype(np.int32) -
+                cpp_v.astype(np.int32)
+            )
+
+            print(
+                f"[INFO] v max diff={diff.max()}, "
+                f"mean diff={diff.mean():.6f}, "
+                f"different={np.count_nonzero(diff)}"
+            )
+            return False
+
+        # Compare 3D points
+        python_points = np.asarray(
+            python_projected,
+            dtype=np.float32
+        )
+
+        cpp_points = np.asarray(
+            cpp_projected,
+            dtype=np.float32
+        )
+
+        if not np.allclose(
+            python_points,
+            cpp_points,
+            atol=tolerance,
+            rtol=0.0
+        ):
+            print("[FAIL] ego_points mismatch")
+            return False
+
+        print("[PASS] Python and C++ projection results match")
+        return True
+
 
 
     def reset_trackers(self):
