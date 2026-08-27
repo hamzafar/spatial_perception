@@ -43,7 +43,7 @@ public:
     );
 
     std::vector<ObjectCloud> extract_object_clouds(
-        const std::vector<cv::Mat>& masks,
+        const std::vector<std::vector<std::vector<float>>>& masks,
         const std::vector<Eigen::Vector4f>& boxes,
         const std::vector<int>& classes,
         const std::vector<std::string>& class_names,

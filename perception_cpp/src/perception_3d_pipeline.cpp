@@ -81,7 +81,7 @@ Perception3DPipeline::project_lidar(
 }
 std::vector<Perception3DPipeline::ObjectCloud>
 Perception3DPipeline::extract_object_clouds(
-    const std::vector<cv::Mat>& masks,
+    const std::vector<std::vector<std::vector<float>>>& masks,
     const std::vector<Eigen::Vector4f>& boxes,
     const std::vector<int>& classes,
     const std::vector<std::string>& class_names,
@@ -97,8 +97,32 @@ Perception3DPipeline::extract_object_clouds(
     for (size_t object_id = 0; object_id < masks.size(); ++object_id)
     {
         // Resize mask to image resolution
+        const auto& mask_data = masks[object_id];
+
+        if (mask_data.empty() || mask_data[0].empty())
+        {
+            continue;
+        }
+
+        int mask_height = static_cast<int>(mask_data.size());
+        int mask_width = static_cast<int>(mask_data[0].size());
+
+        cv::Mat mask(
+            mask_height,
+            mask_width,
+            CV_32FC1
+        );
+
+        for (int y = 0; y < mask_height; ++y)
+        {
+            for (int x = 0; x < mask_width; ++x)
+            {
+                mask.at<float>(y, x) = mask_data[y][x];
+            }
+        }
+
         cv::Mat mask_uint8;
-        masks[object_id].convertTo(mask_uint8, CV_8U);
+        mask.convertTo(mask_uint8, CV_8U);
 
         cv::Mat resized_mask;
 

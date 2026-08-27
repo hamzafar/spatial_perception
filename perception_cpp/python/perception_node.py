@@ -390,6 +390,7 @@ class PerceptionStack(Node):
         }
 
         self.dashboard.push(dashboard_data)
+        # print(f"Latency: {latency_ms}: ms")
 
         # self.recorder.record(dashboard_data)
 
