@@ -296,11 +296,47 @@ class PerceptionStack(Node):
         # self.validate_cpp_projection(python_u,python_v,python_projected,cpp_u,cpp_v,cpp_projected,tolerance=1e-5)
 
 
-        front_clouds = self.pipeline_3d.extract_object_clouds(front, front_u, front_v, front_projected, front_results)
-        rear_clouds = self.pipeline_3d.extract_object_clouds(rear, rear_u, rear_v, rear_projected, rear_results)
-        left_clouds = self.pipeline_3d.extract_object_clouds(left, left_u, left_v, left_projected, left_results)
-        right_clouds = self.pipeline_3d.extract_object_clouds(right, right_u, right_v, right_projected, right_results)
+        # front_clouds = self.pipeline_3d.extract_object_clouds(front, front_u, front_v, front_projected, front_results)
+        ## C++ extract object cluouds Front
+        if front_results.masks is None:
+            front_clouds = []
+        else:
+            masks = front_results.masks.data.cpu().numpy()
+            front_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,front_boxes,front_classes,self.model.names,
+                front_u,front_v,front_projected,front.shape[1],front.shape[0])
+            front_clouds = self.convert_cloud_cpp_py(front_clouds_cpp)
 
+        # rear_clouds = self.pipeline_3d.extract_object_clouds(rear, rear_u, rear_v, rear_projected, rear_results)
+        ## C++ extract object cluouds Rear
+        if rear_results.masks is None:
+            rear_clouds = []
+        else:
+            masks = rear_results.masks.data.cpu().numpy()
+            rear_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,rear_boxes,rear_classes,self.model.names,
+                rear_u,rear_v,rear_projected,rear.shape[1],rear.shape[0])
+            rear_clouds = self.convert_cloud_cpp_py(rear_clouds_cpp)
+
+        # left_clouds = self.pipeline_3d.extract_object_clouds(left, left_u, left_v, left_projected, left_results)
+        ## C++ extract object cluouds Left
+        if left_results.masks is None:
+            left_clouds = []
+        else:
+            masks = left_results.masks.data.cpu().numpy()
+            left_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,left_boxes,left_classes,self.model.names,
+                left_u,left_v,left_projected,left.shape[1],left.shape[0])
+            left_clouds = self.convert_cloud_cpp_py(left_clouds_cpp)
+
+        # right_clouds = self.pipeline_3d.extract_object_clouds(right, right_u, right_v, right_projected, right_results)
+        ## C++ extract object cluouds Right
+        if right_results.masks is None:
+            right_clouds = []
+        else:
+            masks = right_results.masks.data.cpu().numpy()
+            right_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,right_boxes,right_classes,self.model.names,
+                right_u,right_v,right_projected,right.shape[1],right.shape[0])
+            right_clouds = self.convert_cloud_cpp_py(right_clouds_cpp)
+
+            
         front, front_objects = self.pipeline_3d.process_object_clouds_and_distance(front, front_clouds, "front")
         rear, rear_objects = self.pipeline_3d.process_object_clouds_and_distance(rear, rear_clouds, "rear")
         left, left_objects = self.pipeline_3d.process_object_clouds_and_distance(left, left_clouds, "left")
@@ -396,125 +432,23 @@ class PerceptionStack(Node):
 
 
 
-    def validate_cpp_projection(
-        self,
-        python_u,
-        python_v,
-        python_projected,
-        cpp_u,
-        cpp_v,
-        cpp_projected,
-        tolerance=1e-5
-    ):
-        """
-        Compare Python and C++ LiDAR projection results.
+    def convert_cloud_cpp_py(self, cpp_cloud):
+        py_clouds = [
+            {
+                "cloud": [
+                    {
+                        "pixel": (p.u, p.v),
+                        "xyz": p.xyz
+                    }
+                    for p in obj.cloud
+                ],
+                "box": obj.box,
+                "class_name": obj.class_name
+            }
+            for obj in cpp_cloud
+        ]
 
-        Returns:
-            True  -> PASS
-            False -> FAIL
-        """
-
-        # Compare number of projected points
-        if len(python_u) != len(cpp_u):
-            print(
-                f"[FAIL] u size mismatch: "
-                f"Python={len(python_u)}, C++={len(cpp_u)}"
-            )
-            return False
-
-        if len(python_v) != len(cpp_v):
-            print(
-                f"[FAIL] v size mismatch: "
-                f"Python={len(python_v)}, C++={len(cpp_v)}"
-            )
-            return False
-
-        if len(python_projected) != len(cpp_projected):
-            print(
-                f"[FAIL] ego_points size mismatch: "
-                f"Python={len(python_projected)}, C++={len(cpp_projected)}"
-            )
-            return False
-
-        # Compare pixel coordinates
-        # python_u = np.asarray(python_u)
-        # cpp_u = np.asarray(cpp_u)
-
-        # if not np.array_equal(python_u, cpp_u):
-        #     print("[FAIL] u coordinates mismatch")
-        #     print("Python:", python_u)
-        #     print("C++   :", cpp_u)
-
-        #     diff = python_u != cpp_u
-        #     print("Indices:", np.where(diff)[0])
-        #     print("Python mismatch:", python_u[diff])
-        #     print("C++ mismatch   :", cpp_u[diff])
-        #     return False
-
-        if not np.array_equal(
-            np.asarray(python_u),
-            np.asarray(cpp_u)
-        ):
-            print("[FAIL] u coordinates mismatch")
-            
-            python_u = np.asarray(python_u)
-            cpp_u = np.asarray(cpp_u)
-
-            diff = np.abs(
-                python_u.astype(np.int32) -
-                cpp_u.astype(np.int32)
-            )
-
-            print(
-                f"[INFO] u max diff={diff.max()}, "
-                f"mean diff={diff.mean():.6f}, "
-                f"different={np.count_nonzero(diff)}"
-            )
-
-            return False
-
-        if not np.array_equal(
-            np.asarray(python_v),
-            np.asarray(cpp_v)
-        ):
-            print("[FAIL] v coordinates mismatch")
-            python_v = np.asarray(python_v)
-            cpp_v = np.asarray(cpp_v)
-
-            diff = np.abs(
-                python_v.astype(np.int32) -
-                cpp_v.astype(np.int32)
-            )
-
-            print(
-                f"[INFO] v max diff={diff.max()}, "
-                f"mean diff={diff.mean():.6f}, "
-                f"different={np.count_nonzero(diff)}"
-            )
-            return False
-
-        # Compare 3D points
-        python_points = np.asarray(
-            python_projected,
-            dtype=np.float32
-        )
-
-        cpp_points = np.asarray(
-            cpp_projected,
-            dtype=np.float32
-        )
-
-        if not np.allclose(
-            python_points,
-            cpp_points,
-            atol=tolerance,
-            rtol=0.0
-        ):
-            print("[FAIL] ego_points mismatch")
-            return False
-
-        print("[PASS] Python and C++ projection results match")
-        return True
+        return py_clouds
 
 
 
