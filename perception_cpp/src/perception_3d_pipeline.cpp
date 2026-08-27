@@ -93,10 +93,10 @@ Perception3DPipeline::extract_object_clouds(
 )
 {
     std::vector<ObjectCloud> object_clouds;
+    object_clouds.reserve(masks.size());
 
     for (size_t object_id = 0; object_id < masks.size(); ++object_id)
     {
-        // Resize mask to image resolution
         const auto& mask_data = masks[object_id];
 
         if (mask_data.empty() || mask_data[0].empty())
@@ -107,22 +107,20 @@ Perception3DPipeline::extract_object_clouds(
         int mask_height = static_cast<int>(mask_data.size());
         int mask_width = static_cast<int>(mask_data[0].size());
 
-        cv::Mat mask(
-            mask_height,
-            mask_width,
-            CV_32FC1
-        );
+        // Build uint8 mask directly, row by row, via raw pointers
+        // (skips the CV_32FC1 intermediate + convertTo pass)
+        cv::Mat mask_uint8(mask_height, mask_width, CV_8UC1);
 
         for (int y = 0; y < mask_height; ++y)
         {
+            const float* src = mask_data[y].data();
+            uint8_t* dst = mask_uint8.ptr<uint8_t>(y);
+
             for (int x = 0; x < mask_width; ++x)
             {
-                mask.at<float>(y, x) = mask_data[y][x];
+                dst[x] = static_cast<uint8_t>(src[x]);
             }
         }
-
-        cv::Mat mask_uint8;
-        mask.convertTo(mask_uint8, CV_8U);
 
         cv::Mat resized_mask;
 
@@ -137,7 +135,6 @@ Perception3DPipeline::extract_object_clouds(
 
         // Class
         int class_id = classes[object_id];
-
         std::string class_name = "unknown";
 
         if (class_id >= 0 &&
@@ -148,6 +145,7 @@ Perception3DPipeline::extract_object_clouds(
 
         // Create object cloud
         ObjectCloud object;
+        object.cloud.reserve(u.size());
 
         for (size_t i = 0; i < u.size(); ++i)
         {
@@ -160,24 +158,126 @@ Perception3DPipeline::extract_object_clouds(
                 continue;
             }
 
-            if (resized_mask.at<uint8_t>(y, x) > 0)
+            if (resized_mask.ptr<uint8_t>(y)[x] > 0)
             {
                 ObjectPoint point;
-
                 point.u = x;
                 point.v = y;
                 point.xyz = projected_points[i];
 
-                object.cloud.push_back(point);
+                object.cloud.push_back(std::move(point));
             }
         }
 
-        // Object metadata
         object.box = boxes[object_id];
         object.class_name = class_name;
 
-        object_clouds.push_back(object);
+        object_clouds.push_back(std::move(object));
     }
 
     return object_clouds;
 }
+
+
+// std::vector<Perception3DPipeline::ObjectCloud>
+// Perception3DPipeline::extract_object_clouds(
+//     const std::vector<std::vector<std::vector<float>>>& masks,
+//     const std::vector<Eigen::Vector4f>& boxes,
+//     const std::vector<int>& classes,
+//     const std::vector<std::string>& class_names,
+//     const std::vector<int>& u,
+//     const std::vector<int>& v,
+//     const std::vector<Eigen::Vector3f>& projected_points,
+//     int image_width,
+//     int image_height
+// )
+// {
+//     std::vector<ObjectCloud> object_clouds;
+
+//     for (size_t object_id = 0; object_id < masks.size(); ++object_id)
+//     {
+//         // Resize mask to image resolution
+//         const auto& mask_data = masks[object_id];
+
+//         if (mask_data.empty() || mask_data[0].empty())
+//         {
+//             continue;
+//         }
+
+//         int mask_height = static_cast<int>(mask_data.size());
+//         int mask_width = static_cast<int>(mask_data[0].size());
+
+//         cv::Mat mask(
+//             mask_height,
+//             mask_width,
+//             CV_32FC1
+//         );
+
+//         for (int y = 0; y < mask_height; ++y)
+//         {
+//             for (int x = 0; x < mask_width; ++x)
+//             {
+//                 mask.at<float>(y, x) = mask_data[y][x];
+//             }
+//         }
+
+//         cv::Mat mask_uint8;
+//         mask.convertTo(mask_uint8, CV_8U);
+
+//         cv::Mat resized_mask;
+
+//         cv::resize(
+//             mask_uint8,
+//             resized_mask,
+//             cv::Size(image_width, image_height),
+//             0.0,
+//             0.0,
+//             cv::INTER_NEAREST
+//         );
+
+//         // Class
+//         int class_id = classes[object_id];
+
+//         std::string class_name = "unknown";
+
+//         if (class_id >= 0 &&
+//             class_id < static_cast<int>(class_names.size()))
+//         {
+//             class_name = class_names[class_id];
+//         }
+
+//         // Create object cloud
+//         ObjectCloud object;
+
+//         for (size_t i = 0; i < u.size(); ++i)
+//         {
+//             int x = u[i];
+//             int y = v[i];
+
+//             if (x < 0 || x >= image_width ||
+//                 y < 0 || y >= image_height)
+//             {
+//                 continue;
+//             }
+
+//             if (resized_mask.at<uint8_t>(y, x) > 0)
+//             {
+//                 ObjectPoint point;
+
+//                 point.u = x;
+//                 point.v = y;
+//                 point.xyz = projected_points[i];
+
+//                 object.cloud.push_back(point);
+//             }
+//         }
+
+//         // Object metadata
+//         object.box = boxes[object_id];
+//         object.class_name = class_name;
+
+//         object_clouds.push_back(object);
+//     }
+
+//     return object_clouds;
+// }

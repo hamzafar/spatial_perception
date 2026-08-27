@@ -425,11 +425,10 @@ class PerceptionStack(Node):
             "nearest_objects": nearest_objects
         }
 
-        self.dashboard.push(dashboard_data)
+        # self.dashboard.push(dashboard_data)
         # print(f"Latency: {latency_ms}: ms")
 
-        # self.recorder.record(dashboard_data)
-
+        self.recorder.record(dashboard_data)
 
 
     def convert_cloud_cpp_py(self, cpp_cloud):
