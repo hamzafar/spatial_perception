@@ -319,7 +319,7 @@ Unified 360° 3D object tracking using four synchronized RGB cameras, LiDAR, geo
 <h3 align="center">Ego Motion Estimation</h3>
 
 <p align="center">
-  <img src="assets/gifs/phase11A_pipeline.gif" width="700"/>
+  <img src="assets/gifs/phase11A_pipeline.gif" width="350"/>
 </p>
 
 <p align="center">
