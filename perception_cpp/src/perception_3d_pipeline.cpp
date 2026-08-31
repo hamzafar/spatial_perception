@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <stdexcept>
+#include <algorithm>
 
 Perception3DPipeline::Perception3DPipeline()
     : fx(320.0f),
@@ -178,106 +179,150 @@ Perception3DPipeline::extract_object_clouds(
     return object_clouds;
 }
 
+Perception3DPipeline::ProcessedObjectsResult
+Perception3DPipeline::process_object_clouds_and_distance(
+    cv::Mat& image,
+    const std::vector<ObjectCloud>& object_clouds,
+    const std::string& camera_name
+)
+{
+    ProcessedObjectsResult result;
 
-// std::vector<Perception3DPipeline::ObjectCloud>
-// Perception3DPipeline::extract_object_clouds(
-//     const std::vector<std::vector<std::vector<float>>>& masks,
-//     const std::vector<Eigen::Vector4f>& boxes,
-//     const std::vector<int>& classes,
-//     const std::vector<std::string>& class_names,
-//     const std::vector<int>& u,
-//     const std::vector<int>& v,
-//     const std::vector<Eigen::Vector3f>& projected_points,
-//     int image_width,
-//     int image_height
-// )
-// {
-//     std::vector<ObjectCloud> object_clouds;
+    result.image = image.clone();
 
-//     for (size_t object_id = 0; object_id < masks.size(); ++object_id)
-//     {
-//         // Resize mask to image resolution
-//         const auto& mask_data = masks[object_id];
+    for (const auto& obj : object_clouds)
+    {
+        // --------------------------------------------------
+        // Draw object cloud
+        // --------------------------------------------------
 
-//         if (mask_data.empty() || mask_data[0].empty())
-//         {
-//             continue;
-//         }
+        for (const auto& point : obj.cloud)
+        {
+            cv::circle(
+                result.image,
+                cv::Point(point.u, point.v),
+                2,
+                cv::Scalar(0, 255, 0),
+                -1
+            );
+        }
 
-//         int mask_height = static_cast<int>(mask_data.size());
-//         int mask_width = static_cast<int>(mask_data[0].size());
 
-//         cv::Mat mask(
-//             mask_height,
-//             mask_width,
-//             CV_32FC1
-//         );
+        // --------------------------------------------------
+        // No LiDAR points
+        // --------------------------------------------------
 
-//         for (int y = 0; y < mask_height; ++y)
-//         {
-//             for (int x = 0; x < mask_width; ++x)
-//             {
-//                 mask.at<float>(y, x) = mask_data[y][x];
-//             }
-//         }
+        if (obj.cloud.empty())
+        {
+            continue;
+        }
 
-//         cv::Mat mask_uint8;
-//         mask.convertTo(mask_uint8, CV_8U);
 
-//         cv::Mat resized_mask;
+        // --------------------------------------------------
+        // Calculate distances
+        // --------------------------------------------------
 
-//         cv::resize(
-//             mask_uint8,
-//             resized_mask,
-//             cv::Size(image_width, image_height),
-//             0.0,
-//             0.0,
-//             cv::INTER_NEAREST
-//         );
+        std::vector<float> distances;
 
-//         // Class
-//         int class_id = classes[object_id];
+        distances.reserve(obj.cloud.size());
 
-//         std::string class_name = "unknown";
+        for (const auto& point : obj.cloud)
+        {
+            distances.push_back(point.xyz.norm());
+        }
 
-//         if (class_id >= 0 &&
-//             class_id < static_cast<int>(class_names.size()))
-//         {
-//             class_name = class_names[class_id];
-//         }
 
-//         // Create object cloud
-//         ObjectCloud object;
+        // --------------------------------------------------
+        // 10th percentile
+        // --------------------------------------------------
 
-//         for (size_t i = 0; i < u.size(); ++i)
-//         {
-//             int x = u[i];
-//             int y = v[i];
+        std::vector<float> sorted_distances = distances;
 
-//             if (x < 0 || x >= image_width ||
-//                 y < 0 || y >= image_height)
-//             {
-//                 continue;
-//             }
+        std::sort(
+            sorted_distances.begin(),
+            sorted_distances.end()
+        );
 
-//             if (resized_mask.at<uint8_t>(y, x) > 0)
-//             {
-//                 ObjectPoint point;
+        size_t percentile_index =
+            static_cast<size_t>(
+                0.10f * sorted_distances.size()
+            );
 
-//                 point.u = x;
-//                 point.v = y;
-//                 point.xyz = projected_points[i];
+        if (percentile_index >= sorted_distances.size())
+        {
+            percentile_index =
+                sorted_distances.size() - 1;
+        }
 
-//                 object.cloud.push_back(point);
-//             }
-//         }
+        float threshold =
+            sorted_distances[percentile_index];
 
-//         // Object metadata
-//         object.box = boxes[object_id];
-//         object.class_name = class_name;
+        float distance = threshold;
 
-//         object_clouds.push_back(object);
-//     }
 
-//     return object_clouds;
-// }
+        // --------------------------------------------------
+        // Front-most points
+        // --------------------------------------------------
+
+        std::vector<Eigen::Vector3f> front_points;
+
+        for (size_t i = 0; i < obj.cloud.size(); ++i)
+        {
+            if (distances[i] <= threshold)
+            {
+                front_points.push_back(
+                    obj.cloud[i].xyz
+                );
+            }
+        }
+
+
+        // --------------------------------------------------
+        // Fallback
+        // --------------------------------------------------
+
+        if (front_points.empty())
+        {
+            for (const auto& point : obj.cloud)
+            {
+                front_points.push_back(point.xyz);
+            }
+        }
+
+
+        // --------------------------------------------------
+        // Mean position
+        // --------------------------------------------------
+
+        Eigen::Vector3f position =
+            Eigen::Vector3f::Zero();
+
+        for (const auto& point : front_points)
+        {
+            position += point;
+        }
+
+        position /= static_cast<float>(
+            front_points.size()
+        );
+
+
+        // --------------------------------------------------
+        // Create world object
+        // --------------------------------------------------
+
+        WorldObject world_object;
+
+        world_object.class_name = obj.class_name;
+        world_object.camera = camera_name;
+        world_object.box = obj.box;
+        world_object.position = position;
+        world_object.distance = distance;
+
+        result.world_objects.push_back(
+            world_object
+        );
+    }
+
+    return result;
+}

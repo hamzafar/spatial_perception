@@ -33,6 +33,21 @@ public:
         std::string class_name;
     };
 
+    struct WorldObject
+    {
+        std::string class_name;
+        std::string camera;
+        Eigen::Vector4f box;
+        Eigen::Vector3f position;
+        float distance;
+    };    
+
+    struct ProcessedObjectsResult
+    {
+        cv::Mat image;
+        std::vector<WorldObject> world_objects;
+    };    
+
     Perception3DPipeline();
 
     ProjectionResult project_lidar(
@@ -52,6 +67,12 @@ public:
         const std::vector<Eigen::Vector3f>& projected_points,
         int image_width,
         int image_height
+    );
+
+    ProcessedObjectsResult process_object_clouds_and_distance(
+        cv::Mat& image,
+        const std::vector<ObjectCloud>& object_clouds,
+        const std::string& camera_name
     );
 
 private:
