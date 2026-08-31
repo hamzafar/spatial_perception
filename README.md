@@ -1,8 +1,8 @@
 # Spatial Perception
 
-A robotics perception engineering project focused on building **3D spatial understanding, multi-object tracking, and temporal perception** using synchronized RGB cameras and LiDAR.
+A robotics perception engineering project focused on building **3D spatial understanding, multi-object tracking, and temporal perception** using synchronized cameras, LiDAR, IMU, and GNSS.
 
-Built using CARLA, ROS2, OpenCV, YOLO, and LiDAR-based 3D detection, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, unified spatial perception, cross-camera object association, and 2D/3D multi-object tracking, establishing a foundation for 360° environmental understanding and dynamic scene perception.
+Built using CARLA, ROS2, OpenCV, YOLO, and LiDAR-based 3D detection, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, unified spatial perception, cross-camera object association, 2D/3D multi-object tracking, and ego motion estimation, establishing a foundation for 360° environmental understanding and dynamic scene perception.
 
 This project builds upon the 2D perception stack developed in the companion repository:
 
@@ -21,9 +21,10 @@ This project builds upon the 2D perception stack developed in the companion repo
 | 3D Detection         | PointPillars / OpenPCDet         |
 | 3D Tracking          | AB3DMOT                          |
 | 3D Sensor            | LiDAR                            |
+| Navigation Sensors   | IMU / GNSS                       |
 | Programming Language | Python                           |
 | Communication        | CycloneDDS                       |
-| Environment           | Windows 11 + WSL2 Ubuntu 22.04  |
+| Environment          | Windows 11 + WSL2 Ubuntu 22.04   |
 
 ---
 
@@ -58,6 +59,12 @@ Unified World Representation
           │
           ▼
 3D Multi-Object Tracking
+          │
+          ▼
+Ego Motion Estimation
+          │
+          ▼
+Dynamic Scene Perception
 ```
 ---
 
@@ -157,12 +164,19 @@ Extending the perception pipeline with temporal multi-object tracking using YOLO
 --- 
 
 ### 🚧 Phase 11 Motion Estimation
-  - Documentation will be published after project milestone release.
+Extending the perception pipeline with ego motion estimation using synchronized GNSS and IMU measurements for position, speed, acceleration, heading, and motion-state estimation.
 
 #### Milestones
 
 - ✅ **11A — Ego Motion Estimation**
-- ✅ **11B — Ego Surrounding Object Motion Estimation**
+
+  - Estimated ego position, speed, acceleration, heading, and yaw rate using synchronized GNSS and IMU measurements.
+
+  - Implemented ego motion-state classification and trajectory visualization using deterministic offline replay data.
+
+  - 📁 [View Phase 11A](11_motion_estimation/11A_ego_motion_estimation/)
+
+- 🚧 **11B — Ego Surrounding Object Motion Estimation**
 
 ---
 ## Demonstrations
@@ -300,6 +314,16 @@ Persistent 3D object identities maintained across consecutive LiDAR frames using
 
 <p align="center">
 Unified 360° 3D object tracking using four synchronized RGB cameras, LiDAR, geometric cross-camera association, and AB3DMOT with persistent 3D Track IDs.
+</p>
+
+<h3 align="center">Ego Motion Estimation</h3>
+
+<p align="center">
+  <img src="assets/gifs/phase11A_pipeline.gif" width="700"/>
+</p>
+
+<p align="center">
+Ego position, speed, acceleration, heading, yaw rate, and motion state estimated from synchronized GNSS and IMU data with front-camera trajectory visualization.
 </p>
 
 ---
