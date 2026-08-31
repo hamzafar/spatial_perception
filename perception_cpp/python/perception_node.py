@@ -337,10 +337,34 @@ class PerceptionStack(Node):
             right_clouds = self.convert_cloud_cpp_py(right_clouds_cpp)
 
             
-        front, front_objects = self.pipeline_3d.process_object_clouds_and_distance(front, front_clouds, "front")
-        rear, rear_objects = self.pipeline_3d.process_object_clouds_and_distance(rear, rear_clouds, "rear")
-        left, left_objects = self.pipeline_3d.process_object_clouds_and_distance(left, left_clouds, "left")
-        right, right_objects = self.pipeline_3d.process_object_clouds_and_distance(right, right_clouds, "right")
+        # front, front_objects = self.pipeline_3d.process_object_clouds_and_distance(front, front_clouds, "front")
+        ## C++ clouds and distances Front
+        front_objects = []
+        if front_results.masks is not None:
+            front, front_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(front, front_clouds_cpp, "front")
+            front_objects = self.convert_world_objects_cpp_py(front_objects_cpp)
+
+        # rear, rear_objects = self.pipeline_3d.process_object_clouds_and_distance(rear, rear_clouds, "rear")
+        ## C++ clouds and distances rear
+        rear_objects = []
+        if rear_results.masks is not None:
+            rear, rear_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(rear, rear_clouds_cpp, "rear")
+            rear_objects = self.convert_world_objects_cpp_py(rear_objects_cpp)
+
+        # left, left_objects = self.pipeline_3d.process_object_clouds_and_distance(left, left_clouds, "left")
+        ## C++ clouds and distances left
+        left_objects = []
+        if left_results.masks is not None:
+            left, left_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(left, left_clouds_cpp, "left")
+            left_objects = self.convert_world_objects_cpp_py(left_objects_cpp)
+
+        # right, right_objects = self.pipeline_3d.process_object_clouds_and_distance(right, right_clouds, "right")
+        ## C++ clouds and distances right
+        right_objects = []
+        if right_results.masks is not None:
+            right, right_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(right, right_clouds_cpp, "right")
+            right_objects = self.convert_world_objects_cpp_py(right_objects_cpp)
+
 
         front_objects = self.perception_utils.attach_track_ids(front_objects, front_targets, "F")
         rear_objects = self.perception_utils.attach_track_ids(rear_objects, rear_targets, "R")
@@ -430,6 +454,22 @@ class PerceptionStack(Node):
 
         # self.recorder.record(dashboard_data)
 
+
+    def convert_world_objects_cpp_py(self, cpp_world_objects):
+        world_objects = []
+
+        for obj in cpp_world_objects:
+            world_objects.append(
+                {
+                    "class": obj.class_name,
+                    "camera": obj.camera,
+                    "box": obj.box,
+                    "position": obj.position,
+                    "distance": obj.distance
+                }
+            )
+
+        return world_objects
 
     def convert_cloud_cpp_py(self, cpp_cloud):
         py_clouds = [

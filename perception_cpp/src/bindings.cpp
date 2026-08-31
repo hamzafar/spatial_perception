@@ -434,7 +434,7 @@ PYBIND11_MODULE(perception_cpp, m)
             py::arg("projected_points"),
             py::arg("image_width"),
             py::arg("image_height")
-        );
+        )
 
         // --------------------------------------------------
         // Process object clouds and distance
