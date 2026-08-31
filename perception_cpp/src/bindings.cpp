@@ -58,6 +58,36 @@ PYBIND11_MODULE(perception_cpp, m)
 
 
     // --------------------------------------------------
+    // WorldObject
+    // --------------------------------------------------
+
+    py::class_<Perception3DPipeline::WorldObject>(
+        m,
+        "WorldObject"
+    )
+        .def_readonly(
+            "class_name",
+            &Perception3DPipeline::WorldObject::class_name
+        )
+        .def_readonly(
+            "camera",
+            &Perception3DPipeline::WorldObject::camera
+        )
+        .def_readonly(
+            "box",
+            &Perception3DPipeline::WorldObject::box
+        )
+        .def_readonly(
+            "position",
+            &Perception3DPipeline::WorldObject::position
+        )
+        .def_readonly(
+            "distance",
+            &Perception3DPipeline::WorldObject::distance
+        );
+
+
+    // --------------------------------------------------
     // ProjectionResult
     // --------------------------------------------------
 
@@ -405,4 +435,64 @@ PYBIND11_MODULE(perception_cpp, m)
             py::arg("image_width"),
             py::arg("image_height")
         );
+
+        // --------------------------------------------------
+        // Process object clouds and distance
+        // --------------------------------------------------
+
+        .def(
+            "process_object_clouds_and_distance",
+            [](Perception3DPipeline& self,
+            py::array_t<uint8_t, py::array::c_style | py::array::forcecast> image,
+            const std::vector<Perception3DPipeline::ObjectCloud>& object_clouds,
+            const std::string& camera_name)
+            {
+                auto image_buf = image.request();
+
+                if (image_buf.ndim != 3 ||
+                    image_buf.shape[2] != 3)
+                {
+                    throw std::runtime_error(
+                        "image must have shape (H, W, 3)"
+                    );
+                }
+
+                cv::Mat image_cpp(
+                    static_cast<int>(image_buf.shape[0]),
+                    static_cast<int>(image_buf.shape[1]),
+                    CV_8UC3,
+                    image_buf.ptr
+                );
+
+                auto result =
+                    self.process_object_clouds_and_distance(
+                        image_cpp,
+                        object_clouds,
+                        camera_name
+                    );
+
+                py::array_t<uint8_t> output_image({
+                    static_cast<size_t>(result.image.rows),
+                    static_cast<size_t>(result.image.cols),
+                    static_cast<size_t>(3)
+                });
+
+                std::memcpy(
+                    output_image.mutable_data(),
+                    result.image.data,
+                    result.image.total() *
+                    result.image.elemSize()
+                );
+
+                return py::make_tuple(
+                    output_image,
+                    result.world_objects
+                );
+            },
+            py::arg("image"),
+            py::arg("object_clouds"),
+            py::arg("camera_name")
+        );
+
+        
 }
