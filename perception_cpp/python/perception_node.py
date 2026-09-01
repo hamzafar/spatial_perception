@@ -304,7 +304,7 @@ class PerceptionStack(Node):
             masks = front_results.masks.data.cpu().numpy()
             front_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,front_boxes,front_classes,self.model.names,
                 front_u,front_v,front_projected,front.shape[1],front.shape[0])
-            front_clouds = self.convert_cloud_cpp_py(front_clouds_cpp)
+            # front_clouds = self.convert_cloud_cpp_py(front_clouds_cpp)
 
         # rear_clouds = self.pipeline_3d.extract_object_clouds(rear, rear_u, rear_v, rear_projected, rear_results)
         ## C++ extract object cluouds Rear
@@ -314,7 +314,7 @@ class PerceptionStack(Node):
             masks = rear_results.masks.data.cpu().numpy()
             rear_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,rear_boxes,rear_classes,self.model.names,
                 rear_u,rear_v,rear_projected,rear.shape[1],rear.shape[0])
-            rear_clouds = self.convert_cloud_cpp_py(rear_clouds_cpp)
+            # rear_clouds = self.convert_cloud_cpp_py(rear_clouds_cpp)
 
         # left_clouds = self.pipeline_3d.extract_object_clouds(left, left_u, left_v, left_projected, left_results)
         ## C++ extract object cluouds Left
@@ -324,7 +324,7 @@ class PerceptionStack(Node):
             masks = left_results.masks.data.cpu().numpy()
             left_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,left_boxes,left_classes,self.model.names,
                 left_u,left_v,left_projected,left.shape[1],left.shape[0])
-            left_clouds = self.convert_cloud_cpp_py(left_clouds_cpp)
+            # left_clouds = self.convert_cloud_cpp_py(left_clouds_cpp)
 
         # right_clouds = self.pipeline_3d.extract_object_clouds(right, right_u, right_v, right_projected, right_results)
         ## C++ extract object cluouds Right
@@ -334,7 +334,7 @@ class PerceptionStack(Node):
             masks = right_results.masks.data.cpu().numpy()
             right_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,right_boxes,right_classes,self.model.names,
                 right_u,right_v,right_projected,right.shape[1],right.shape[0])
-            right_clouds = self.convert_cloud_cpp_py(right_clouds_cpp)
+            # right_clouds = self.convert_cloud_cpp_py(right_clouds_cpp)
 
             
         # front, front_objects = self.pipeline_3d.process_object_clouds_and_distance(front, front_clouds, "front")
