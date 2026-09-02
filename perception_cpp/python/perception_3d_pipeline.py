@@ -41,31 +41,69 @@ class Perception3DPipeline:
         )
 
 
-    def convert_ros_to_numpy(
-        self,
-        lidar_msg
-    ):
+    def convert_ros_to_numpy(self, lidar_msg):
+        """
+        Vectorized PointCloud2 -> Nx3 float32 XYZ array.
+        Avoids point_cloud2.read_points()'s per-point Python loop.
+        """
+        # Map field name -> (offset, datatype)
+        field_map = {f.name: f for f in lidar_msg.fields}
 
-        points = np.asarray(
-            list(
-                point_cloud2.read_points(
-                    lidar_msg,
-                    field_names=("x", "y", "z"),
-                    skip_nans=True
-                )
-            )
-        )
+        # PointCloud2 datatype -> numpy dtype
+        _DATATYPE_TO_NP = {
+            1: np.int8, 2: np.uint8, 3: np.int16, 4: np.uint16,
+            5: np.int32, 6: np.uint32, 7: np.float32, 8: np.float64,
+        }
 
-        xyz = np.stack(
-            [
-                points["x"],
-                points["y"],
-                points["z"]
-            ],
-            axis=1
-        ).astype(np.float32)
+        point_step = lidar_msg.point_step
+        n_points = lidar_msg.width * lidar_msg.height
+
+        # Raw buffer as uint8, reshaped into one row per point
+        raw = np.frombuffer(lidar_msg.data, dtype=np.uint8)
+        raw = raw.reshape(n_points, point_step)
+
+        xyz = np.empty((n_points, 3), dtype=np.float32)
+
+        for i, name in enumerate(("x", "y", "z")):
+            f = field_map[name]
+            dtype = _DATATYPE_TO_NP[f.datatype]
+            itemsize = np.dtype(dtype).itemsize
+
+            # Slice out the bytes for this field from every row, reinterpret as dtype
+            field_bytes = raw[:, f.offset : f.offset + itemsize]
+            xyz[:, i] = field_bytes.view(dtype).reshape(-1).astype(np.float32, copy=False)
+
+        # skip_nans equivalent — vectorized
+        mask = np.isfinite(xyz).all(axis=1)
+        xyz = xyz[mask]
 
         return xyz
+
+    # def convert_ros_to_numpy(
+    #     self,
+    #     lidar_msg
+    # ):
+
+    #     points = np.asarray(
+    #         list(
+    #             point_cloud2.read_points(
+    #                 lidar_msg,
+    #                 field_names=("x", "y", "z"),
+    #                 skip_nans=True
+    #             )
+    #         )
+    #     )
+
+    #     xyz = np.stack(
+    #         [
+    #             points["x"],
+    #             points["y"],
+    #             points["z"]
+    #         ],
+    #         axis=1
+    #     ).astype(np.float32)
+
+    #     return xyz
 
 
     def yolo_detection(
