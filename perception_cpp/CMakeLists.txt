@@ -16,6 +16,7 @@ find_package(OpenCV REQUIRED)
 pybind11_add_module(perception_cpp
     src/bindings.cpp
     src/perception_3d_pipeline.cpp
+    src/perception_utils.cpp
 )
 
 target_compile_options(perception_cpp

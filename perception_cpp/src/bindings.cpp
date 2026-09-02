@@ -8,6 +8,7 @@
 #include <stdexcept>
 
 #include "perception_3d_pipeline.hpp"
+#include "perception_utils.hpp"
 
 namespace py = pybind11;
 
@@ -84,9 +85,66 @@ PYBIND11_MODULE(perception_cpp, m)
         .def_readonly(
             "distance",
             &Perception3DPipeline::WorldObject::distance
+        )
+        .def_readonly("id",
+              &Perception3DPipeline::WorldObject::id);
+
+    // --------------------------------------------------
+    // AttachTrackIds
+    // --------------------------------------------------
+    py::class_<PerceptionUtils>(
+        m,
+        "PerceptionUtils"
+    )
+        .def(
+            py::init<>()
+        )
+        .def(
+            "attach_track_ids",
+            [](PerceptionUtils& self,
+            std::vector<Perception3DPipeline::WorldObject>& world_objects,
+            py::list online_targets,
+            const std::string& camera_prefix)
+            {
+                std::vector<PerceptionUtils::TrackTarget> targets;
+
+                targets.reserve(online_targets.size());
+
+                for (auto target : online_targets)
+                {
+                    PerceptionUtils::TrackTarget t;
+
+                    t.track_id =
+                        target.attr("track_id").cast<int>();
+
+                    auto tlwh =
+                        target.attr("tlwh").cast<py::sequence>();
+
+                    t.x =
+                        tlwh[0].cast<float>();
+
+                    t.y =
+                        tlwh[1].cast<float>();
+
+                    t.width =
+                        tlwh[2].cast<float>();
+
+                    t.height =
+                        tlwh[3].cast<float>();
+
+                    targets.push_back(t);
+                }
+
+                return self.attach_track_ids(
+                    world_objects,
+                    targets,
+                    camera_prefix
+                );
+            },
+            py::arg("world_objects"),
+            py::arg("online_targets"),
+            py::arg("camera_prefix")
         );
-
-
     // --------------------------------------------------
     // ProjectionResult
     // --------------------------------------------------

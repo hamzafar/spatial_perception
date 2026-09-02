@@ -50,6 +50,7 @@ sys.path.insert(0, str(CPP_BUILD))
 
 import perception_cpp
 
+
 class PerceptionStack(Node):
 
     def __init__(self):
@@ -121,6 +122,9 @@ class PerceptionStack(Node):
 
         # Initialize perception utils
         self.perception_utils = PerceptionUtils()
+
+        # Initialize C++ perception utilities
+        self.perception_utils_cpp = perception_cpp.PerceptionUtils()
 
         # Initialize radar perception pipeline
         self.pipeline_radar = RadarPerceptionPipeline()
@@ -304,7 +308,7 @@ class PerceptionStack(Node):
             masks = front_results.masks.data.cpu().numpy()
             front_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,front_boxes,front_classes,self.model.names,
                 front_u,front_v,front_projected,front.shape[1],front.shape[0])
-            # front_clouds = self.convert_cloud_cpp_py(front_clouds_cpp)
+            front_clouds = self.convert_cloud_cpp_py(front_clouds_cpp)
 
         # rear_clouds = self.pipeline_3d.extract_object_clouds(rear, rear_u, rear_v, rear_projected, rear_results)
         ## C++ extract object cluouds Rear
@@ -342,34 +346,53 @@ class PerceptionStack(Node):
         front_objects = []
         if front_results.masks is not None:
             front, front_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(front, front_clouds_cpp, "front")
-            front_objects = self.convert_world_objects_cpp_py(front_objects_cpp)
+            # front_objects = self.convert_world_objects_cpp_py(front_objects_cpp)
 
         # rear, rear_objects = self.pipeline_3d.process_object_clouds_and_distance(rear, rear_clouds, "rear")
         ## C++ clouds and distances rear
         rear_objects = []
         if rear_results.masks is not None:
             rear, rear_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(rear, rear_clouds_cpp, "rear")
-            rear_objects = self.convert_world_objects_cpp_py(rear_objects_cpp)
+            # rear_objects = self.convert_world_objects_cpp_py(rear_objects_cpp)
 
         # left, left_objects = self.pipeline_3d.process_object_clouds_and_distance(left, left_clouds, "left")
         ## C++ clouds and distances left
         left_objects = []
         if left_results.masks is not None:
             left, left_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(left, left_clouds_cpp, "left")
-            left_objects = self.convert_world_objects_cpp_py(left_objects_cpp)
+            # left_objects = self.convert_world_objects_cpp_py(left_objects_cpp)
 
         # right, right_objects = self.pipeline_3d.process_object_clouds_and_distance(right, right_clouds, "right")
         ## C++ clouds and distances right
         right_objects = []
         if right_results.masks is not None:
             right, right_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(right, right_clouds_cpp, "right")
-            right_objects = self.convert_world_objects_cpp_py(right_objects_cpp)
+            # right_objects = self.convert_world_objects_cpp_py(right_objects_cpp)
 
 
-        front_objects = self.perception_utils.attach_track_ids(front_objects, front_targets, "F")
-        rear_objects = self.perception_utils.attach_track_ids(rear_objects, rear_targets, "R")
-        left_objects = self.perception_utils.attach_track_ids(left_objects, left_targets, "L")
-        right_objects =self.perception_utils.attach_track_ids(right_objects, right_targets, "RT")
+        # front_objects = self.perception_utils.attach_track_ids(front_objects, front_targets, "F")
+        ## C++ Front attach track ids
+        if front_results.masks is not None:
+            front_objects_cpp = self.perception_utils_cpp.attach_track_ids(front_objects_cpp, front_targets, "F")
+            front_objects = self.convert_world_objects_tr_cpp_py(front_objects_cpp)
+        
+        # rear_objects = self.perception_utils.attach_track_ids(rear_objects, rear_targets, "R")
+        ## C++ rear attach track ids
+        if rear_results.masks is not None:
+            rear_objects_cpp = self.perception_utils_cpp.attach_track_ids(rear_objects_cpp, rear_targets, "R")
+            rear_objects = self.convert_world_objects_tr_cpp_py(rear_objects_cpp)
+
+        # left_objects = self.perception_utils.attach_track_ids(left_objects, left_targets, "L")
+        ## C++ left attach track ids
+        if left_results.masks is not None:
+            left_objects_cpp = self.perception_utils_cpp.attach_track_ids(left_objects_cpp, left_targets, "L")
+            left_objects = self.convert_world_objects_tr_cpp_py(left_objects_cpp)
+
+        # right_objects =self.perception_utils.attach_track_ids(right_objects, right_targets, "RT")
+        ## C++ right attach track ids
+        if right_results.masks is not None:
+            right_objects_cpp = self.perception_utils_cpp.attach_track_ids(right_objects_cpp, right_targets, "RT")
+            right_objects = self.convert_world_objects_tr_cpp_py(right_objects_cpp)
 
         # World Objects Motion (Radar)
         radar_points = self.pipeline_radar.convert_ros_to_numpy(radar_msg)
@@ -454,6 +477,27 @@ class PerceptionStack(Node):
 
         # self.recorder.record(dashboard_data)
 
+
+    def convert_world_objects_tr_cpp_py(self, cpp_world_objects):
+
+        world_objects = []
+
+        for obj in cpp_world_objects:
+
+            world_object = {
+                "class": obj.class_name,
+                "camera": obj.camera,
+                "box": obj.box,
+                "position": obj.position,
+                "distance": obj.distance
+            }
+
+            if obj.id:
+                world_object["id"] = obj.id
+
+            world_objects.append(world_object)
+
+        return world_objects
 
     def convert_world_objects_cpp_py(self, cpp_world_objects):
         world_objects = []

@@ -40,6 +40,7 @@ public:
         Eigen::Vector4f box;
         Eigen::Vector3f position;
         float distance;
+        std::string id;
     };    
 
     struct ProcessedObjectsResult
