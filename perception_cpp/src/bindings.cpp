@@ -9,6 +9,7 @@
 
 #include "perception_3d_pipeline.hpp"
 #include "perception_utils.hpp"
+#include "radar_perception_pipeline.hpp"
 
 namespace py = pybind11;
 
@@ -204,6 +205,328 @@ PYBIND11_MODULE(perception_cpp, m)
 
                 return arr;
             }
+        );
+
+
+    // --------------------------------------------------
+    // RadarPerceptionPipeline
+    // --------------------------------------------------
+
+    py::class_<RadarPerceptionPipeline>(
+        m,
+        "RadarPerceptionPipeline"
+    )
+        .def(
+            py::init<>()
+        )
+
+        .def(
+            "set_velocity_threshold",
+            &RadarPerceptionPipeline::set_velocity_threshold,
+            py::arg("threshold")
+        )
+
+        .def(
+            "set_max_assoc_distance_px",
+            &RadarPerceptionPipeline::set_max_assoc_distance_px,
+            py::arg("distance")
+        )
+
+        .def(
+            "set_camera_intrinsics",
+            &RadarPerceptionPipeline::set_camera_intrinsics,
+            py::arg("fx"),
+            py::arg("fy"),
+            py::arg("cx"),
+            py::arg("cy"),
+            py::arg("width"),
+            py::arg("height")
+        )
+
+        .def(
+            "set_radar_to_camera_transform",
+            &RadarPerceptionPipeline::set_radar_to_camera_transform,
+            py::arg("transform")
+        )
+
+        .def(
+            "process",
+            [](RadarPerceptionPipeline& self,
+
+               py::array_t<float,
+                   py::array::c_style |
+                   py::array::forcecast> boxes,
+
+               py::array_t<float,
+                   py::array::c_style |
+                   py::array::forcecast> scores,
+
+               py::array_t<float,
+                   py::array::c_style |
+                   py::array::forcecast> classes,
+
+               py::array_t<float,
+                   py::array::c_style |
+                   py::array::forcecast> radar_targets)
+            {
+                // --------------------------------------------------
+                // Validate boxes
+                // NumPy shape: (N, 4)
+                // --------------------------------------------------
+
+                auto boxes_buf = boxes.request();
+
+                if (boxes_buf.ndim != 2 ||
+                    boxes_buf.shape[1] != 4)
+                {
+                    throw std::runtime_error(
+                        "boxes must have shape (N, 4)"
+                    );
+                }
+
+
+                // --------------------------------------------------
+                // Validate scores
+                // NumPy shape: (N,)
+                // --------------------------------------------------
+
+                auto scores_buf = scores.request();
+
+                if (scores_buf.ndim != 1)
+                {
+                    throw std::runtime_error(
+                        "scores must be a 1D NumPy array"
+                    );
+                }
+
+
+                // --------------------------------------------------
+                // Validate classes
+                // NumPy shape: (N,)
+                // --------------------------------------------------
+
+                auto classes_buf = classes.request();
+
+                if (classes_buf.ndim != 1)
+                {
+                    throw std::runtime_error(
+                        "classes must be a 1D NumPy array"
+                    );
+                }
+
+
+                // --------------------------------------------------
+                // Validate radar targets
+                // NumPy shape: (M, 4)
+                //
+                // [depth, azimuth, altitude, velocity]
+                // --------------------------------------------------
+
+                auto radar_buf = radar_targets.request();
+
+                if (radar_buf.ndim != 2 ||
+                    radar_buf.shape[1] != 4)
+                {
+                    throw std::runtime_error(
+                        "radar_targets must have shape (N, 4)"
+                    );
+                }
+
+
+                // --------------------------------------------------
+                // Validate detection array sizes
+                // --------------------------------------------------
+
+                const ssize_t num_detections =
+                    boxes_buf.shape[0];
+
+                if (scores_buf.shape[0] != num_detections ||
+                    classes_buf.shape[0] != num_detections)
+                {
+                    throw std::runtime_error(
+                        "boxes, scores, and classes must have "
+                        "the same number of detections"
+                    );
+                }
+
+
+                // --------------------------------------------------
+                // NumPy -> C++ boxes
+                // --------------------------------------------------
+
+                const float* boxes_ptr =
+                    static_cast<const float*>(
+                        boxes_buf.ptr
+                    );
+
+                std::vector<Eigen::Vector4f> boxes_cpp;
+
+                boxes_cpp.reserve(
+                    static_cast<size_t>(num_detections)
+                );
+
+                for (ssize_t i = 0;
+                     i < num_detections;
+                     ++i)
+                {
+                    Eigen::Vector4f box;
+
+                    box <<
+                        boxes_ptr[i * 4 + 0],
+                        boxes_ptr[i * 4 + 1],
+                        boxes_ptr[i * 4 + 2],
+                        boxes_ptr[i * 4 + 3];
+
+                    boxes_cpp.push_back(box);
+                }
+
+
+                // --------------------------------------------------
+                // NumPy -> C++ scores
+                // --------------------------------------------------
+
+                const float* scores_ptr =
+                    static_cast<const float*>(
+                        scores_buf.ptr
+                    );
+
+                std::vector<float> scores_cpp(
+                    scores_ptr,
+                    scores_ptr + scores_buf.shape[0]
+                );
+
+
+                // --------------------------------------------------
+                // NumPy -> C++ classes
+                // --------------------------------------------------
+
+                const float* classes_ptr =
+                    static_cast<const float*>(
+                        classes_buf.ptr
+                    );
+
+                std::vector<int> classes_cpp;
+
+                classes_cpp.reserve(
+                    static_cast<size_t>(
+                        classes_buf.shape[0]
+                    )
+                );
+
+                for (ssize_t i = 0;
+                     i < classes_buf.shape[0];
+                     ++i)
+                {
+                    classes_cpp.push_back(
+                        static_cast<int>(
+                            classes_ptr[i]
+                        )
+                    );
+                }
+
+
+                // --------------------------------------------------
+                // NumPy -> C++ radar targets
+                //
+                // [depth, azimuth, altitude, velocity]
+                // --------------------------------------------------
+
+                const float* radar_ptr =
+                    static_cast<const float*>(
+                        radar_buf.ptr
+                    );
+
+                const ssize_t num_radar_targets =
+                    radar_buf.shape[0];
+
+                std::vector<Eigen::Vector4f>
+                    radar_targets_cpp;
+
+                radar_targets_cpp.reserve(
+                    static_cast<size_t>(
+                        num_radar_targets
+                    )
+                );
+
+                for (ssize_t i = 0;
+                     i < num_radar_targets;
+                     ++i)
+                {
+                    Eigen::Vector4f target;
+
+                    target <<
+                        radar_ptr[i * 4 + 0],
+                        radar_ptr[i * 4 + 1],
+                        radar_ptr[i * 4 + 2],
+                        radar_ptr[i * 4 + 3];
+
+                    radar_targets_cpp.push_back(
+                        target
+                    );
+                }
+
+
+                // --------------------------------------------------
+                // Call C++ implementation
+                // --------------------------------------------------
+
+                auto objects =
+                    self.process(
+                        boxes_cpp,
+                        scores_cpp,
+                        classes_cpp,
+                        radar_targets_cpp
+                    );
+
+
+                // --------------------------------------------------
+                // C++ -> Python
+                //
+                // Return exactly the structure expected from
+                // Python RadarPerceptionPipeline.process()
+                // --------------------------------------------------
+
+                py::list result;
+
+                for (const auto& object : objects)
+                {
+                    py::dict obj;
+
+                    obj["bbox"] = py::make_tuple(
+                        static_cast<int>(object.box[0]),
+                        static_cast<int>(object.box[1]),
+                        static_cast<int>(object.box[2]),
+                        static_cast<int>(object.box[3])
+                    );
+
+                    obj["confidence"] =
+                        object.confidence;
+
+                    obj["class_id"] =
+                        object.class_id;
+
+                    obj["range"] =
+                        object.range;
+
+                    obj["bearing"] =
+                        object.bearing;
+
+                    obj["velocity"] =
+                        object.velocity;
+
+                    obj["motion"] =
+                        object.motion;
+
+                    result.append(obj);
+                }
+
+                return result;
+            },
+
+            py::arg("boxes"),
+            py::arg("scores"),
+            py::arg("classes"),
+            py::arg("radar_targets")
         );
 
 

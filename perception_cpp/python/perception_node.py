@@ -155,6 +155,9 @@ class PerceptionStack(Node):
 
         self.pipeline_radar.T_radar_to_cam = T
 
+        # Initialize C++ perception utilities
+        self.pipeline_radar_cpp = perception_cpp.RadarPerceptionPipeline()
+
         # Initialize perception recorder
         self.recorder = PerceptionRecorder(output_root="/home/hamza/ros2_cv_ws/scripts/phase12/perception_recordings")
 
@@ -396,7 +399,13 @@ class PerceptionStack(Node):
 
         # World Objects Motion (Radar)
         radar_points = self.pipeline_radar.convert_ros_to_numpy(radar_msg)
-        front_radar_objects = self.pipeline_radar.process(front_boxes, front_scores, front_classes, radar_points)
+
+        # front_radar_objects = self.pipeline_radar.process(front_boxes, front_scores, front_classes, radar_points)
+        ## C++ front cam radar
+        front_radar_objects = []
+        if radar_points is not None:
+            front_radar_objects = self.pipeline_radar_cpp.process(front_boxes,front_scores,front_classes,radar_points)
+
         front_objects = self.perception_utils.attach_radar_data(front_objects, front_radar_objects)
 
         world_objects = (front_objects + rear_objects + left_objects + right_objects)
