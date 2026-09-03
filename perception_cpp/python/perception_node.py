@@ -472,8 +472,8 @@ class PerceptionStack(Node):
             "nearest_objects": nearest_objects
         }
 
-        # self.dashboard.push(dashboard_data)
-        print(f"Latency: {latency_ms}: ms")
+        self.dashboard.push(dashboard_data)
+        # print(f"Latency: {latency_ms}: ms")
 
         # self.recorder.record(dashboard_data)
 
