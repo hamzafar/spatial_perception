@@ -224,7 +224,35 @@ PYBIND11_MODULE(perception_cpp, m)
             py::arg("world_objects"),
             py::arg("radar_objects"),
             py::arg("iou_threshold") = 0.3f
+        )
+    // --------------------------------------------------
+    // CountObjects
+    // --------------------------------------------------       
+        .def(
+            "count_objects",
+            [](PerceptionUtils& self, py::list world_objects)
+            {
+                std::vector<Perception3DPipeline::WorldObject> world_objects_cpp;
+                world_objects_cpp.reserve(world_objects.size());
+
+                for (auto item : world_objects)
+                {
+                    py::dict py_obj = item.cast<py::dict>();
+
+                    Perception3DPipeline::WorldObject obj;
+
+                    obj.class_name =
+                        py_obj["class"].cast<std::string>();
+
+                    world_objects_cpp.push_back(obj);
+                }
+
+                return self.count_objects(world_objects_cpp);
+            },
+            py::arg("world_objects")
         );
+
+
     // --------------------------------------------------
     // ProjectionResult
     // --------------------------------------------------
