@@ -127,3 +127,85 @@ PerceptionUtils::attach_track_ids(
 
     return world_objects;
 }
+
+std::vector<Perception3DPipeline::WorldObject>
+PerceptionUtils::attach_radar_data(
+    std::vector<Perception3DPipeline::WorldObject>& world_objects,
+    const std::vector<RadarPerceptionPipeline::RadarObject>& radar_objects,
+    float iou_threshold
+)
+{
+    if (world_objects.empty() || radar_objects.empty())
+    {
+        return world_objects;
+    }
+
+    for (auto& obj : world_objects)
+    {
+        float ox1 = obj.box[0];
+        float oy1 = obj.box[1];
+        float ox2 = obj.box[2];
+        float oy2 = obj.box[3];
+
+        float object_area =
+            (ox2 - ox1) * (oy2 - oy1);
+
+        float best_iou = 0.0f;
+        int best_idx = -1;
+
+        for (size_t i = 0; i < radar_objects.size(); ++i)
+        {
+            const auto& radar = radar_objects[i];
+
+            float rx1 = radar.box[0];
+            float ry1 = radar.box[1];
+            float rx2 = radar.box[2];
+            float ry2 = radar.box[3];
+
+            float radar_area =
+                (rx2 - rx1) * (ry2 - ry1);
+
+            float ix1 = std::max(ox1, rx1);
+            float iy1 = std::max(oy1, ry1);
+            float ix2 = std::min(ox2, rx2);
+            float iy2 = std::min(oy2, ry2);
+
+            float intersection =
+                std::max(0.0f, ix2 - ix1) *
+                std::max(0.0f, iy2 - iy1);
+
+            float union_area =
+                object_area +
+                radar_area -
+                intersection;
+
+            float iou = 0.0f;
+
+            if (union_area > 0.0f)
+            {
+                iou = intersection / union_area;
+            }
+
+            if (iou > best_iou)
+            {
+                best_iou = iou;
+                best_idx = static_cast<int>(i);
+            }
+        }
+
+        if (best_idx >= 0 &&
+            best_iou > 0.0f &&
+            best_iou >= iou_threshold)
+        {
+            const auto& radar = radar_objects[best_idx];
+
+            obj.has_radar = true;
+            obj.radar_range = radar.range;
+            obj.radar_bearing = radar.bearing;
+            obj.radar_velocity = radar.velocity;
+            obj.radar_motion = radar.motion;
+        }
+    }
+
+    return world_objects;
+}

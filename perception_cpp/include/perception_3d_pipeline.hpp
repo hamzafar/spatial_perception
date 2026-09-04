@@ -41,6 +41,12 @@ public:
         Eigen::Vector3f position;
         float distance;
         std::string id;
+        
+        bool has_radar = false;
+        float radar_range = 0.0f;
+        float radar_bearing = 0.0f;
+        float radar_velocity = 0.0f;
+        std::string radar_motion;
     };    
 
     struct ProcessedObjectsResult

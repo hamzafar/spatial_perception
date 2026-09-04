@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "perception_3d_pipeline.hpp"
+#include "radar_perception_pipeline.hpp"
 
 class PerceptionUtils
 {
@@ -26,4 +27,11 @@ public:
         const std::vector<TrackTarget>& online_targets,
         const std::string& camera_prefix
     );
+
+    std::vector<Perception3DPipeline::WorldObject> attach_radar_data(
+        std::vector<Perception3DPipeline::WorldObject>& world_objects,
+        const std::vector<RadarPerceptionPipeline::RadarObject>& radar_objects,
+        float iou_threshold = 0.3f
+    );    
+    
 };
