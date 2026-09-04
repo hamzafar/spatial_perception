@@ -406,7 +406,12 @@ class PerceptionStack(Node):
         if radar_points is not None:
             front_radar_objects = self.pipeline_radar_cpp.process(front_boxes,front_scores,front_classes,radar_points)
 
-        front_objects = self.perception_utils.attach_radar_data(front_objects, front_radar_objects)
+        # front_objects = self.perception_utils.attach_radar_data(front_objects, front_radar_objects)
+        ## C++ attach radar data
+        if front_objects and front_radar_objects:
+            front_objects_cpp = self.perception_utils_cpp.attach_radar_data(front_objects_cpp,front_radar_objects,0.3)
+            front_objects = self.convert_world_objects_tr_cpp_py(front_objects_cpp)
+
 
         world_objects = (front_objects + rear_objects + left_objects + right_objects)
         world_objects = [obj for obj in world_objects if "id" in obj]
@@ -503,6 +508,14 @@ class PerceptionStack(Node):
 
             if obj.id:
                 world_object["id"] = obj.id
+
+            if obj.has_radar:
+                world_object["radar"] = {
+                    "range": obj.radar_range,
+                    "bearing": obj.radar_bearing,
+                    "velocity": obj.radar_velocity,
+                    "motion": obj.radar_motion
+                }
 
             world_objects.append(world_object)
 

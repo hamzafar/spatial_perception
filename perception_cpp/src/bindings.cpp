@@ -88,11 +88,29 @@ PYBIND11_MODULE(perception_cpp, m)
             &Perception3DPipeline::WorldObject::distance
         )
         .def_readonly("id",
-              &Perception3DPipeline::WorldObject::id);
+              &Perception3DPipeline::WorldObject::id)
+        .def_readonly(
+            "has_radar",
+            &Perception3DPipeline::WorldObject::has_radar
+        )
+        .def_readonly(
+            "radar_range",
+            &Perception3DPipeline::WorldObject::radar_range
+        )
+        .def_readonly(
+            "radar_bearing",
+            &Perception3DPipeline::WorldObject::radar_bearing
+        )
+        .def_readonly(
+            "radar_velocity",
+            &Perception3DPipeline::WorldObject::radar_velocity
+        )
+        .def_readonly(
+            "radar_motion",
+            &Perception3DPipeline::WorldObject::radar_motion
+        );
 
-    // --------------------------------------------------
-    // AttachTrackIds
-    // --------------------------------------------------
+
     py::class_<PerceptionUtils>(
         m,
         "PerceptionUtils"
@@ -100,6 +118,9 @@ PYBIND11_MODULE(perception_cpp, m)
         .def(
             py::init<>()
         )
+    // --------------------------------------------------
+    // AttachTrackIds
+    // --------------------------------------------------
         .def(
             "attach_track_ids",
             [](PerceptionUtils& self,
@@ -145,6 +166,64 @@ PYBIND11_MODULE(perception_cpp, m)
             py::arg("world_objects"),
             py::arg("online_targets"),
             py::arg("camera_prefix")
+        )
+    // --------------------------------------------------
+    // AttachRadarData
+    // --------------------------------------------------
+        .def(
+            "attach_radar_data",
+            [](PerceptionUtils& self,
+            std::vector<Perception3DPipeline::WorldObject>& world_objects,
+            py::list radar_objects,
+            float iou_threshold)
+            {
+                std::vector<RadarPerceptionPipeline::RadarObject> radar_objects_cpp;
+                radar_objects_cpp.reserve(radar_objects.size());
+
+                for (auto item : radar_objects)
+                {
+                    py::dict radar = item.cast<py::dict>();
+
+                    RadarPerceptionPipeline::RadarObject obj;
+
+                    auto bbox = radar["bbox"].cast<py::sequence>();
+
+                    obj.box <<
+                        bbox[0].cast<float>(),
+                        bbox[1].cast<float>(),
+                        bbox[2].cast<float>(),
+                        bbox[3].cast<float>();
+
+                    obj.confidence =
+                        radar["confidence"].cast<float>();
+
+                    obj.class_id =
+                        radar["class_id"].cast<int>();
+
+                    obj.range =
+                        radar["range"].cast<float>();
+
+                    obj.bearing =
+                        radar["bearing"].cast<float>();
+
+                    obj.velocity =
+                        radar["velocity"].cast<float>();
+
+                    obj.motion =
+                        radar["motion"].cast<std::string>();
+
+                    radar_objects_cpp.push_back(obj);
+                }
+
+                return self.attach_radar_data(
+                    world_objects,
+                    radar_objects_cpp,
+                    iou_threshold
+                );
+            },
+            py::arg("world_objects"),
+            py::arg("radar_objects"),
+            py::arg("iou_threshold") = 0.3f
         );
     // --------------------------------------------------
     // ProjectionResult
