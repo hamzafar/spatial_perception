@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "perception_3d_pipeline.hpp"
 #include "radar_perception_pipeline.hpp"
@@ -33,5 +34,12 @@ public:
         const std::vector<RadarPerceptionPipeline::RadarObject>& radar_objects,
         float iou_threshold = 0.3f
     );    
+
+    std::unordered_map<std::string, int> count_objects(
+        const std::vector<Perception3DPipeline::WorldObject>& world_objects
+    );
     
+    std::string normalize_bev_class(
+        const std::string& cls
+    );
 };

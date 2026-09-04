@@ -209,3 +209,62 @@ PerceptionUtils::attach_radar_data(
 
     return world_objects;
 }
+
+std::string PerceptionUtils::normalize_bev_class(
+    const std::string& cls
+)
+{
+    if (cls == "person")
+    {
+        return "person";
+    }
+
+    if (cls == "car")
+    {
+        return "vehicle";
+    }
+
+    if (cls == "truck" || cls == "bus")
+    {
+        return "truck";
+    }
+
+    if (cls == "bicycle" || cls == "motorcycle")
+    {
+        return "cyclist";
+    }
+
+    return "";
+}
+
+std::unordered_map<std::string, int>
+PerceptionUtils::count_objects(
+    const std::vector<Perception3DPipeline::WorldObject>& world_objects
+)
+{
+    std::unordered_map<std::string, int> counts = {
+        {"vehicle", 0},
+        {"person", 0},
+        {"cyclist", 0}
+    };
+
+    for (const auto& obj : world_objects)
+    {
+        std::string cls = normalize_bev_class(obj.class_name);
+
+        if (cls == "vehicle" || cls == "truck")
+        {
+            counts["vehicle"]++;
+        }
+        else if (cls == "person")
+        {
+            counts["person"]++;
+        }
+        else if (cls == "cyclist")
+        {
+            counts["cyclist"]++;
+        }
+    }
+
+    return counts;
+}
