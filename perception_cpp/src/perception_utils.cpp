@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
-
+#include <cctype>
 
 PerceptionUtils::PerceptionUtils()
 {
@@ -267,4 +267,181 @@ PerceptionUtils::count_objects(
     }
 
     return counts;
+}
+PerceptionUtils::TrackMotion
+PerceptionUtils::estimate_track_motion(
+    const Perception3DPipeline::WorldObject& obj,
+    double timestamp
+)
+{
+    const std::string& track_id = obj.id;
+    const Eigen::Vector3f& position = obj.position;
+
+    auto previous = track_history.find(track_id);
+
+    if (previous == track_history.end())
+    {
+        track_history[track_id] = {
+            position,
+            timestamp
+        };
+
+        return {0.0f, "unknown"};
+    }
+
+    Eigen::Vector3f previous_position =
+        previous->second.position;
+
+    double previous_timestamp =
+        previous->second.timestamp;
+
+    track_history[track_id] = {
+        position,
+        timestamp
+    };
+
+    double dt =
+        timestamp - previous_timestamp;
+
+    if (dt <= 0.0)
+    {
+        return {0.0f, "unknown"};
+    }
+
+    float velocity_x =
+        static_cast<float>(
+            (position[0] - previous_position[0]) / dt
+        );
+
+    float speed_mps =
+        std::abs(velocity_x);
+
+    const float threshold = 0.2f;
+
+    std::string motion;
+
+    if (velocity_x < -threshold)
+    {
+        motion = "approaching";
+    }
+    else if (velocity_x > threshold)
+    {
+        motion = "receding";
+    }
+    else
+    {
+        motion = "stationary";
+    }
+
+    speed_mps =
+        std::round(speed_mps * 1000.0f) / 1000.0f;
+
+    return {speed_mps, motion};
+}
+
+std::vector<PerceptionUtils::NearestObject>
+PerceptionUtils::prepare_nearest_objects(
+    const std::vector<Perception3DPipeline::WorldObject>& world_objects,
+    double timestamp
+)
+{
+    std::vector<NearestObject> nearest_objects;
+
+    const std::unordered_map<std::string, std::string> labels = {
+        {"vehicle", "Car"},
+        {"person", "Pedestrian"},
+        {"truck", "Truck"},
+        {"cyclist", "Cyclist"}
+    };
+
+    for (const auto& obj : world_objects)
+    {
+        // Python: if "id" not in obj
+        if (obj.id.empty())
+        {
+            continue;
+        }
+
+        std::string cls =
+            normalize_bev_class(obj.class_name);
+
+        // Python: if cls is None
+        if (cls.empty())
+        {
+            continue;
+        }
+
+        float speed_mps;
+        std::string motion;
+
+        if (obj.has_radar)
+        {
+            // Python:
+            // round(abs(float(radar["velocity"])), 3)
+
+            speed_mps =
+                std::round(
+                    std::abs(obj.radar_velocity) * 1000.0f
+                ) / 1000.0f;
+
+            motion = obj.radar_motion;
+
+            // Python: radar["motion"].lower()
+            std::transform(
+                motion.begin(),
+                motion.end(),
+                motion.begin(),
+                [](unsigned char c)
+                {
+                    return static_cast<char>(
+                        std::tolower(c)
+                    );
+                }
+            );
+        }
+        else
+        {
+            TrackMotion track_motion =
+                estimate_track_motion(
+                    obj,
+                    timestamp
+                );
+
+            speed_mps = track_motion.speed_mps;
+            motion = track_motion.motion;
+        }
+
+        auto label_it = labels.find(cls);
+
+        if (label_it == labels.end())
+        {
+            continue;
+        }
+
+        float dist_m =
+            std::round(
+                obj.distance * 1000.0f
+            ) / 1000.0f;
+
+        nearest_objects.push_back({
+            obj.id,
+            cls,
+            label_it->second,
+            dist_m,
+            speed_mps,
+            motion
+        });
+    }
+
+    std::sort(
+        nearest_objects.begin(),
+        nearest_objects.end(),
+        [](const NearestObject& a,
+           const NearestObject& b)
+        {
+            return a.dist_m < b.dist_m;
+        }
+    );
+
+    return nearest_objects;
 }

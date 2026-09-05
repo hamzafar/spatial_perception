@@ -42,4 +42,41 @@ public:
     std::string normalize_bev_class(
         const std::string& cls
     );
+
+    struct TrackMotion
+    {
+        float speed_mps;
+        std::string motion;
+    };
+
+    TrackMotion estimate_track_motion(
+        const Perception3DPipeline::WorldObject& obj,
+        double timestamp
+    );
+
+    struct NearestObject
+    {
+        std::string id;
+        std::string cls;
+        std::string label;
+        float dist_m;
+        float speed_mps;
+        std::string motion;
+    };
+
+    std::vector<NearestObject> prepare_nearest_objects(
+        const std::vector<Perception3DPipeline::WorldObject>& world_objects,
+        double timestamp
+    );
+
+private:
+
+    struct TrackHistory
+    {
+        Eigen::Vector3f position;
+        double timestamp;
+    };
+
+    std::unordered_map<std::string, TrackHistory> track_history;
+
 };
