@@ -118,6 +118,106 @@ PYBIND11_MODULE(perception_cpp, m)
         .def(
             py::init<>()
         )
+        
+    // --------------------------------------------------
+    // PrepareNearestObjects
+    // --------------------------------------------------
+
+        .def(
+            "prepare_nearest_objects",
+            [](PerceptionUtils& self,
+            py::list world_objects,
+            double timestamp)
+            {
+                std::vector<Perception3DPipeline::WorldObject>
+                    world_objects_cpp;
+
+                world_objects_cpp.reserve(
+                    world_objects.size()
+                );
+
+                for (auto item : world_objects)
+                {
+                    py::dict py_obj = item.cast<py::dict>();
+
+                    Perception3DPipeline::WorldObject obj;
+
+                    obj.class_name =
+                        py_obj["class"].cast<std::string>();
+
+                    obj.camera =
+                        py_obj["camera"].cast<std::string>();
+
+                    obj.box =
+                        py_obj["box"].cast<
+                            Eigen::Vector4f
+                        >();
+
+                    obj.position =
+                        py_obj["position"].cast<
+                            Eigen::Vector3f
+                        >();
+
+                    obj.distance =
+                        py_obj["distance"].cast<float>();
+
+                    if (py_obj.contains("id"))
+                    {
+                        obj.id =
+                            py_obj["id"].cast<std::string>();
+                    }
+
+                    if (py_obj.contains("radar"))
+                    {
+                        py::dict radar =
+                            py_obj["radar"].cast<py::dict>();
+
+                        obj.has_radar = true;
+
+                        obj.radar_range =
+                            radar["range"].cast<float>();
+
+                        obj.radar_bearing =
+                            radar["bearing"].cast<float>();
+
+                        obj.radar_velocity =
+                            radar["velocity"].cast<float>();
+
+                        obj.radar_motion =
+                            radar["motion"].cast<std::string>();
+                    }
+
+                    world_objects_cpp.push_back(obj);
+                }
+
+                auto result =
+                    self.prepare_nearest_objects(
+                        world_objects_cpp,
+                        timestamp
+                    );
+
+                py::list output;
+
+                for (const auto& obj : result)
+                {
+                    py::dict item;
+
+                    item["id"] = obj.id;
+                    item["cls"] = obj.cls;
+                    item["label"] = obj.label;
+                    item["dist_m"] = obj.dist_m;
+                    item["speed_mps"] = obj.speed_mps;
+                    item["motion"] = obj.motion;
+
+                    output.append(item);
+                }
+
+                return output;
+            },
+            py::arg("world_objects"),
+            py::arg("timestamp")
+        )
+
     // --------------------------------------------------
     // AttachTrackIds
     // --------------------------------------------------

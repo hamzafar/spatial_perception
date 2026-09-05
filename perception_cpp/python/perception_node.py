@@ -421,10 +421,13 @@ class PerceptionStack(Node):
         object_counts = self.perception_utils_cpp.count_objects(front_objects)
 
         timestamp = (gnss_msg.header.stamp.sec + gnss_msg.header.stamp.nanosec * 1e-9)
-        nearest_objects = self.perception_utils.prepare_nearest_objects(world_objects, timestamp)
+
+        # nearest_objects = self.perception_utils.prepare_nearest_objects(world_objects, timestamp)
+        ## C++ NearestObjects
+        nearest_objects_cpp = self.perception_utils_cpp.prepare_nearest_objects(world_objects,timestamp)
+        nearest_objects = self.round_nearest_objects(nearest_objects_cpp)
 
         bev_objects = self.perception_utils.prepare_bev_objects(world_objects)
-
                
         # Ego Vehicle Motion
         timestamp = (gnss_msg.header.stamp.sec + gnss_msg.header.stamp.nanosec * 1e-9)
@@ -493,6 +496,15 @@ class PerceptionStack(Node):
 
         # self.recorder.record(dashboard_data)
 
+    def round_nearest_objects(self, nearest_objects):
+        for obj in nearest_objects:
+            if "dist_m" in obj:
+                obj["dist_m"] = round(float(obj["dist_m"]), 3)
+
+            if "speed_mps" in obj:
+                obj["speed_mps"] = round(float(obj["speed_mps"]), 3)
+
+        return nearest_objects
 
     def convert_world_objects_tr_cpp_py(self, cpp_world_objects):
 
