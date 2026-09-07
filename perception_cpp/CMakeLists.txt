@@ -19,6 +19,7 @@ pybind11_add_module(perception_cpp
     src/perception_utils.cpp
     src/radar_perception_pipeline.cpp
     src/gnss_pipeline.cpp
+    src/imu_pipeline.cpp
 )
 
 target_compile_options(perception_cpp

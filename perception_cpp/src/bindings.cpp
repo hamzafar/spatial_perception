@@ -11,6 +11,7 @@
 #include "perception_utils.hpp"
 #include "radar_perception_pipeline.hpp"
 #include "gnss_pipeline.hpp"
+#include "imu_pipeline.hpp"
 
 namespace py = pybind11;
 
@@ -109,6 +110,78 @@ PYBIND11_MODULE(perception_cpp, m)
         .def_readonly(
             "radar_motion",
             &Perception3DPipeline::WorldObject::radar_motion
+        );
+
+    // --------------------------------------------------
+    // IMUPipeline
+    // --------------------------------------------------
+
+    py::class_<IMUPipeline>(
+        m,
+        "IMUPipeline"
+    )
+        .def(
+            py::init<>()
+        )
+
+        .def(
+            "process",
+            [](IMUPipeline& self,
+            py::object imu_msg,
+            float speed)
+            {
+                const float acceleration_x =
+                    imu_msg.attr("linear_acceleration")
+                        .attr("x")
+                        .cast<float>();
+
+                const float acceleration_y =
+                    imu_msg.attr("linear_acceleration")
+                        .attr("y")
+                        .cast<float>();
+
+                const float acceleration_z =
+                    imu_msg.attr("linear_acceleration")
+                        .attr("z")
+                        .cast<float>();
+
+                const float angular_velocity_z =
+                    imu_msg.attr("angular_velocity")
+                        .attr("z")
+                        .cast<float>();
+
+                const float orientation_z =
+                    imu_msg.attr("orientation")
+                        .attr("z")
+                        .cast<float>();
+
+                const float orientation_w =
+                    imu_msg.attr("orientation")
+                        .attr("w")
+                        .cast<float>();
+
+                auto result =
+                    self.process(
+                        acceleration_x,
+                        acceleration_y,
+                        acceleration_z,
+                        angular_velocity_z,
+                        orientation_z,
+                        orientation_w,
+                        speed
+                    );
+
+                py::dict output;
+
+                output["acceleration"] = result.acceleration;
+                output["yaw_rate"] = result.yaw_rate;
+                output["heading"] = result.heading;
+                output["motion_state"] = result.motion_state;
+
+                return output;
+            },
+            py::arg("imu_msg"),
+            py::arg("speed")
         );
 
     // --------------------------------------------------

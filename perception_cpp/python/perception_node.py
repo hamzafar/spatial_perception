@@ -96,6 +96,7 @@ class PerceptionStack(Node):
 
         # Initailze cpp Imu and GNSS pipeline
         self.gnss_pipeline_cpp = perception_cpp.GNSSPipeline()
+        self.imu_pipeline_cpp = perception_cpp.IMUPipeline()
 
         # Initialize tracking pipeline
         self.pipeline_tracking = TrackingPipeline()
