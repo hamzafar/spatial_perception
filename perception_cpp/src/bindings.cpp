@@ -125,10 +125,46 @@ PYBIND11_MODULE(perception_cpp, m)
         .def(
             "prepare_bev_objects",
             [](PerceptionUtils& self,
-            const std::vector<Perception3DPipeline::WorldObject>& world_objects)
+            py::list world_objects)
             {
+                std::vector<Perception3DPipeline::WorldObject>
+                    world_objects_cpp;
+
+                world_objects_cpp.reserve(
+                    world_objects.size()
+                );
+
+                for (auto item : world_objects)
+                {
+                    py::dict py_obj =
+                        item.cast<py::dict>();
+
+                    Perception3DPipeline::WorldObject obj;
+
+                    obj.class_name =
+                        py_obj["class"].cast<std::string>();
+
+                    obj.position =
+                        py_obj["position"].cast<
+                            Eigen::Vector3f
+                        >();
+
+                    obj.distance =
+                        py_obj["distance"].cast<float>();
+
+                    if (py_obj.contains("id"))
+                    {
+                        obj.id =
+                            py_obj["id"].cast<std::string>();
+                    }
+
+                    world_objects_cpp.push_back(obj);
+                }
+
                 auto objects =
-                    self.prepare_bev_objects(world_objects);
+                    self.prepare_bev_objects(
+                        world_objects_cpp
+                    );
 
                 py::list result;
 
@@ -148,7 +184,6 @@ PYBIND11_MODULE(perception_cpp, m)
                 return result;
             }
         )
-
     // --------------------------------------------------
     // PrepareNearestObjects
     // --------------------------------------------------

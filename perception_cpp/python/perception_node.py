@@ -427,7 +427,7 @@ class PerceptionStack(Node):
         nearest_objects_cpp = self.perception_utils_cpp.prepare_nearest_objects(world_objects,timestamp)
         nearest_objects = self.round_nearest_objects(nearest_objects_cpp)
 
-        bev_objects = self.perception_utils.prepare_bev_objects(world_objects)
+        # bev_objects = self.perception_utils.prepare_bev_objects(world_objects)
         ## C++ BEVObjects
         bev_objects = self.perception_utils_cpp.prepare_bev_objects(world_objects)
                
