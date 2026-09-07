@@ -10,6 +10,7 @@
 #include "perception_3d_pipeline.hpp"
 #include "perception_utils.hpp"
 #include "radar_perception_pipeline.hpp"
+#include "gnss_pipeline.hpp"
 
 namespace py = pybind11;
 
@@ -109,6 +110,71 @@ PYBIND11_MODULE(perception_cpp, m)
             "radar_motion",
             &Perception3DPipeline::WorldObject::radar_motion
         );
+
+    // --------------------------------------------------
+    // GNSSPipeline
+    // --------------------------------------------------
+
+    py::class_<GNSSPipeline>(
+        m,
+        "GNSSPipeline"
+    )
+        .def(
+            py::init<>()
+        )
+
+        .def(
+            "set_reference",
+            &GNSSPipeline::set_reference,
+            py::arg("latitude"),
+            py::arg("longitude"),
+            py::arg("altitude")
+        )
+
+        .def(
+            "compute_position",
+            &GNSSPipeline::compute_position,
+            py::arg("latitude"),
+            py::arg("longitude"),
+            py::arg("altitude")
+        )
+
+        .def(
+            "compute_speed",
+            &GNSSPipeline::compute_speed,
+            py::arg("position"),
+            py::arg("timestamp")
+        )
+
+        .def(
+            "process",
+            [](GNSSPipeline& self,
+            double latitude,
+            double longitude,
+            double altitude,
+            double timestamp)
+            {
+                auto result =
+                    self.process(
+                        latitude,
+                        longitude,
+                        altitude,
+                        timestamp
+                    );
+
+                py::dict output;
+
+                output["position"] = result.position;
+                output["speed"] = result.speed;
+
+                return output;
+            },
+            py::arg("latitude"),
+            py::arg("longitude"),
+            py::arg("altitude"),
+            py::arg("timestamp")
+        );
+
 
 
     py::class_<PerceptionUtils>(
