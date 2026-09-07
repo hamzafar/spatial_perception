@@ -21,6 +21,15 @@ public:
         float height;
     };
 
+    struct BEVObject
+    {
+        std::string id;
+        std::string cls;
+        float x;
+        float y;
+        float distance;
+    };
+
     PerceptionUtils();
 
     std::vector<Perception3DPipeline::WorldObject> attach_track_ids(
@@ -67,6 +76,10 @@ public:
     std::vector<NearestObject> prepare_nearest_objects(
         const std::vector<Perception3DPipeline::WorldObject>& world_objects,
         double timestamp
+    );
+
+    std::vector<BEVObject> prepare_bev_objects(
+        const std::vector<Perception3DPipeline::WorldObject>& world_objects
     );
 
 private:

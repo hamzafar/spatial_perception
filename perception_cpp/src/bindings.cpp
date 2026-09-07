@@ -118,7 +118,37 @@ PYBIND11_MODULE(perception_cpp, m)
         .def(
             py::init<>()
         )
-        
+
+    // --------------------------------------------------
+    // PrepareBEVObjects
+    // --------------------------------------------------
+        .def(
+            "prepare_bev_objects",
+            [](PerceptionUtils& self,
+            const std::vector<Perception3DPipeline::WorldObject>& world_objects)
+            {
+                auto objects =
+                    self.prepare_bev_objects(world_objects);
+
+                py::list result;
+
+                for (const auto& obj : objects)
+                {
+                    py::dict item;
+
+                    item["id"] = obj.id;
+                    item["cls"] = obj.cls;
+                    item["x"] = obj.x;
+                    item["y"] = obj.y;
+                    item["distance"] = obj.distance;
+
+                    result.append(item);
+                }
+
+                return result;
+            }
+        )
+
     // --------------------------------------------------
     // PrepareNearestObjects
     // --------------------------------------------------

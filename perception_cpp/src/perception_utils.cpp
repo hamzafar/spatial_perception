@@ -445,3 +445,32 @@ PerceptionUtils::prepare_nearest_objects(
 
     return nearest_objects;
 }
+
+std::vector<PerceptionUtils::BEVObject>
+PerceptionUtils::prepare_bev_objects(
+    const std::vector<Perception3DPipeline::WorldObject>& world_objects
+)
+{
+    std::vector<BEVObject> bev_objects;
+
+    for (const auto& obj : world_objects)
+    {
+        std::string bev_class =
+            normalize_bev_class(obj.class_name);
+
+        if (bev_class.empty())
+        {
+            continue;
+        }
+
+        bev_objects.push_back({
+            obj.id,
+            bev_class,
+            obj.position[0],
+            obj.position[1],
+            obj.distance
+        });
+    }
+
+    return bev_objects;
+}
