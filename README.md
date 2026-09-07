@@ -163,21 +163,26 @@ Extending the perception pipeline with temporal multi-object tracking using YOLO
   - 📁 [View Phase 10C](10_phase10_multi_object_tracking/10C_multi_camera_3d_multi_object_tracking/)
 --- 
 
-### 🚧 Phase 11 Motion Estimation
-Extending the perception pipeline with ego motion estimation using synchronized GNSS and IMU measurements for position, speed, acceleration, heading, and motion-state estimation.
+### ✅ Phase 11 — Motion Estimation
+
+Extending the perception pipeline with ego and surrounding-object motion estimation using synchronized GNSS, IMU, camera, and radar measurements.
 
 #### Milestones
 
 - ✅ **11A — Ego Motion Estimation**
-
   - Estimated ego position, speed, acceleration, heading, and yaw rate using synchronized GNSS and IMU measurements.
-
   - Implemented ego motion-state classification and trajectory visualization using deterministic offline replay data.
-
   - 📁 [View Phase 11A](11_motion_estimation/11A_ego_motion_estimation/)
 
-- 🚧 **11B — Ego Surrounding Object Motion Estimation**
+- ✅ **11B — Surrounding Object Motion Estimation**
+  - Estimated surrounding-object range, bearing, radial velocity, and motion state by geometrically fusing synchronized Front Camera and Radar measurements.
+  - Implemented camera–radar association and motion-state classification for detected objects using deterministic offline replay data.
+  - 📁 [View Phase 11B](11_motion_estimation/11B_surrounding_object_motion_estimation/)
 
+---
+### 🚧 Phase 12 — Perception Stack
+
+Code and Documentation will be released soon
 ---
 ## Demonstrations
 
@@ -324,6 +329,16 @@ Unified 360° 3D object tracking using four synchronized RGB cameras, LiDAR, geo
 
 <p align="center">
 Ego position, speed, acceleration, heading, yaw rate, and motion state estimated from synchronized GNSS and IMU data with front-camera trajectory visualization.
+</p>
+
+<h3 align="center">Surrounding Object Motion Estimation</h3>
+
+<p align="center">
+  <img src="assets/gifs/phase11B_pipeline.gif" width="350"/>
+</p>
+
+<p align="center">
+Object range, bearing, radial velocity, and motion state estimated from synchronized camera and radar data with camera–radar association and radar-beam visualization.
 </p>
 
 ---
