@@ -94,6 +94,9 @@ class PerceptionStack(Node):
         self.gnss_pipeline = GNSSPipeline()
         self.imu_pipeline = IMUPipeline()
 
+        # Initailze cpp Imu and GNSS pipeline
+        self.gnss_pipeline_cpp = perception_cpp.GNSSPipeline()
+
         # Initialize tracking pipeline
         self.pipeline_tracking = TrackingPipeline()
         
@@ -433,7 +436,11 @@ class PerceptionStack(Node):
                
         # Ego Vehicle Motion
         timestamp = (gnss_msg.header.stamp.sec + gnss_msg.header.stamp.nanosec * 1e-9)
-        gnss = self.gnss_pipeline.process(gnss_msg.latitude, gnss_msg.longitude, gnss_msg.altitude, timestamp)
+        
+        # gnss = self.gnss_pipeline.process(gnss_msg.latitude, gnss_msg.longitude, gnss_msg.altitude, timestamp)
+        ## C++ GNSS Pipeline
+        gnss = self.gnss_pipeline_cpp.process(gnss_msg.latitude, gnss_msg.longitude,gnss_msg.altitude,timestamp)
+
         imu = self.imu_pipeline.process(imu_msg, gnss["speed"])
         heading_deg = np.degrees(imu["heading"])
 
@@ -493,8 +500,8 @@ class PerceptionStack(Node):
             "nearest_objects": nearest_objects
         }
 
-        # self.dashboard.push(dashboard_data)
-        print(f"Latency: {latency_ms}: ms")
+        self.dashboard.push(dashboard_data)
+        # print(f"Latency: {latency_ms}: ms")
 
         # self.recorder.record(dashboard_data)
 
