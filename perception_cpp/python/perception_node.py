@@ -442,7 +442,10 @@ class PerceptionStack(Node):
         ## C++ GNSS Pipeline
         gnss = self.gnss_pipeline_cpp.process(gnss_msg.latitude, gnss_msg.longitude,gnss_msg.altitude,timestamp)
 
-        imu = self.imu_pipeline.process(imu_msg, gnss["speed"])
+        # imu = self.imu_pipeline.process(imu_msg, gnss["speed"])
+        ## C++ IMU Pipeline
+        imu = self.imu_pipeline_cpp.process(imu_msg, gnss["speed"])
+        
         heading_deg = np.degrees(imu["heading"])
 
 
