@@ -79,9 +79,6 @@ class PerceptionStack(Node):
         # Initialize dashboard metrics
         self.metrics = DashboardMetrics()
 
-        # C++ initiailze orchestrator
-        self.perception_orchestrator = perception_cpp.PerceptionOrchestrator()
-
         # Initialize detection pipeline
         self.pipeline_detection = DetectionPipeline()
 
@@ -286,126 +283,98 @@ class PerceptionStack(Node):
 
         # BEV(Lidar)
         lidar = self.pipeline_3d.convert_ros_to_numpy(lidar_msg)
-        
-        ## C++ orchestrator process
-        self.perception_orchestrator.process(
-            lidar,
 
-            front_results.masks,
-            front_boxes,
-            front_classes,
-
-            rear_results.masks,
-            rear_boxes,
-            rear_classes,
-
-            left_results.masks,
-            left_boxes,
-            left_classes,
-
-            right_results.masks,
-            right_boxes,
-            right_classes,
-
-            self.model.names,
-
-            front.shape[1], front.shape[0],
-            rear.shape[1], rear.shape[0],
-            left.shape[1], left.shape[0],
-            right.shape[1], right.shape[0]
-        )
-
-        # # front, front_u, front_v, front_projected = self.pipeline_3d.project_lidar(front, lidar, "front")
-        # ## C++ LiDAR projection Front 
-        # result = self.pipeline_3d_cpp.project_lidar(lidar, "front", front.shape[1], front.shape[0])
-        # front_u, front_v, front_projected = result.u, result.v, result.ego_points
+        # front, front_u, front_v, front_projected = self.pipeline_3d.project_lidar(front, lidar, "front")
+        ## C++ LiDAR projection Front 
+        result = self.pipeline_3d_cpp.project_lidar(lidar, "front", front.shape[1], front.shape[0])
+        front_u, front_v, front_projected = result.u, result.v, result.ego_points
     
-        # # rear, rear_u, rear_v, rear_projected = self.pipeline_3d.project_lidar(rear, lidar, "rear")
-        # ## C++ LiDAR projection Rear
-        # result = self.pipeline_3d_cpp.project_lidar(lidar, "rear", rear.shape[1], rear.shape[0])
-        # rear_u, rear_v, rear_projected = result.u, result.v, result.ego_points
+        # rear, rear_u, rear_v, rear_projected = self.pipeline_3d.project_lidar(rear, lidar, "rear")
+        ## C++ LiDAR projection Rear
+        result = self.pipeline_3d_cpp.project_lidar(lidar, "rear", rear.shape[1], rear.shape[0])
+        rear_u, rear_v, rear_projected = result.u, result.v, result.ego_points
     
-        # # left, left_u, left_v, left_projected = self.pipeline_3d.project_lidar(left, lidar, "left")
-        # ## C++ LiDAR projection Left
-        # result = self.pipeline_3d_cpp.project_lidar(lidar, "left", left.shape[1], left.shape[0])
-        # left_u, left_v, left_projected = result.u, result.v, result.ego_points   
+        # left, left_u, left_v, left_projected = self.pipeline_3d.project_lidar(left, lidar, "left")
+        ## C++ LiDAR projection Left
+        result = self.pipeline_3d_cpp.project_lidar(lidar, "left", left.shape[1], left.shape[0])
+        left_u, left_v, left_projected = result.u, result.v, result.ego_points   
 
-        # # right, right_u, right_v, right_projected = self.pipeline_3d.project_lidar(right, lidar, "right")
-        # ## C++ LiDAR projection Left
-        # result = self.pipeline_3d_cpp.project_lidar(lidar, "right", right.shape[1], right.shape[0])
-        # right_u, right_v, right_projected = result.u, result.v, result.ego_points   
+        # right, right_u, right_v, right_projected = self.pipeline_3d.project_lidar(right, lidar, "right")
+        ## C++ LiDAR projection Left
+        result = self.pipeline_3d_cpp.project_lidar(lidar, "right", right.shape[1], right.shape[0])
+        right_u, right_v, right_projected = result.u, result.v, result.ego_points   
         
         # self.validate_cpp_projection(python_u,python_v,python_projected,cpp_u,cpp_v,cpp_projected,tolerance=1e-5)
 
 
-        # # front_clouds = self.pipeline_3d.extract_object_clouds(front, front_u, front_v, front_projected, front_results)
-        # ## C++ extract object cluouds Front
-        # if front_results.masks is None:
-        #     front_clouds = []
-        # else:
-        #     masks = front_results.masks.data.cpu().numpy()
-        #     front_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,front_boxes,front_classes,self.model.names,
-        #         front_u,front_v,front_projected,front.shape[1],front.shape[0])
-        #     front_clouds = self.convert_cloud_cpp_py(front_clouds_cpp)
+        # front_clouds = self.pipeline_3d.extract_object_clouds(front, front_u, front_v, front_projected, front_results)
+        ## C++ extract object cluouds Front
+        if front_results.masks is None:
+            front_clouds = []
+        else:
+            masks = front_results.masks.data.cpu().numpy()
+            front_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,front_boxes,front_classes,self.model.names,
+                front_u,front_v,front_projected,front.shape[1],front.shape[0])
+            front_clouds = self.convert_cloud_cpp_py(front_clouds_cpp)
 
-        # # rear_clouds = self.pipeline_3d.extract_object_clouds(rear, rear_u, rear_v, rear_projected, rear_results)
-        # ## C++ extract object cluouds Rear
-        # if rear_results.masks is None:
-        #     rear_clouds = []
-        # else:
-        #     masks = rear_results.masks.data.cpu().numpy()
-        #     rear_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,rear_boxes,rear_classes,self.model.names,
-        #         rear_u,rear_v,rear_projected,rear.shape[1],rear.shape[0])
-        #     # rear_clouds = self.convert_cloud_cpp_py(rear_clouds_cpp)
+        # rear_clouds = self.pipeline_3d.extract_object_clouds(rear, rear_u, rear_v, rear_projected, rear_results)
+        ## C++ extract object cluouds Rear
+        if rear_results.masks is None:
+            rear_clouds = []
+        else:
+            masks = rear_results.masks.data.cpu().numpy()
+            rear_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,rear_boxes,rear_classes,self.model.names,
+                rear_u,rear_v,rear_projected,rear.shape[1],rear.shape[0])
+            # rear_clouds = self.convert_cloud_cpp_py(rear_clouds_cpp)
 
-        # # left_clouds = self.pipeline_3d.extract_object_clouds(left, left_u, left_v, left_projected, left_results)
-        # ## C++ extract object cluouds Left
-        # if left_results.masks is None:
-        #     left_clouds = []
-        # else:
-        #     masks = left_results.masks.data.cpu().numpy()
-        #     left_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,left_boxes,left_classes,self.model.names,
-        #         left_u,left_v,left_projected,left.shape[1],left.shape[0])
-        #     # left_clouds = self.convert_cloud_cpp_py(left_clouds_cpp)
+        # left_clouds = self.pipeline_3d.extract_object_clouds(left, left_u, left_v, left_projected, left_results)
+        ## C++ extract object cluouds Left
+        if left_results.masks is None:
+            left_clouds = []
+        else:
+            masks = left_results.masks.data.cpu().numpy()
+            left_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,left_boxes,left_classes,self.model.names,
+                left_u,left_v,left_projected,left.shape[1],left.shape[0])
+            # left_clouds = self.convert_cloud_cpp_py(left_clouds_cpp)
 
-        # # right_clouds = self.pipeline_3d.extract_object_clouds(right, right_u, right_v, right_projected, right_results)
-        # ## C++ extract object cluouds Right
-        # if right_results.masks is None:
-        #     right_clouds = []
-        # else:
-        #     masks = right_results.masks.data.cpu().numpy()
-        #     right_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,right_boxes,right_classes,self.model.names,
-        #         right_u,right_v,right_projected,right.shape[1],right.shape[0])
-        #     # right_clouds = self.convert_cloud_cpp_py(right_clouds_cpp)
+        # right_clouds = self.pipeline_3d.extract_object_clouds(right, right_u, right_v, right_projected, right_results)
+        ## C++ extract object cluouds Right
+        if right_results.masks is None:
+            right_clouds = []
+        else:
+            masks = right_results.masks.data.cpu().numpy()
+            right_clouds_cpp = self.pipeline_3d_cpp.extract_object_clouds(masks,right_boxes,right_classes,self.model.names,
+                right_u,right_v,right_projected,right.shape[1],right.shape[0])
+            # right_clouds = self.convert_cloud_cpp_py(right_clouds_cpp)
 
             
-        # # front, front_objects = self.pipeline_3d.process_object_clouds_and_distance(front, front_clouds, "front")
-        # ## C++ clouds and distances Front
-        # front_objects = []
-        # if front_results.masks is not None:
-        #     front, front_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(front, front_clouds_cpp, "front")
-        #     # front_objects = self.convert_world_objects_cpp_py(front_objects_cpp)
+        # front, front_objects = self.pipeline_3d.process_object_clouds_and_distance(front, front_clouds, "front")
+        ## C++ clouds and distances Front
+        front_objects = []
+        if front_results.masks is not None:
+            front, front_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(front, front_clouds_cpp, "front")
+            # front_objects = self.convert_world_objects_cpp_py(front_objects_cpp)
 
-        # # rear, rear_objects = self.pipeline_3d.process_object_clouds_and_distance(rear, rear_clouds, "rear")
-        # ## C++ clouds and distances rear
-        # rear_objects = []
-        # if rear_results.masks is not None:
-        #     rear, rear_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(rear, rear_clouds_cpp, "rear")
-        #     # rear_objects = self.convert_world_objects_cpp_py(rear_objects_cpp)
+        # rear, rear_objects = self.pipeline_3d.process_object_clouds_and_distance(rear, rear_clouds, "rear")
+        ## C++ clouds and distances rear
+        rear_objects = []
+        if rear_results.masks is not None:
+            rear, rear_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(rear, rear_clouds_cpp, "rear")
+            # rear_objects = self.convert_world_objects_cpp_py(rear_objects_cpp)
 
-        # # left, left_objects = self.pipeline_3d.process_object_clouds_and_distance(left, left_clouds, "left")
-        # ## C++ clouds and distances left
-        # left_objects = []
-        # if left_results.masks is not None:
-        #     left, left_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(left, left_clouds_cpp, "left")
-        #     # left_objects = self.convert_world_objects_cpp_py(left_objects_cpp)
+        # left, left_objects = self.pipeline_3d.process_object_clouds_and_distance(left, left_clouds, "left")
+        ## C++ clouds and distances left
+        left_objects = []
+        if left_results.masks is not None:
+            left, left_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(left, left_clouds_cpp, "left")
+            # left_objects = self.convert_world_objects_cpp_py(left_objects_cpp)
 
-        # # right, right_objects = self.pipeline_3d.process_object_clouds_and_distance(right, right_clouds, "right")
-        # ## C++ clouds and distances right
-        # right_objects = []
-        # if right_results.masks is not None:
-        #     right, right_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(right, right_clouds_cpp, "right")
-        #     # right_objects = self.convert_world_objects_cpp_py(right_objects_cpp)
+        # right, right_objects = self.pipeline_3d.process_object_clouds_and_distance(right, right_clouds, "right")
+        ## C++ clouds and distances right
+        right_objects = []
+        if right_results.masks is not None:
+            right, right_objects_cpp = self.pipeline_3d_cpp.process_object_clouds_and_distance(right, right_clouds_cpp, "right")
+            # right_objects = self.convert_world_objects_cpp_py(right_objects_cpp)
 
 
         # front_objects = self.perception_utils.attach_track_ids(front_objects, front_targets, "F")
