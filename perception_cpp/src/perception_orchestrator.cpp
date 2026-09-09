@@ -1,6 +1,7 @@
 #include <stdexcept>
 
 #include <pybind11/numpy.h>
+#include <algorithm>
 
 #include "perception_orchestrator.hpp"
 
@@ -205,6 +206,13 @@ void PerceptionOrchestrator::process(
     std::vector<Perception3DPipeline::ObjectCloud> left_clouds;
     std::vector<Perception3DPipeline::ObjectCloud> right_clouds;
 
+    // Camera-level WorldObject results.
+    // These are built internally from each camera and combined later.
+    std::vector<Perception3DPipeline::WorldObject> front_objects_cpp;
+    std::vector<Perception3DPipeline::WorldObject> rear_objects_cpp;
+    std::vector<Perception3DPipeline::WorldObject> left_objects_cpp;
+    std::vector<Perception3DPipeline::WorldObject> right_objects_cpp;
+
 
     // ============================================================
     // 3. Process objects, distance, track IDs, and radar
@@ -241,7 +249,7 @@ void PerceptionOrchestrator::process(
 
         front = front_processed_result.image;
 
-        auto front_objects_cpp =
+        front_objects_cpp =
             front_processed_result.world_objects;
 
 
@@ -321,7 +329,7 @@ void PerceptionOrchestrator::process(
 
         rear = rear_processed_result.image;
 
-        auto rear_objects_cpp =
+        rear_objects_cpp =
             rear_processed_result.world_objects;
 
         rear_objects_cpp =
@@ -364,7 +372,7 @@ void PerceptionOrchestrator::process(
 
         left = left_processed_result.image;
 
-        auto left_objects_cpp =
+        left_objects_cpp =
             left_processed_result.world_objects;
 
         left_objects_cpp =
@@ -407,7 +415,7 @@ void PerceptionOrchestrator::process(
 
         right = right_processed_result.image;
 
-        auto right_objects_cpp =
+        right_objects_cpp =
             right_processed_result.world_objects;
 
         right_objects_cpp =
@@ -417,4 +425,52 @@ void PerceptionOrchestrator::process(
                 "RT"
             );
     }
+
+
+    // --------------------------------------------------
+    // Combine all camera world objects
+    // --------------------------------------------------
+
+    std::vector<Perception3DPipeline::WorldObject> world_objects;
+
+    world_objects.insert(
+        world_objects.end(),
+        front_objects_cpp.begin(),
+        front_objects_cpp.end()
+    );
+
+    world_objects.insert(
+        world_objects.end(),
+        rear_objects_cpp.begin(),
+        rear_objects_cpp.end()
+    );
+
+    world_objects.insert(
+        world_objects.end(),
+        left_objects_cpp.begin(),
+        left_objects_cpp.end()
+    );
+
+    world_objects.insert(
+        world_objects.end(),
+        right_objects_cpp.begin(),
+        right_objects_cpp.end()
+    );
+
+
+    // --------------------------------------------------
+    // Keep only objects with track IDs
+    // --------------------------------------------------
+
+    world_objects.erase(
+        std::remove_if(
+            world_objects.begin(),
+            world_objects.end(),
+            [](const Perception3DPipeline::WorldObject& obj)
+            {
+                return obj.id.empty();
+            }
+        ),
+        world_objects.end()
+    );
 }
