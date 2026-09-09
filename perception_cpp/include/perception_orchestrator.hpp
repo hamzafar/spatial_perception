@@ -55,7 +55,9 @@ public:
         int left_width,
         int left_height,
         int right_width,
-        int right_height
+        int right_height,
+
+        double timestamp
     );
 
 private:

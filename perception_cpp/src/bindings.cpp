@@ -138,7 +138,8 @@ PYBIND11_MODULE(perception_cpp, m)
                int left_height,
 
                int right_width,
-               int right_height)
+               int right_height,
+               double timestamp)
             {
                 // --------------------------------------------------
                 // LiDAR: NumPy -> C++
@@ -545,7 +546,8 @@ PYBIND11_MODULE(perception_cpp, m)
                     left_width,
                     left_height,
                     right_width,
-                    right_height
+                    right_height,
+                    timestamp
                 );
             },
 
@@ -599,6 +601,7 @@ PYBIND11_MODULE(perception_cpp, m)
             py::arg("left_height"),
 
             py::arg("right_width"),
-            py::arg("right_height")
+            py::arg("right_height"),
+            py::arg("timestamp")
         );
 }

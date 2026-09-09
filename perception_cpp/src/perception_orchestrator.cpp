@@ -157,7 +157,9 @@ void PerceptionOrchestrator::process(
     int left_width,
     int left_height,
     int right_width,
-    int right_height
+    int right_height,
+
+    double timestamp
 )
 {
     // ============================================================
@@ -476,4 +478,13 @@ void PerceptionOrchestrator::process(
 
     auto object_counts =
     perception_utils.count_objects(world_objects);
+
+    auto nearest_objects =
+    perception_utils.prepare_nearest_objects(
+        world_objects,
+        timestamp);
+
+    auto bev_objects =
+    perception_utils.prepare_bev_objects(
+        world_objects);
 }
