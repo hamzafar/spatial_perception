@@ -408,29 +408,29 @@ class PerceptionStack(Node):
         #     # right_objects = self.convert_world_objects_cpp_py(right_objects_cpp)
 
 
-        # front_objects = self.perception_utils.attach_track_ids(front_objects, front_targets, "F")
-        ## C++ Front attach track ids
-        if front_results.masks is not None:
-            front_objects_cpp = self.perception_utils_cpp.attach_track_ids(front_objects_cpp, front_targets, "F")
-            front_objects = self.convert_world_objects_tr_cpp_py(front_objects_cpp)
+        # # front_objects = self.perception_utils.attach_track_ids(front_objects, front_targets, "F")
+        # ## C++ Front attach track ids
+        # if front_results.masks is not None:
+        #     front_objects_cpp = self.perception_utils_cpp.attach_track_ids(front_objects_cpp, front_targets, "F")
+        #     front_objects = self.convert_world_objects_tr_cpp_py(front_objects_cpp)
         
-        # rear_objects = self.perception_utils.attach_track_ids(rear_objects, rear_targets, "R")
-        ## C++ rear attach track ids
-        if rear_results.masks is not None:
-            rear_objects_cpp = self.perception_utils_cpp.attach_track_ids(rear_objects_cpp, rear_targets, "R")
-            rear_objects = self.convert_world_objects_tr_cpp_py(rear_objects_cpp)
+        # # rear_objects = self.perception_utils.attach_track_ids(rear_objects, rear_targets, "R")
+        # ## C++ rear attach track ids
+        # if rear_results.masks is not None:
+        #     rear_objects_cpp = self.perception_utils_cpp.attach_track_ids(rear_objects_cpp, rear_targets, "R")
+        #     rear_objects = self.convert_world_objects_tr_cpp_py(rear_objects_cpp)
 
-        # left_objects = self.perception_utils.attach_track_ids(left_objects, left_targets, "L")
-        ## C++ left attach track ids
-        if left_results.masks is not None:
-            left_objects_cpp = self.perception_utils_cpp.attach_track_ids(left_objects_cpp, left_targets, "L")
-            left_objects = self.convert_world_objects_tr_cpp_py(left_objects_cpp)
+        # # left_objects = self.perception_utils.attach_track_ids(left_objects, left_targets, "L")
+        # ## C++ left attach track ids
+        # if left_results.masks is not None:
+        #     left_objects_cpp = self.perception_utils_cpp.attach_track_ids(left_objects_cpp, left_targets, "L")
+        #     left_objects = self.convert_world_objects_tr_cpp_py(left_objects_cpp)
 
-        # right_objects =self.perception_utils.attach_track_ids(right_objects, right_targets, "RT")
-        ## C++ right attach track ids
-        if right_results.masks is not None:
-            right_objects_cpp = self.perception_utils_cpp.attach_track_ids(right_objects_cpp, right_targets, "RT")
-            right_objects = self.convert_world_objects_tr_cpp_py(right_objects_cpp)
+        # # right_objects =self.perception_utils.attach_track_ids(right_objects, right_targets, "RT")
+        # ## C++ right attach track ids
+        # if right_results.masks is not None:
+        #     right_objects_cpp = self.perception_utils_cpp.attach_track_ids(right_objects_cpp, right_targets, "RT")
+        #     right_objects = self.convert_world_objects_tr_cpp_py(right_objects_cpp)
 
         # World Objects Motion (Radar)
         radar_points = self.pipeline_radar.convert_ros_to_numpy(radar_msg)

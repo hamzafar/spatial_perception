@@ -48,7 +48,13 @@ PYBIND11_MODULE(perception_cpp, m)
 
                py::array_t<float,
                    py::array::c_style |
+                   py::array::forcecast> front_scores,
+
+               py::array_t<float,
+                   py::array::c_style |
                    py::array::forcecast> front_classes,
+
+               py::object front_radar_points,
 
                py::list front_targets,
 
@@ -317,6 +323,46 @@ PYBIND11_MODULE(perception_cpp, m)
 
 
                 // --------------------------------------------------
+                // Scores: NumPy -> C++
+                // --------------------------------------------------
+
+                auto convert_scores =
+                    [](const py::array_t<float>& scores)
+                    {
+                        auto buf = scores.request();
+
+                        if (buf.ndim != 1)
+                        {
+                            throw std::runtime_error(
+                                "scores must be a 1D NumPy array"
+                            );
+                        }
+
+                        const float* ptr =
+                            static_cast<const float*>(buf.ptr);
+
+                        std::vector<float> scores_cpp;
+
+                        scores_cpp.reserve(
+                            static_cast<size_t>(buf.shape[0])
+                        );
+
+                        for (ssize_t i = 0;
+                             i < buf.shape[0];
+                             ++i)
+                        {
+                            scores_cpp.push_back(ptr[i]);
+                        }
+
+                        return scores_cpp;
+                    };
+
+
+                auto front_scores_cpp =
+                    convert_scores(front_scores);
+
+
+                // --------------------------------------------------
                 // Classes: NumPy -> C++
                 // --------------------------------------------------
 
@@ -460,24 +506,30 @@ PYBIND11_MODULE(perception_cpp, m)
                 self.process(
                     lidar_cpp,
 
+                    // Front
                     front_cpp,
                     front_masks,
                     front_boxes_cpp,
+                    front_scores_cpp,
                     front_classes_cpp,
+                    front_radar_points,
                     front_targets_cpp,
 
+                    // Rear
                     rear_cpp,
                     rear_masks,
                     rear_boxes_cpp,
                     rear_classes_cpp,
                     rear_targets_cpp,
 
+                    // Left
                     left_cpp,
                     left_masks,
                     left_boxes_cpp,
                     left_classes_cpp,
                     left_targets_cpp,
 
+                    // Right
                     right_cpp,
                     right_masks,
                     right_boxes_cpp,
@@ -488,46 +540,55 @@ PYBIND11_MODULE(perception_cpp, m)
 
                     front_width,
                     front_height,
-
                     rear_width,
                     rear_height,
-
                     left_width,
                     left_height,
-
                     right_width,
                     right_height
                 );
             },
 
+            // --------------------------------------------------
+            // Python arguments
+            // --------------------------------------------------
+
             py::arg("lidar"),
 
+            // Front
             py::arg("front"),
             py::arg("front_masks"),
             py::arg("front_boxes"),
+            py::arg("front_scores"),
             py::arg("front_classes"),
+            py::arg("front_radar_points"),
             py::arg("front_targets"),
 
+            // Rear
             py::arg("rear"),
             py::arg("rear_masks"),
             py::arg("rear_boxes"),
             py::arg("rear_classes"),
             py::arg("rear_targets"),
 
+            // Left
             py::arg("left"),
             py::arg("left_masks"),
             py::arg("left_boxes"),
             py::arg("left_classes"),
             py::arg("left_targets"),
 
+            // Right
             py::arg("right"),
             py::arg("right_masks"),
             py::arg("right_boxes"),
             py::arg("right_classes"),
             py::arg("right_targets"),
 
+            // Class names
             py::arg("class_names"),
 
+            // Dimensions
             py::arg("front_width"),
             py::arg("front_height"),
 

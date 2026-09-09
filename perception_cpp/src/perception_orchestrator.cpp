@@ -59,6 +59,57 @@ convert_masks(
     return masks_cpp;
 }
 
+
+std::vector<Eigen::Vector4f>
+convert_radar_points(
+    const py::object& radar_points)
+{
+    if (radar_points.is_none())
+    {
+        return {};
+    }
+
+    py::array_t<float> radar_array =
+        radar_points.cast<py::array_t<float>>();
+
+    auto buffer = radar_array.request();
+
+    if (buffer.ndim != 2 ||
+        buffer.shape[1] != 4)
+    {
+        throw std::runtime_error(
+            "radar_points must have shape (N, 4)"
+        );
+    }
+
+    const float* ptr =
+        static_cast<const float*>(buffer.ptr);
+
+    const ssize_t n =
+        buffer.shape[0];
+
+    std::vector<Eigen::Vector4f> radar_points_cpp;
+
+    radar_points_cpp.reserve(
+        static_cast<size_t>(n)
+    );
+
+    for (ssize_t i = 0; i < n; ++i)
+    {
+        Eigen::Vector4f target;
+
+        target <<
+            ptr[i * 4 + 0],
+            ptr[i * 4 + 1],
+            ptr[i * 4 + 2],
+            ptr[i * 4 + 3];
+
+        radar_points_cpp.push_back(target);
+    }
+
+    return radar_points_cpp;
+}
+
 } // namespace
 
 
@@ -73,7 +124,9 @@ void PerceptionOrchestrator::process(
     cv::Mat& front,
     const py::object& front_masks,
     const std::vector<Eigen::Vector4f>& front_boxes,
+    const std::vector<float>& front_scores,
     const std::vector<int>& front_classes,
+    const py::object& front_radar_points,
     const std::vector<PerceptionUtils::TrackTarget>& front_targets,
 
     cv::Mat& rear,
@@ -154,7 +207,7 @@ void PerceptionOrchestrator::process(
 
 
     // ============================================================
-    // 3. Process objects, distance, and track IDs
+    // 3. Process objects, distance, track IDs, and radar
     // ============================================================
 
     // ------------------------------------------------------------
@@ -191,12 +244,49 @@ void PerceptionOrchestrator::process(
         auto front_objects_cpp =
             front_processed_result.world_objects;
 
+
+        // --------------------------------------------------------
+        // Track IDs
+        // --------------------------------------------------------
+
         front_objects_cpp =
             perception_utils.attach_track_ids(
                 front_objects_cpp,
                 front_targets,
                 "F"
             );
+
+
+        // --------------------------------------------------------
+        // Radar
+        // --------------------------------------------------------
+
+        if (!front_radar_points.is_none())
+        {
+            auto radar_points_cpp =
+                convert_radar_points(
+                    front_radar_points
+                );
+
+            auto front_radar_objects =
+                pipeline_radar.process(
+                    front_boxes,
+                    front_scores,
+                    front_classes,
+                    radar_points_cpp
+                );
+
+            if (!front_objects_cpp.empty() &&
+                !front_radar_objects.empty())
+            {
+                front_objects_cpp =
+                    perception_utils.attach_radar_data(
+                        front_objects_cpp,
+                        front_radar_objects,
+                        0.3f
+                    );
+            }
+        }
     }
 
 
@@ -327,11 +417,4 @@ void PerceptionOrchestrator::process(
                 "RT"
             );
     }
-
-
-    // ============================================================
-    // End of current call
-    //
-    // World objects now have tracker IDs attached inside C++.
-    // ============================================================
 }

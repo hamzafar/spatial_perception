@@ -8,6 +8,7 @@
 
 #include "perception_3d_pipeline.hpp"
 #include "perception_utils.hpp"
+#include "radar_perception_pipeline.hpp"
 
 namespace py = pybind11;
 
@@ -22,7 +23,9 @@ public:
         cv::Mat& front,
         const py::object& front_masks,
         const std::vector<Eigen::Vector4f>& front_boxes,
+        const std::vector<float>& front_scores,
         const std::vector<int>& front_classes,
+        const py::object& front_radar_points,
         const std::vector<PerceptionUtils::TrackTarget>& front_targets,
 
         cv::Mat& rear,
@@ -58,4 +61,5 @@ public:
 private:
     Perception3DPipeline pipeline_3d;
     PerceptionUtils perception_utils;
+    RadarPerceptionPipeline pipeline_radar;
 };
