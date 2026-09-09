@@ -9,6 +9,7 @@
 #include "perception_3d_pipeline.hpp"
 #include "perception_utils.hpp"
 #include "radar_perception_pipeline.hpp"
+#include "gnss_pipeline.hpp"
 
 namespace py = pybind11;
 
@@ -57,11 +58,16 @@ public:
         int right_width,
         int right_height,
 
-        double timestamp
+        double timestamp,
+        
+        double gnss_latitude,
+        double gnss_longitude,
+        double gnss_altitude
     );
 
 private:
     Perception3DPipeline pipeline_3d;
     PerceptionUtils perception_utils;
     RadarPerceptionPipeline pipeline_radar;
+    GNSSPipeline pipeline_gnss;
 };

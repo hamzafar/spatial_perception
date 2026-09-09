@@ -159,7 +159,11 @@ void PerceptionOrchestrator::process(
     int right_width,
     int right_height,
 
-    double timestamp
+    double timestamp,
+
+    double gnss_latitude,
+    double gnss_longitude,
+    double gnss_altitude
 )
 {
     // ============================================================
@@ -487,4 +491,12 @@ void PerceptionOrchestrator::process(
     auto bev_objects =
     perception_utils.prepare_bev_objects(
         world_objects);
+
+    auto gnss =
+    pipeline_gnss.process(
+        gnss_latitude,
+        gnss_longitude,
+        gnss_altitude,
+        timestamp
+    );
 }
