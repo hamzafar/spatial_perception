@@ -10,6 +10,7 @@
 #include "perception_utils.hpp"
 #include "radar_perception_pipeline.hpp"
 #include "gnss_pipeline.hpp"
+#include "imu_pipeline.hpp"
 
 namespace py = pybind11;
 
@@ -62,7 +63,14 @@ public:
         
         double gnss_latitude,
         double gnss_longitude,
-        double gnss_altitude
+        double gnss_altitude,
+
+        float acceleration_x,
+        float acceleration_y,
+        float acceleration_z,
+        float angular_velocity_z,
+        float orientation_z,
+        float orientation_w
     );
 
 private:
@@ -70,4 +78,5 @@ private:
     PerceptionUtils perception_utils;
     RadarPerceptionPipeline pipeline_radar;
     GNSSPipeline pipeline_gnss;
+    IMUPipeline pipeline_imu;
 };

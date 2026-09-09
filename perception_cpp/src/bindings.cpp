@@ -142,7 +142,9 @@ PYBIND11_MODULE(perception_cpp, m)
                double timestamp,
                double gnss_latitude,
                double gnss_longitude,
-               double gnss_altitude
+               double gnss_altitude,
+
+               py::object imu_msg
             )
             {
                 // --------------------------------------------------
@@ -502,7 +504,27 @@ PYBIND11_MODULE(perception_cpp, m)
                             item.second.cast<std::string>();
                     }
                 }
+                
+                // --------------------------------------------------
+                // IMU cpp conversion
+                // --------------------------------------------------
+                const float acceleration_x =
+                    imu_msg.attr("linear_acceleration").attr("x").cast<float>();
 
+                const float acceleration_y =
+                    imu_msg.attr("linear_acceleration").attr("y").cast<float>();
+
+                const float acceleration_z =
+                    imu_msg.attr("linear_acceleration").attr("z").cast<float>();
+
+                const float angular_velocity_z =
+                    imu_msg.attr("angular_velocity").attr("z").cast<float>();
+
+                const float orientation_z =
+                    imu_msg.attr("orientation").attr("z").cast<float>();
+
+                const float orientation_w =
+                    imu_msg.attr("orientation").attr("w").cast<float>();
 
                 // --------------------------------------------------
                 // Call C++ orchestrator
@@ -554,7 +576,14 @@ PYBIND11_MODULE(perception_cpp, m)
                     timestamp,
                     gnss_latitude,
                     gnss_longitude,
-                    gnss_altitude
+                    gnss_altitude,
+
+                    acceleration_x,
+                    acceleration_y,
+                    acceleration_z,
+                    angular_velocity_z,
+                    orientation_z,
+                    orientation_w
                     
                 );
             },
@@ -610,9 +639,13 @@ PYBIND11_MODULE(perception_cpp, m)
 
             py::arg("right_width"),
             py::arg("right_height"),
+            
             py::arg("timestamp"),
+
             py::arg("gnss_latitude"),
             py::arg("gnss_longitude"),
-            py::arg("gnss_altitude")
+            py::arg("gnss_altitude"),
+
+            py::arg("imu_msg")
         );
 }

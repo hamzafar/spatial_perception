@@ -163,7 +163,14 @@ void PerceptionOrchestrator::process(
 
     double gnss_latitude,
     double gnss_longitude,
-    double gnss_altitude
+    double gnss_altitude,
+
+    float acceleration_x,
+    float acceleration_y,
+    float acceleration_z,
+    float angular_velocity_z,
+    float orientation_z,
+    float orientation_w
 )
 {
     // ============================================================
@@ -499,4 +506,21 @@ void PerceptionOrchestrator::process(
         gnss_altitude,
         timestamp
     );
+
+    auto imu =
+    pipeline_imu.process(
+        acceleration_x,
+        acceleration_y,
+        acceleration_z,
+        angular_velocity_z,
+        orientation_z,
+        orientation_w,
+        gnss.speed
+    );
+
+    constexpr float RAD_TO_DEG =
+    180.0f / 3.14159265358979323846f;
+
+    float heading_deg =
+        imu.heading * RAD_TO_DEG;
 }

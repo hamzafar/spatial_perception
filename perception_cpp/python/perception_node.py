@@ -467,15 +467,15 @@ class PerceptionStack(Node):
         # bev_objects = self.perception_utils_cpp.prepare_bev_objects(world_objects)
                
         # Ego Vehicle Motion
-        timestamp = (gnss_msg.header.stamp.sec + gnss_msg.header.stamp.nanosec * 1e-9)
+        # timestamp = (gnss_msg.header.stamp.sec + gnss_msg.header.stamp.nanosec * 1e-9)
         
-        # gnss = self.gnss_pipeline.process(gnss_msg.latitude, gnss_msg.longitude, gnss_msg.altitude, timestamp)
-        ## C++ GNSS Pipeline
-        gnss = self.gnss_pipeline_cpp.process(gnss_msg.latitude, gnss_msg.longitude,gnss_msg.altitude,timestamp)
+        # # gnss = self.gnss_pipeline.process(gnss_msg.latitude, gnss_msg.longitude, gnss_msg.altitude, timestamp)
+        # ## C++ GNSS Pipeline
+        # gnss = self.gnss_pipeline_cpp.process(gnss_msg.latitude, gnss_msg.longitude,gnss_msg.altitude,timestamp)
 
-        # imu = self.imu_pipeline.process(imu_msg, gnss["speed"])
-        ## C++ IMU Pipeline
-        imu = self.imu_pipeline_cpp.process(imu_msg, gnss["speed"])
+        # # imu = self.imu_pipeline.process(imu_msg, gnss["speed"])
+        # ## C++ IMU Pipeline
+        # imu = self.imu_pipeline_cpp.process(imu_msg, gnss["speed"])
         
         heading_deg = np.degrees(imu["heading"])
 
