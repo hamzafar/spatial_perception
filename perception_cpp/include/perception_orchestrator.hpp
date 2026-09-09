@@ -23,26 +23,25 @@ public:
         const py::object& front_masks,
         const std::vector<Eigen::Vector4f>& front_boxes,
         const std::vector<int>& front_classes,
+        const std::vector<PerceptionUtils::TrackTarget>& front_targets,
 
         cv::Mat& rear,
         const py::object& rear_masks,
         const std::vector<Eigen::Vector4f>& rear_boxes,
         const std::vector<int>& rear_classes,
+        const std::vector<PerceptionUtils::TrackTarget>& rear_targets,
 
         cv::Mat& left,
         const py::object& left_masks,
         const std::vector<Eigen::Vector4f>& left_boxes,
         const std::vector<int>& left_classes,
+        const std::vector<PerceptionUtils::TrackTarget>& left_targets,
 
         cv::Mat& right,
         const py::object& right_masks,
         const std::vector<Eigen::Vector4f>& right_boxes,
         const std::vector<int>& right_classes,
-
-        const std::vector<PerceptionUtils::TrackTarget>& front_targets,
-        const std::vector<PerceptionUtils::TrackTarget>&  rear_targets,
-        const std::vector<PerceptionUtils::TrackTarget>&  left_targets,
-        const std::vector<PerceptionUtils::TrackTarget>&  right_targets,
+        const std::vector<PerceptionUtils::TrackTarget>& right_targets,
 
         const std::vector<std::string>& class_names,
 

@@ -7,6 +7,7 @@
 
 namespace py = pybind11;
 
+
 PYBIND11_MODULE(perception_cpp, m)
 {
     // --------------------------------------------------
@@ -49,6 +50,8 @@ PYBIND11_MODULE(perception_cpp, m)
                    py::array::c_style |
                    py::array::forcecast> front_classes,
 
+               py::list front_targets,
+
                // --------------------------------------------------
                // Rear
                // --------------------------------------------------
@@ -66,6 +69,8 @@ PYBIND11_MODULE(perception_cpp, m)
                py::array_t<float,
                    py::array::c_style |
                    py::array::forcecast> rear_classes,
+
+               py::list rear_targets,
 
                // --------------------------------------------------
                // Left
@@ -85,6 +90,8 @@ PYBIND11_MODULE(perception_cpp, m)
                    py::array::c_style |
                    py::array::forcecast> left_classes,
 
+               py::list left_targets,
+
                // --------------------------------------------------
                // Right
                // --------------------------------------------------
@@ -102,6 +109,8 @@ PYBIND11_MODULE(perception_cpp, m)
                py::array_t<float,
                    py::array::c_style |
                    py::array::forcecast> right_classes,
+
+               py::list right_targets,
 
                // --------------------------------------------------
                // Class names
@@ -161,6 +170,7 @@ PYBIND11_MODULE(perception_cpp, m)
                     lidar_cpp.push_back(point);
                 }
 
+
                 // --------------------------------------------------
                 // Front image: NumPy -> cv::Mat
                 // --------------------------------------------------
@@ -181,6 +191,7 @@ PYBIND11_MODULE(perception_cpp, m)
                     CV_8UC3,
                     front_buf.ptr
                 );
+
 
                 // --------------------------------------------------
                 // Rear image: NumPy -> cv::Mat
@@ -203,6 +214,7 @@ PYBIND11_MODULE(perception_cpp, m)
                     rear_buf.ptr
                 );
 
+
                 // --------------------------------------------------
                 // Left image: NumPy -> cv::Mat
                 // --------------------------------------------------
@@ -224,6 +236,7 @@ PYBIND11_MODULE(perception_cpp, m)
                     left_buf.ptr
                 );
 
+
                 // --------------------------------------------------
                 // Right image: NumPy -> cv::Mat
                 // --------------------------------------------------
@@ -244,6 +257,7 @@ PYBIND11_MODULE(perception_cpp, m)
                     CV_8UC3,
                     right_buf.ptr
                 );
+
 
                 // --------------------------------------------------
                 // Boxes: NumPy -> C++
@@ -281,15 +295,26 @@ PYBIND11_MODULE(perception_cpp, m)
                                 ptr[i * 4 + 2],
                                 ptr[i * 4 + 3]
                             );
+
+                            boxes_cpp.push_back(box);
                         }
 
                         return boxes_cpp;
                     };
 
-                auto front_boxes_cpp = convert_boxes(front_boxes);
-                auto rear_boxes_cpp  = convert_boxes(rear_boxes);
-                auto left_boxes_cpp  = convert_boxes(left_boxes);
-                auto right_boxes_cpp = convert_boxes(right_boxes);
+
+                auto front_boxes_cpp =
+                    convert_boxes(front_boxes);
+
+                auto rear_boxes_cpp =
+                    convert_boxes(rear_boxes);
+
+                auto left_boxes_cpp =
+                    convert_boxes(left_boxes);
+
+                auto right_boxes_cpp =
+                    convert_boxes(right_boxes);
+
 
                 // --------------------------------------------------
                 // Classes: NumPy -> C++
@@ -328,6 +353,7 @@ PYBIND11_MODULE(perception_cpp, m)
                         return classes_cpp;
                     };
 
+
                 auto front_classes_cpp =
                     convert_classes(front_classes);
 
@@ -339,6 +365,68 @@ PYBIND11_MODULE(perception_cpp, m)
 
                 auto right_classes_cpp =
                     convert_classes(right_classes);
+
+
+                // --------------------------------------------------
+                // Tracker targets: Python -> C++
+                // --------------------------------------------------
+
+                auto convert_targets =
+                    [](const py::list& online_targets)
+                    {
+                        std::vector<
+                            PerceptionUtils::TrackTarget
+                        > targets_cpp;
+
+                        targets_cpp.reserve(
+                            online_targets.size()
+                        );
+
+                        for (auto target : online_targets)
+                        {
+                            PerceptionUtils::TrackTarget t;
+
+                            t.track_id =
+                                target.attr(
+                                    "track_id"
+                                ).cast<int>();
+
+                            auto tlwh =
+                                target.attr(
+                                    "tlwh"
+                                ).cast<py::sequence>();
+
+                            t.x =
+                                tlwh[0].cast<float>();
+
+                            t.y =
+                                tlwh[1].cast<float>();
+
+                            t.width =
+                                tlwh[2].cast<float>();
+
+                            t.height =
+                                tlwh[3].cast<float>();
+
+                            targets_cpp.push_back(t);
+                        }
+
+                        return targets_cpp;
+                    };
+
+
+                auto front_targets_cpp =
+                    convert_targets(front_targets);
+
+                auto rear_targets_cpp =
+                    convert_targets(rear_targets);
+
+                auto left_targets_cpp =
+                    convert_targets(left_targets);
+
+                auto right_targets_cpp =
+                    convert_targets(right_targets);
+
 
                 // --------------------------------------------------
                 // Class names: Python dict -> C++
@@ -364,6 +452,7 @@ PYBIND11_MODULE(perception_cpp, m)
                     }
                 }
 
+
                 // --------------------------------------------------
                 // Call C++ orchestrator
                 // --------------------------------------------------
@@ -375,21 +464,25 @@ PYBIND11_MODULE(perception_cpp, m)
                     front_masks,
                     front_boxes_cpp,
                     front_classes_cpp,
+                    front_targets_cpp,
 
                     rear_cpp,
                     rear_masks,
                     rear_boxes_cpp,
                     rear_classes_cpp,
+                    rear_targets_cpp,
 
                     left_cpp,
                     left_masks,
                     left_boxes_cpp,
                     left_classes_cpp,
+                    left_targets_cpp,
 
                     right_cpp,
                     right_masks,
                     right_boxes_cpp,
                     right_classes_cpp,
+                    right_targets_cpp,
 
                     class_names_cpp,
 
@@ -413,21 +506,25 @@ PYBIND11_MODULE(perception_cpp, m)
             py::arg("front_masks"),
             py::arg("front_boxes"),
             py::arg("front_classes"),
+            py::arg("front_targets"),
 
             py::arg("rear"),
             py::arg("rear_masks"),
             py::arg("rear_boxes"),
             py::arg("rear_classes"),
+            py::arg("rear_targets"),
 
             py::arg("left"),
             py::arg("left_masks"),
             py::arg("left_boxes"),
             py::arg("left_classes"),
+            py::arg("left_targets"),
 
             py::arg("right"),
             py::arg("right_masks"),
             py::arg("right_boxes"),
             py::arg("right_classes"),
+            py::arg("right_targets"),
 
             py::arg("class_names"),
 
@@ -443,5 +540,4 @@ PYBIND11_MODULE(perception_cpp, m)
             py::arg("right_width"),
             py::arg("right_height")
         );
-
-} // PYBIND11_MODULE(perception_cpp, m)
+}
