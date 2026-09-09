@@ -1,3 +1,6 @@
+#include <cstring>
+#include <stdexcept>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/eigen.h>
@@ -8,11 +11,70 @@
 namespace py = pybind11;
 
 
+// ================================================================
+// cv::Mat -> NumPy
+// ================================================================
+
+py::array mat_to_numpy(const cv::Mat& image)
+{
+    if (image.empty())
+    {
+        return py::array();
+    }
+
+    const int channels = image.channels();
+
+    py::array_t<uint8_t> output(
+        {
+            static_cast<py::ssize_t>(image.rows),
+            static_cast<py::ssize_t>(image.cols),
+            static_cast<py::ssize_t>(channels)
+        }
+    );
+
+    auto buffer = output.request();
+
+    uint8_t* dst =
+        static_cast<uint8_t*>(buffer.ptr);
+
+    const size_t row_bytes =
+        static_cast<size_t>(image.cols) *
+        static_cast<size_t>(channels);
+
+    if (image.isContinuous())
+    {
+        std::memcpy(
+            dst,
+            image.data,
+            row_bytes *
+            static_cast<size_t>(image.rows)
+        );
+    }
+    else
+    {
+        for (int r = 0; r < image.rows; ++r)
+        {
+            std::memcpy(
+                dst + static_cast<size_t>(r) * row_bytes,
+                image.ptr<uint8_t>(r),
+                row_bytes
+            );
+        }
+    }
+
+    return output;
+}
+
+
+// ================================================================
+// PYBIND MODULE
+// ================================================================
+
 PYBIND11_MODULE(perception_cpp, m)
 {
-    // --------------------------------------------------
+    // ------------------------------------------------------------
     // PerceptionOrchestrator
-    // --------------------------------------------------
+    // ------------------------------------------------------------
 
     py::class_<PerceptionOrchestrator>(
         m,
@@ -24,17 +86,17 @@ PYBIND11_MODULE(perception_cpp, m)
             "process",
             [](PerceptionOrchestrator& self,
 
-               // --------------------------------------------------
+               // ------------------------------------------------
                // LiDAR
-               // --------------------------------------------------
+               // ------------------------------------------------
 
                py::array_t<float,
                    py::array::c_style |
                    py::array::forcecast> lidar,
 
-               // --------------------------------------------------
+               // ------------------------------------------------
                // Front
-               // --------------------------------------------------
+               // ------------------------------------------------
 
                py::array_t<uint8_t,
                    py::array::c_style |
@@ -58,9 +120,9 @@ PYBIND11_MODULE(perception_cpp, m)
 
                py::list front_targets,
 
-               // --------------------------------------------------
+               // ------------------------------------------------
                // Rear
-               // --------------------------------------------------
+               // ------------------------------------------------
 
                py::array_t<uint8_t,
                    py::array::c_style |
@@ -78,9 +140,9 @@ PYBIND11_MODULE(perception_cpp, m)
 
                py::list rear_targets,
 
-               // --------------------------------------------------
+               // ------------------------------------------------
                // Left
-               // --------------------------------------------------
+               // ------------------------------------------------
 
                py::array_t<uint8_t,
                    py::array::c_style |
@@ -98,9 +160,9 @@ PYBIND11_MODULE(perception_cpp, m)
 
                py::list left_targets,
 
-               // --------------------------------------------------
+               // ------------------------------------------------
                // Right
-               // --------------------------------------------------
+               // ------------------------------------------------
 
                py::array_t<uint8_t,
                    py::array::c_style |
@@ -118,15 +180,15 @@ PYBIND11_MODULE(perception_cpp, m)
 
                py::list right_targets,
 
-               // --------------------------------------------------
+               // ------------------------------------------------
                // Class names
-               // --------------------------------------------------
+               // ------------------------------------------------
 
                py::dict class_names,
 
-               // --------------------------------------------------
+               // ------------------------------------------------
                // Image dimensions
-               // --------------------------------------------------
+               // ------------------------------------------------
 
                int front_width,
                int front_height,
@@ -139,17 +201,32 @@ PYBIND11_MODULE(perception_cpp, m)
 
                int right_width,
                int right_height,
+
+               // ------------------------------------------------
+               // Timestamp
+               // ------------------------------------------------
+
                double timestamp,
+
+               // ------------------------------------------------
+               // GNSS
+               // ------------------------------------------------
+
                double gnss_latitude,
                double gnss_longitude,
                double gnss_altitude,
 
+               // ------------------------------------------------
+               // IMU ROS message
+               // ------------------------------------------------
+
                py::object imu_msg
             )
             {
-                // --------------------------------------------------
+
+                // =================================================
                 // LiDAR: NumPy -> C++
-                // --------------------------------------------------
+                // =================================================
 
                 auto lidar_buf = lidar.request();
 
@@ -167,7 +244,9 @@ PYBIND11_MODULE(perception_cpp, m)
                 std::vector<Eigen::Vector3f> lidar_cpp;
 
                 lidar_cpp.reserve(
-                    static_cast<size_t>(lidar_buf.shape[0])
+                    static_cast<size_t>(
+                        lidar_buf.shape[0]
+                    )
                 );
 
                 for (ssize_t i = 0;
@@ -184,9 +263,9 @@ PYBIND11_MODULE(perception_cpp, m)
                 }
 
 
-                // --------------------------------------------------
+                // =================================================
                 // Front image: NumPy -> cv::Mat
-                // --------------------------------------------------
+                // =================================================
 
                 auto front_buf = front.request();
 
@@ -206,9 +285,9 @@ PYBIND11_MODULE(perception_cpp, m)
                 );
 
 
-                // --------------------------------------------------
+                // =================================================
                 // Rear image: NumPy -> cv::Mat
-                // --------------------------------------------------
+                // =================================================
 
                 auto rear_buf = rear.request();
 
@@ -228,9 +307,9 @@ PYBIND11_MODULE(perception_cpp, m)
                 );
 
 
-                // --------------------------------------------------
+                // =================================================
                 // Left image: NumPy -> cv::Mat
-                // --------------------------------------------------
+                // =================================================
 
                 auto left_buf = left.request();
 
@@ -250,9 +329,9 @@ PYBIND11_MODULE(perception_cpp, m)
                 );
 
 
-                // --------------------------------------------------
+                // =================================================
                 // Right image: NumPy -> cv::Mat
-                // --------------------------------------------------
+                // =================================================
 
                 auto right_buf = right.request();
 
@@ -272,9 +351,9 @@ PYBIND11_MODULE(perception_cpp, m)
                 );
 
 
-                // --------------------------------------------------
+                // =================================================
                 // Boxes: NumPy -> C++
-                // --------------------------------------------------
+                // =================================================
 
                 auto convert_boxes =
                     [](const py::array_t<float>& boxes)
@@ -295,7 +374,9 @@ PYBIND11_MODULE(perception_cpp, m)
                         std::vector<Eigen::Vector4f> boxes_cpp;
 
                         boxes_cpp.reserve(
-                            static_cast<size_t>(buf.shape[0])
+                            static_cast<size_t>(
+                                buf.shape[0]
+                            )
                         );
 
                         for (ssize_t i = 0;
@@ -329,9 +410,9 @@ PYBIND11_MODULE(perception_cpp, m)
                     convert_boxes(right_boxes);
 
 
-                // --------------------------------------------------
+                // =================================================
                 // Scores: NumPy -> C++
-                // --------------------------------------------------
+                // =================================================
 
                 auto convert_scores =
                     [](const py::array_t<float>& scores)
@@ -351,7 +432,9 @@ PYBIND11_MODULE(perception_cpp, m)
                         std::vector<float> scores_cpp;
 
                         scores_cpp.reserve(
-                            static_cast<size_t>(buf.shape[0])
+                            static_cast<size_t>(
+                                buf.shape[0]
+                            )
                         );
 
                         for (ssize_t i = 0;
@@ -369,9 +452,9 @@ PYBIND11_MODULE(perception_cpp, m)
                     convert_scores(front_scores);
 
 
-                // --------------------------------------------------
+                // =================================================
                 // Classes: NumPy -> C++
-                // --------------------------------------------------
+                // =================================================
 
                 auto convert_classes =
                     [](const py::array_t<float>& classes)
@@ -391,7 +474,9 @@ PYBIND11_MODULE(perception_cpp, m)
                         std::vector<int> classes_cpp;
 
                         classes_cpp.reserve(
-                            static_cast<size_t>(buf.shape[0])
+                            static_cast<size_t>(
+                                buf.shape[0]
+                            )
                         );
 
                         for (ssize_t i = 0;
@@ -420,9 +505,9 @@ PYBIND11_MODULE(perception_cpp, m)
                     convert_classes(right_classes);
 
 
-                // --------------------------------------------------
+                // =================================================
                 // Tracker targets: Python -> C++
-                // --------------------------------------------------
+                // =================================================
 
                 auto convert_targets =
                     [](const py::list& online_targets)
@@ -481,9 +566,9 @@ PYBIND11_MODULE(perception_cpp, m)
                     convert_targets(right_targets);
 
 
-                // --------------------------------------------------
+                // =================================================
                 // Class names: Python dict -> C++
-                // --------------------------------------------------
+                // =================================================
 
                 std::vector<std::string> class_names_cpp(
                     80,
@@ -496,101 +581,325 @@ PYBIND11_MODULE(perception_cpp, m)
                         item.first.cast<int>();
 
                     if (class_id >= 0 &&
-                        class_id < static_cast<int>(
-                            class_names_cpp.size()
-                        ))
+                        class_id <
+                            static_cast<int>(
+                                class_names_cpp.size()
+                            ))
                     {
                         class_names_cpp[class_id] =
                             item.second.cast<std::string>();
                     }
                 }
-                
-                // --------------------------------------------------
-                // IMU cpp conversion
-                // --------------------------------------------------
+
+
+                // =================================================
+                // IMU: ROS message -> scalar values
+                // =================================================
+
                 const float acceleration_x =
-                    imu_msg.attr("linear_acceleration").attr("x").cast<float>();
+                    imu_msg
+                        .attr("linear_acceleration")
+                        .attr("x")
+                        .cast<float>();
 
                 const float acceleration_y =
-                    imu_msg.attr("linear_acceleration").attr("y").cast<float>();
+                    imu_msg
+                        .attr("linear_acceleration")
+                        .attr("y")
+                        .cast<float>();
 
                 const float acceleration_z =
-                    imu_msg.attr("linear_acceleration").attr("z").cast<float>();
+                    imu_msg
+                        .attr("linear_acceleration")
+                        .attr("z")
+                        .cast<float>();
 
                 const float angular_velocity_z =
-                    imu_msg.attr("angular_velocity").attr("z").cast<float>();
+                    imu_msg
+                        .attr("angular_velocity")
+                        .attr("z")
+                        .cast<float>();
 
                 const float orientation_z =
-                    imu_msg.attr("orientation").attr("z").cast<float>();
+                    imu_msg
+                        .attr("orientation")
+                        .attr("z")
+                        .cast<float>();
 
                 const float orientation_w =
-                    imu_msg.attr("orientation").attr("w").cast<float>();
+                    imu_msg
+                        .attr("orientation")
+                        .attr("w")
+                        .cast<float>();
 
-                // --------------------------------------------------
+
+                // =================================================
                 // Call C++ orchestrator
-                // --------------------------------------------------
+                // =================================================
 
-                self.process(
-                    lidar_cpp,
+                auto result =
+                    self.process(
+                        lidar_cpp,
 
-                    // Front
-                    front_cpp,
-                    front_masks,
-                    front_boxes_cpp,
-                    front_scores_cpp,
-                    front_classes_cpp,
-                    front_radar_points,
-                    front_targets_cpp,
+                        // -----------------------------------------
+                        // Front
+                        // -----------------------------------------
 
-                    // Rear
-                    rear_cpp,
-                    rear_masks,
-                    rear_boxes_cpp,
-                    rear_classes_cpp,
-                    rear_targets_cpp,
+                        front_cpp,
+                        front_masks,
+                        front_boxes_cpp,
+                        front_scores_cpp,
+                        front_classes_cpp,
+                        front_radar_points,
+                        front_targets_cpp,
 
-                    // Left
-                    left_cpp,
-                    left_masks,
-                    left_boxes_cpp,
-                    left_classes_cpp,
-                    left_targets_cpp,
+                        // -----------------------------------------
+                        // Rear
+                        // -----------------------------------------
 
-                    // Right
-                    right_cpp,
-                    right_masks,
-                    right_boxes_cpp,
-                    right_classes_cpp,
-                    right_targets_cpp,
+                        rear_cpp,
+                        rear_masks,
+                        rear_boxes_cpp,
+                        rear_classes_cpp,
+                        rear_targets_cpp,
 
-                    class_names_cpp,
+                        // -----------------------------------------
+                        // Left
+                        // -----------------------------------------
 
-                    front_width,
-                    front_height,
-                    rear_width,
-                    rear_height,
-                    left_width,
-                    left_height,
-                    right_width,
-                    right_height,
-                    timestamp,
-                    gnss_latitude,
-                    gnss_longitude,
-                    gnss_altitude,
+                        left_cpp,
+                        left_masks,
+                        left_boxes_cpp,
+                        left_classes_cpp,
+                        left_targets_cpp,
 
-                    acceleration_x,
-                    acceleration_y,
-                    acceleration_z,
-                    angular_velocity_z,
-                    orientation_z,
-                    orientation_w
-                    
-                );
+                        // -----------------------------------------
+                        // Right
+                        // -----------------------------------------
+
+                        right_cpp,
+                        right_masks,
+                        right_boxes_cpp,
+                        right_classes_cpp,
+                        right_targets_cpp,
+
+                        // -----------------------------------------
+                        // Class names
+                        // -----------------------------------------
+
+                        class_names_cpp,
+
+                        // -----------------------------------------
+                        // Dimensions
+                        // -----------------------------------------
+
+                        front_width,
+                        front_height,
+
+                        rear_width,
+                        rear_height,
+
+                        left_width,
+                        left_height,
+
+                        right_width,
+                        right_height,
+
+                        // -----------------------------------------
+                        // Timestamp
+                        // -----------------------------------------
+
+                        timestamp,
+
+                        // -----------------------------------------
+                        // GNSS
+                        // -----------------------------------------
+
+                        gnss_latitude,
+                        gnss_longitude,
+                        gnss_altitude,
+
+                        // -----------------------------------------
+                        // IMU
+                        // -----------------------------------------
+
+                        acceleration_x,
+                        acceleration_y,
+                        acceleration_z,
+
+                        angular_velocity_z,
+
+                        orientation_z,
+                        orientation_w
+                    );
+
+
+                // =================================================
+                // C++ ProcessResult -> Python dict
+                // =================================================
+
+                py::dict output;
+
+
+                // =================================================
+                // Camera images
+                // =================================================
+
+                output["front"] =
+                    mat_to_numpy(result.front);
+
+                output["rear"] =
+                    mat_to_numpy(result.rear);
+
+                output["left"] =
+                    mat_to_numpy(result.left);
+
+                output["right"] =
+                    mat_to_numpy(result.right);
+
+
+                // =================================================
+                // Object counts
+                // =================================================
+
+                py::dict object_counts;
+
+                for (const auto& item :
+                     result.object_counts)
+                {
+                    object_counts[item.first.c_str()] =
+                        item.second;
+                }
+
+                output["object_counts"] =
+                    object_counts;
+
+
+                // =================================================
+                // BEV objects
+                // =================================================
+
+                py::list bev_objects;
+
+                for (const auto& obj :
+                     result.bev_objects)
+                {
+                    py::dict item;
+
+                    item["id"] =
+                        obj.id;
+
+                    item["cls"] =
+                        obj.cls;
+
+                    item["x"] =
+                        obj.x;
+
+                    item["y"] =
+                        obj.y;
+
+                    item["distance"] =
+                        obj.distance;
+
+                    bev_objects.append(item);
+                }
+
+                output["bev_objects"] =
+                    bev_objects;
+
+
+                // =================================================
+                // Nearest objects
+                // =================================================
+
+                py::list nearest_objects;
+
+                for (const auto& obj :
+                     result.nearest_objects)
+                {
+                    py::dict item;
+
+                    item["id"] =
+                        obj.id;
+
+                    item["cls"] =
+                        obj.cls;
+
+                    item["label"] =
+                        obj.label;
+
+                    item["dist_m"] =
+                        obj.dist_m;
+
+                    item["speed_mps"] =
+                        obj.speed_mps;
+
+                    item["motion"] =
+                        obj.motion;
+
+                    nearest_objects.append(item);
+                }
+
+                output["nearest_objects"] =
+                    nearest_objects;
+
+
+                // =================================================
+                // GNSS
+                // =================================================
+
+                py::dict gnss;
+
+                gnss["position"] =
+                    result.gnss.position;
+
+                gnss["speed"] =
+                    result.gnss.speed;
+
+                output["gnss"] =
+                    gnss;
+
+
+                // =================================================
+                // IMU
+                // =================================================
+
+                py::dict imu;
+
+                imu["acceleration"] =
+                    result.imu.acceleration;
+
+                imu["yaw_rate"] =
+                    result.imu.yaw_rate;
+
+                imu["heading"] =
+                    result.imu.heading;
+
+                imu["motion_state"] =
+                    result.imu.motion_state;
+
+                output["imu"] =
+                    imu;
+
+
+                // =================================================
+                // Heading in degrees
+                // =================================================
+
+                output["heading_deg"] =
+                    result.heading_deg;
+
+
+                // =================================================
+                // Return complete perception result
+                // =================================================
+
+                return output;
             },
 
-            // --------------------------------------------------
+            // =====================================================
             // Python arguments
-            // --------------------------------------------------
+            // =====================================================
 
             py::arg("lidar"),
 
@@ -639,13 +948,16 @@ PYBIND11_MODULE(perception_cpp, m)
 
             py::arg("right_width"),
             py::arg("right_height"),
-            
+
+            // Timestamp
             py::arg("timestamp"),
 
+            // GNSS
             py::arg("gnss_latitude"),
             py::arg("gnss_longitude"),
             py::arg("gnss_altitude"),
 
+            // IMU
             py::arg("imu_msg")
         );
 }

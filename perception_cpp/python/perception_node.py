@@ -477,7 +477,7 @@ class PerceptionStack(Node):
         # ## C++ IMU Pipeline
         # imu = self.imu_pipeline_cpp.process(imu_msg, gnss["speed"])
         
-        heading_deg = np.degrees(imu["heading"])
+        # heading_deg = np.degrees(imu["heading"])
 
 
         # (REMEMBER) latency is calcualte just before dashboard.push
@@ -539,6 +539,8 @@ class PerceptionStack(Node):
         # print(f"Latency: {latency_ms}: ms")
 
         # self.recorder.record(dashboard_data)
+
+        
 
     def round_nearest_objects(self, nearest_objects):
         for obj in nearest_objects:

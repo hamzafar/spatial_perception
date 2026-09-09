@@ -118,8 +118,8 @@ PerceptionOrchestrator::PerceptionOrchestrator()
 {
 }
 
-
-void PerceptionOrchestrator::process(
+PerceptionOrchestrator::ProcessResult
+PerceptionOrchestrator::process(
     const std::vector<Eigen::Vector3f>& lidar,
 
     cv::Mat& front,
@@ -523,4 +523,20 @@ void PerceptionOrchestrator::process(
 
     float heading_deg =
         imu.heading * RAD_TO_DEG;
+
+    return {
+        front,
+        rear,
+        left,
+        right,
+
+        object_counts,
+        nearest_objects,
+        bev_objects,
+
+        gnss,
+        imu,
+
+        heading_deg
+    };
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include <string>
 #include <vector>
 
@@ -17,9 +19,28 @@ namespace py = pybind11;
 class PerceptionOrchestrator
 {
 public:
+
+    struct ProcessResult
+    {
+        cv::Mat front;
+        cv::Mat rear;
+        cv::Mat left;
+        cv::Mat right;
+
+        std::unordered_map<std::string, int> object_counts;
+
+        std::vector<PerceptionUtils::NearestObject> nearest_objects;
+        std::vector<PerceptionUtils::BEVObject> bev_objects;
+
+        GNSSPipeline::GNSSResult gnss;
+        IMUPipeline::IMUResult imu;
+
+        float heading_deg;
+    };
+
     PerceptionOrchestrator();
 
-    void process(
+    ProcessResult process(
         const std::vector<Eigen::Vector3f>& lidar,
 
         cv::Mat& front,
