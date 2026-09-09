@@ -473,4 +473,7 @@ void PerceptionOrchestrator::process(
         ),
         world_objects.end()
     );
+
+    auto object_counts =
+    perception_utils.count_objects(world_objects);
 }

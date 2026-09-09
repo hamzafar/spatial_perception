@@ -448,12 +448,12 @@ class PerceptionStack(Node):
         #     front_objects = self.convert_world_objects_tr_cpp_py(front_objects_cpp)
 
 
-        world_objects = (front_objects + rear_objects + left_objects + right_objects)
-        world_objects = [obj for obj in world_objects if "id" in obj]
+        # world_objects = (front_objects + rear_objects + left_objects + right_objects)
+        # world_objects = [obj for obj in world_objects if "id" in obj]
 
         # object_counts = self.perception_utils.count_objects(world_objects)
         ##C++ count objects
-        object_counts = self.perception_utils_cpp.count_objects(world_objects)
+        # object_counts = self.perception_utils_cpp.count_objects(world_objects)
 
         timestamp = (gnss_msg.header.stamp.sec + gnss_msg.header.stamp.nanosec * 1e-9)
 
