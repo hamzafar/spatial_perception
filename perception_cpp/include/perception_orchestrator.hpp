@@ -7,6 +7,7 @@
 #include <pybind11/pybind11.h>
 
 #include "perception_3d_pipeline.hpp"
+#include "perception_utils.hpp"
 
 namespace py = pybind11;
 
@@ -38,6 +39,11 @@ public:
         const std::vector<Eigen::Vector4f>& right_boxes,
         const std::vector<int>& right_classes,
 
+        const std::vector<PerceptionUtils::TrackTarget>& front_targets,
+        const std::vector<PerceptionUtils::TrackTarget>&  rear_targets,
+        const std::vector<PerceptionUtils::TrackTarget>&  left_targets,
+        const std::vector<PerceptionUtils::TrackTarget>&  right_targets,
+
         const std::vector<std::string>& class_names,
 
         int front_width,
@@ -52,4 +58,5 @@ public:
 
 private:
     Perception3DPipeline pipeline_3d;
+    PerceptionUtils perception_utils;
 };

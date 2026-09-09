@@ -3,6 +3,7 @@
 #include <pybind11/numpy.h>
 
 #include "perception_orchestrator.hpp"
+
 namespace
 {
 
@@ -58,7 +59,6 @@ convert_masks(
     return masks_cpp;
 }
 
-
 } // namespace
 
 
@@ -74,21 +74,25 @@ void PerceptionOrchestrator::process(
     const py::object& front_masks,
     const std::vector<Eigen::Vector4f>& front_boxes,
     const std::vector<int>& front_classes,
+    const std::vector<PerceptionUtils::TrackTarget>& front_targets,
 
     cv::Mat& rear,
     const py::object& rear_masks,
     const std::vector<Eigen::Vector4f>& rear_boxes,
     const std::vector<int>& rear_classes,
+    const std::vector<PerceptionUtils::TrackTarget>& rear_targets,
 
     cv::Mat& left,
     const py::object& left_masks,
     const std::vector<Eigen::Vector4f>& left_boxes,
     const std::vector<int>& left_classes,
+    const std::vector<PerceptionUtils::TrackTarget>& left_targets,
 
     cv::Mat& right,
     const py::object& right_masks,
     const std::vector<Eigen::Vector4f>& right_boxes,
     const std::vector<int>& right_classes,
+    const std::vector<PerceptionUtils::TrackTarget>& right_targets,
 
     const std::vector<std::string>& class_names,
 
@@ -149,6 +153,10 @@ void PerceptionOrchestrator::process(
     std::vector<Perception3DPipeline::ObjectCloud> right_clouds;
 
 
+    // ============================================================
+    // 3. Process objects, distance, and track IDs
+    // ============================================================
+
     // ------------------------------------------------------------
     // Front
     // ------------------------------------------------------------
@@ -170,17 +178,25 @@ void PerceptionOrchestrator::process(
                 front_width,
                 front_height
             );
-            
-            auto front_processed_result =
-                pipeline_3d.process_object_clouds_and_distance(
-                    front,
-                    front_clouds,
-                    "front"
-                );
 
-            front = front_processed_result.image;
-            auto front_objects = front_processed_result.world_objects;
-            
+        auto front_processed_result =
+            pipeline_3d.process_object_clouds_and_distance(
+                front,
+                front_clouds,
+                "front"
+            );
+
+        front = front_processed_result.image;
+
+        auto front_objects_cpp =
+            front_processed_result.world_objects;
+
+        front_objects_cpp =
+            perception_utils.attach_track_ids(
+                front_objects_cpp,
+                front_targets,
+                "F"
+            );
     }
 
 
@@ -205,16 +221,25 @@ void PerceptionOrchestrator::process(
                 rear_width,
                 rear_height
             );
+
         auto rear_processed_result =
-                pipeline_3d.process_object_clouds_and_distance(
-                    rear,
-                    rear_clouds,
-                    "rear"
-                );
+            pipeline_3d.process_object_clouds_and_distance(
+                rear,
+                rear_clouds,
+                "rear"
+            );
 
-            rear = rear_processed_result.image;
-            auto rear_objects = rear_processed_result.world_objects;
+        rear = rear_processed_result.image;
 
+        auto rear_objects_cpp =
+            rear_processed_result.world_objects;
+
+        rear_objects_cpp =
+            perception_utils.attach_track_ids(
+                rear_objects_cpp,
+                rear_targets,
+                "R"
+            );
     }
 
 
@@ -241,15 +266,23 @@ void PerceptionOrchestrator::process(
             );
 
         auto left_processed_result =
-                pipeline_3d.process_object_clouds_and_distance(
-                    left,
-                    left_clouds,
-                    "left"
-                );
+            pipeline_3d.process_object_clouds_and_distance(
+                left,
+                left_clouds,
+                "left"
+            );
 
         left = left_processed_result.image;
-        auto left_objects = left_processed_result.world_objects;            
-            
+
+        auto left_objects_cpp =
+            left_processed_result.world_objects;
+
+        left_objects_cpp =
+            perception_utils.attach_track_ids(
+                left_objects_cpp,
+                left_targets,
+                "L"
+            );
     }
 
 
@@ -276,22 +309,29 @@ void PerceptionOrchestrator::process(
             );
 
         auto right_processed_result =
-                pipeline_3d.process_object_clouds_and_distance(
-                    right,
-                    right_clouds,
-                    "right"
-                );
+            pipeline_3d.process_object_clouds_and_distance(
+                right,
+                right_clouds,
+                "right"
+            );
 
         right = right_processed_result.image;
-        auto right_objects = right_processed_result.world_objects;
 
+        auto right_objects_cpp =
+            right_processed_result.world_objects;
+
+        right_objects_cpp =
+            perception_utils.attach_track_ids(
+                right_objects_cpp,
+                right_targets,
+                "RT"
+            );
     }
 
 
     // ============================================================
-    // Call 3 currently ends here.
+    // End of current call
     //
-    // The four cloud vectors are now available inside the
-    // orchestrator for the next pipeline stage.
+    // World objects now have tracker IDs attached inside C++.
     // ============================================================
 }
