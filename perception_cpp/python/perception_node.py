@@ -98,8 +98,8 @@ class PerceptionStack(Node):
         self.imu_pipeline = IMUPipeline()
 
         # Initailze cpp Imu and GNSS pipeline
-        self.gnss_pipeline_cpp = perception_cpp.GNSSPipeline()
-        self.imu_pipeline_cpp = perception_cpp.IMUPipeline()
+        # self.gnss_pipeline_cpp = perception_cpp.GNSSPipeline()
+        # self.imu_pipeline_cpp = perception_cpp.IMUPipeline()
 
         # Initialize tracking pipeline
         self.pipeline_tracking = TrackingPipeline()
@@ -113,7 +113,7 @@ class PerceptionStack(Node):
         self.right_tracker = BYTETracker(self.tracker_args, frame_rate=10)
 
         # Initialize cpp 3D perception pipeline
-        self.pipeline_3d_cpp = perception_cpp.Perception3DPipeline()
+        # self.pipeline_3d_cpp = perception_cpp.Perception3DPipeline()
 
         # Initialize 3D perception pipeline
         self.pipeline_3d = Perception3DPipeline()
@@ -131,7 +131,7 @@ class PerceptionStack(Node):
         self.perception_utils = PerceptionUtils()
 
         # Initialize C++ perception utilities
-        self.perception_utils_cpp = perception_cpp.PerceptionUtils()
+        # self.perception_utils_cpp = perception_cpp.PerceptionUtils()
 
         # Initialize radar perception pipeline
         self.pipeline_radar = RadarPerceptionPipeline()
@@ -163,7 +163,7 @@ class PerceptionStack(Node):
         self.pipeline_radar.T_radar_to_cam = T
 
         # Initialize C++ perception utilities
-        self.pipeline_radar_cpp = perception_cpp.RadarPerceptionPipeline()
+        # self.pipeline_radar_cpp = perception_cpp.RadarPerceptionPipeline()
 
         # Initialize perception recorder
         self.recorder = PerceptionRecorder(output_root="/home/hamza/ros2_cv_ws/scripts/phase12/perception_recordings")
@@ -287,34 +287,6 @@ class PerceptionStack(Node):
         # BEV(Lidar)
         lidar = self.pipeline_3d.convert_ros_to_numpy(lidar_msg)
         
-        ## C++ orchestrator process
-        self.perception_orchestrator.process(
-            lidar,
-
-            front_results.masks,
-            front_boxes,
-            front_classes,
-
-            rear_results.masks,
-            rear_boxes,
-            rear_classes,
-
-            left_results.masks,
-            left_boxes,
-            left_classes,
-
-            right_results.masks,
-            right_boxes,
-            right_classes,
-
-            self.model.names,
-
-            front.shape[1], front.shape[0],
-            rear.shape[1], rear.shape[0],
-            left.shape[1], left.shape[0],
-            right.shape[1], right.shape[0]
-        )
-
         # # front, front_u, front_v, front_projected = self.pipeline_3d.project_lidar(front, lidar, "front")
         # ## C++ LiDAR projection Front 
         # result = self.pipeline_3d_cpp.project_lidar(lidar, "front", front.shape[1], front.shape[0])
@@ -479,6 +451,88 @@ class PerceptionStack(Node):
         
         # heading_deg = np.degrees(imu["heading"])
 
+        ## C++ orchestrator call
+        front_masks = (
+            front_results.masks.data.cpu().numpy()
+            if front_results.masks is not None
+            else None
+        )
+
+        rear_masks = (
+            rear_results.masks.data.cpu().numpy()
+            if rear_results.masks is not None
+            else None
+        )
+
+        left_masks = (
+            left_results.masks.data.cpu().numpy()
+            if left_results.masks is not None
+            else None
+        )
+
+        right_masks = (
+            right_results.masks.data.cpu().numpy()
+            if right_results.masks is not None
+            else None
+        )
+
+        result = self.perception_orchestrator.process(
+            lidar,
+
+            # Front
+            front,
+            front_masks,
+            front_boxes,
+            front_scores,
+            front_classes,
+            radar_points,
+            front_targets,
+
+            # Rear
+            rear,
+            rear_masks,
+            rear_boxes,
+            rear_classes,
+            rear_targets,
+
+            # Left
+            left,
+            left_masks,
+            left_boxes,
+            left_classes,
+            left_targets,
+
+            # Right
+            right,
+            right_masks,
+            right_boxes,
+            right_classes,
+            right_targets,
+
+            # Class names
+            self.model.names,
+
+            # Image dimensions
+            front.shape[1],
+            front.shape[0],
+            rear.shape[1],
+            rear.shape[0],
+            left.shape[1],
+            left.shape[0],
+            right.shape[1],
+            right.shape[0],
+
+            # Timestamp
+            timestamp,
+
+            # GNSS
+            gnss_msg.latitude,
+            gnss_msg.longitude,
+            gnss_msg.altitude,
+
+            # IMU
+            imu_msg,
+        )
 
         # (REMEMBER) latency is calcualte just before dashboard.push
         latency_ms = (
@@ -488,7 +542,6 @@ class PerceptionStack(Node):
         metrics = self.metrics.get_metrics(
             latency_ms
         )
-
 
         dashboard_data = {
             "sensors": {
@@ -506,22 +559,31 @@ class PerceptionStack(Node):
             "gpu_pct": metrics["gpu_pct"],
             "cpu_pct": metrics["cpu_pct"],
 
-            "objects_count": object_counts,
+            "objects_count": result["object_counts"],
 
             "trajectory_reset": self.trajectory_reset,
 
             "ego": {
-                "heading_deg": float(heading_deg),
-                "speed_mps": float(gnss["speed"]),
+                "heading_deg": float(result["heading_deg"]),
+                "speed_mps": float(result["gnss"]["speed"]),
 
-                "accelerating": "Accelerating" in imu["motion_state"],
-                "braking": "Braking" in imu["motion_state"],
+                "accelerating":
+                    "Accelerating" in result["imu"]["motion_state"],
 
-                "turning_left": "Turning Left" in imu["motion_state"],
-                "turning_right": "Turning Right" in imu["motion_state"],
+                "braking":
+                    "Braking" in result["imu"]["motion_state"],
 
-                "world_x": float(gnss["position"][0]),
-                "world_y": float(gnss["position"][1]),
+                "turning_left":
+                    "Turning Left" in result["imu"]["motion_state"],
+
+                "turning_right":
+                    "Turning Right" in result["imu"]["motion_state"],
+
+                "world_x":
+                    float(result["gnss"]["position"][0]),
+
+                "world_y":
+                    float(result["gnss"]["position"][1]),
             },
 
             "cameras": {
@@ -531,16 +593,62 @@ class PerceptionStack(Node):
                 "right": right_camera,
             },
 
-            "bev_objects": bev_objects,
-            "nearest_objects": nearest_objects
+            "bev_objects": result["bev_objects"],
+
+            "nearest_objects": self.round_nearest_objects(result["nearest_objects"])
         }
+
+        # dashboard_data = {
+        #     "sensors": {
+        #         "cam": True,
+        #         "radar": True,
+        #         "gnss": True,
+        #         "imu": True,
+        #         "lidar": True
+        #     },
+
+        #     "frame_idx": front_msg.header.stamp.nanosec,
+
+        #     "fps": metrics["fps"],
+        #     "latency_ms": metrics["latency_ms"],
+        #     "gpu_pct": metrics["gpu_pct"],
+        #     "cpu_pct": metrics["cpu_pct"],
+
+        #     "objects_count": object_counts,
+
+        #     "trajectory_reset": self.trajectory_reset,
+
+        #     "ego": {
+        #         "heading_deg": float(heading_deg),
+        #         "speed_mps": float(gnss["speed"]),
+
+        #         "accelerating": "Accelerating" in imu["motion_state"],
+        #         "braking": "Braking" in imu["motion_state"],
+
+        #         "turning_left": "Turning Left" in imu["motion_state"],
+        #         "turning_right": "Turning Right" in imu["motion_state"],
+
+        #         "world_x": float(gnss["position"][0]),
+        #         "world_y": float(gnss["position"][1]),
+        #     },
+
+        #     "cameras": {
+        #         "front": front_camera,
+        #         "left": left_camera,
+        #         "rear": rear_camera,
+        #         "right": right_camera,
+        #     },
+
+        #     "bev_objects": bev_objects,
+        #     "nearest_objects": nearest_objects
+        # }
 
         self.dashboard.push(dashboard_data)
         # print(f"Latency: {latency_ms}: ms")
 
         # self.recorder.record(dashboard_data)
 
-        
+
 
     def round_nearest_objects(self, nearest_objects):
         for obj in nearest_objects:
