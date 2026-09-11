@@ -4,6 +4,9 @@ import numpy as np
 import time
 import base64
 
+import csv
+import json
+
 from cv_bridge import CvBridge
 from rclpy.node import Node
 
@@ -56,6 +59,13 @@ class PerceptionStack(Node):
     def __init__(self):
 
         super().__init__("perception_node")
+
+        ### Recording logic
+        self.dataset_records = []
+        self.recorded_frame_numbers = set()
+        self.dataset_recording_started = False
+        self.dataset_recording_finished = False
+        ### Recording logic
 
         self.bridge = CvBridge()
 
@@ -643,8 +653,18 @@ class PerceptionStack(Node):
         #     "nearest_objects": nearest_objects
         # }
 
-        self.dashboard.push(dashboard_data)
+
+        # self.dashboard.push(dashboard_data)
         # print(f"Latency: {latency_ms}: ms")
+        self.record_dataset_frame(dashboard_data,front_msg.header.frame_id)
+        print(
+            "[REPLAY DEBUG] "
+            f"sec={front_msg.header.stamp.sec}, "
+            f"nanosec={front_msg.header.stamp.nanosec}, "
+            f"frame_id={front_msg.header.frame_id}",
+            flush=True
+        )
+        
 
         # self.recorder.record(dashboard_data)
 
@@ -753,6 +773,333 @@ class PerceptionStack(Node):
             "ByteTrack trackers reset."
         )
 
+    def record_dataset_frame(self, dashboard_data, ros_frame_id):
+        """
+        Start recording at frame 1 and record frames through frame 110.
+        Frames received before frame 1 are ignored.
+        No CSV writing is performed.
+        """
+
+        try:
+            # Example: "front_camera_25" -> 25
+            frame_id = int(str(ros_frame_id).split("_")[-1])
+        except (ValueError, AttributeError):
+            self.get_logger().warning(
+                f"Invalid frame ID: {ros_frame_id}"
+            )
+            return
+
+        # Ignore frames after recording has finished
+        if self.dataset_recording_finished:
+            return
+
+        # Start recording only when frame 1 is received
+        if not self.dataset_recording_started:
+
+            if frame_id != 1:
+                self.get_logger().debug(
+                    f"Ignoring frame {frame_id}; waiting for frame 1."
+                )
+                return
+
+            self.dataset_recording_started = True
+
+            self.get_logger().info(
+                "Dataset recording started at frame 1."
+            )
+
+        # Record only frames 1 through 110
+        if not (1 <= frame_id <= 110):
+            return
+
+        # Avoid duplicate frame records
+        if frame_id in self.recorded_frame_numbers:
+            return
+
+        dataset_record = {
+            "sensors": dashboard_data.get("sensors", {}),
+            "frame_idx": dashboard_data.get("frame_idx", frame_id),
+            "fps": dashboard_data.get("fps", 0.0),
+            "latency_ms": dashboard_data.get("latency_ms", 0.0),
+            "gpu_pct": dashboard_data.get("gpu_pct", 0.0),
+            "cpu_pct": dashboard_data.get("cpu_pct", 0.0),
+            "objects_count": dashboard_data.get("objects_count", {}),
+            "trajectory_reset": dashboard_data.get(
+                "trajectory_reset",
+                False
+            ),
+            "ego": dashboard_data.get("ego", {}),
+            "cameras": dashboard_data.get("cameras", {}),
+            "bev_objects": dashboard_data.get("bev_objects", []),
+            "nearest_objects": dashboard_data.get(
+                "nearest_objects",
+                []
+            ),
+            "frame_id": frame_id,
+        }
+
+        self.dataset_records.append(dataset_record)
+        self.recorded_frame_numbers.add(frame_id)
+
+        self.get_logger().info(
+            f"Collected dataset frame {frame_id}/110"
+        )
+
+        # Stop after frame 110
+        if frame_id == 110:
+            if self.write_dataset_csv():
+                self.dataset_recording_finished = True
+
+                self.get_logger().info(
+                    f"Dataset recording completed. "
+                    f"Collected {len(self.dataset_records)} frames."
+                )
+
+    def write_dataset_csv(self):
+        """
+        Write the collected dataset records to CSV only after
+        all 110 frames have been recorded.
+
+        Output format matches the reference CSV.
+        """
+
+        expected_frames = set(range(1, 111))
+
+        # -------------------------------------------------
+        # Verify that all frames 1 through 110 are available
+        # -------------------------------------------------
+
+        if self.recorded_frame_numbers != expected_frames:
+
+            missing_frames = sorted(
+                expected_frames - self.recorded_frame_numbers
+            )
+
+            self.get_logger().warning(
+                f"Dataset is incomplete. "
+                f"Collected {len(self.dataset_records)}/110 records. "
+                f"Missing frames: {missing_frames}"
+            )
+
+            return False
+
+        # -------------------------------------------------
+        # Dataset output path
+        # -------------------------------------------------
+
+        dataset_path = Path(
+            "/home/hamza/spatial_perception/perception_cpp/csv_data/perception_log_cpp.csv"
+        )
+
+        dataset_path.parent.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        # -------------------------------------------------
+        # Exact reference CSV column order
+        # -------------------------------------------------
+
+        csv_columns = [
+            "sensors",
+            "frame_idx",
+            "fps",
+            "latency_ms",
+            "gpu_pct",
+            "cpu_pct",
+            "objects_count",
+            "trajectory_reset",
+            "ego",
+            "cameras",
+            "bev_objects",
+            "nearest_objects",
+            "frame_id",
+        ]
+
+        # -------------------------------------------------
+        # Sort records numerically by internal frame ID
+        # -------------------------------------------------
+
+        sorted_records = sorted(
+            self.dataset_records,
+            key=lambda record: record["frame_id"]
+        )
+
+        # -------------------------------------------------
+        # Helper for compact JSON serialization
+        # -------------------------------------------------
+
+        def serialize_json(value):
+            return json.dumps(
+                value,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                default=str
+            )
+
+        # -------------------------------------------------
+        # Prepare camera data exactly as a nested JSON object
+        # -------------------------------------------------
+
+        def prepare_cameras(cameras):
+            """
+            Preserve the reference camera structure.
+
+            Remove only image data if present.
+            Do not rename or alter boxes, IDs, classes,
+            confidence, or other camera fields.
+            """
+
+            if not isinstance(cameras, dict):
+                return {}
+
+            prepared_cameras = {}
+
+            # Preserve the desired camera order.
+            # Adjust only if the reference CSV uses another order.
+            camera_order = (
+                "front",
+                "left",
+                "rear",
+                "right",
+            )
+
+            # First write cameras in reference order.
+            for camera_name in camera_order:
+
+                if camera_name not in cameras:
+                    continue
+
+                camera_data = cameras[camera_name]
+
+                if isinstance(camera_data, dict):
+
+                    prepared_cameras[camera_name] = {
+                        key: value
+                        for key, value in camera_data.items()
+                        if key != "image"
+                    }
+
+                else:
+
+                    prepared_cameras[camera_name] = camera_data
+
+            # Preserve any additional camera keys.
+            for camera_name, camera_data in cameras.items():
+
+                if camera_name in prepared_cameras:
+                    continue
+
+                if isinstance(camera_data, dict):
+
+                    prepared_cameras[camera_name] = {
+                        key: value
+                        for key, value in camera_data.items()
+                        if key != "image"
+                    }
+
+                else:
+
+                    prepared_cameras[camera_name] = camera_data
+
+            return prepared_cameras
+
+        # -------------------------------------------------
+        # Write CSV
+        # -------------------------------------------------
+
+        with open(
+            dataset_path,
+            mode="w",
+            newline="",
+            encoding="utf-8"
+        ) as csv_file:
+
+            writer = csv.DictWriter(
+                csv_file,
+                fieldnames=csv_columns
+            )
+
+            writer.writeheader()
+
+            for record in sorted_records:
+
+                cameras = prepare_cameras(
+                    record.get("cameras", {})
+                )
+
+                csv_row = {
+                    "sensors": serialize_json(
+                        record.get("sensors", {})
+                    ),
+
+                    "frame_idx": record.get(
+                        "frame_idx",
+                        record["frame_id"]
+                    ),
+
+                    "fps": record.get(
+                        "fps",
+                        0.0
+                    ),
+
+                    "latency_ms": record.get(
+                        "latency_ms",
+                        0.0
+                    ),
+
+                    "gpu_pct": record.get(
+                        "gpu_pct",
+                        0.0
+                    ),
+
+                    "cpu_pct": record.get(
+                        "cpu_pct",
+                        0.0
+                    ),
+
+                    "objects_count": serialize_json(
+                        record.get("objects_count", {})
+                    ),
+
+                    # Match reference TRUE/FALSE representation
+                    "trajectory_reset": str(
+                        record.get(
+                            "trajectory_reset",
+                            False
+                        )
+                    ).upper(),
+
+                    "ego": serialize_json(
+                        record.get("ego", {})
+                    ),
+
+                    # Save cameras as one compact nested JSON object.
+                    # The camera structure itself is preserved.
+                    "cameras": serialize_json(
+                        cameras
+                    ),
+
+                    "bev_objects": serialize_json(
+                        record.get("bev_objects", [])
+                    ),
+
+                    "nearest_objects": serialize_json(
+                        record.get("nearest_objects", [])
+                    ),
+
+                    # Match the reference frame ID format.
+                    "frame_id": f"frame_{record['frame_id']:06d}",
+                }
+
+                writer.writerow(csv_row)
+
+        self.get_logger().info(
+            f"Dataset CSV written successfully: {dataset_path}"
+        )
+
+        return True
+
 
 
 def main():
@@ -768,6 +1115,7 @@ def main():
     except KeyboardInterrupt:
 
         pass
+
 
     cv2.destroyAllWindows()
 
