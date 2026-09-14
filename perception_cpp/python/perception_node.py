@@ -657,14 +657,7 @@ class PerceptionStack(Node):
         # self.dashboard.push(dashboard_data)
         # print(f"Latency: {latency_ms}: ms")
         self.record_dataset_frame(dashboard_data,front_msg.header.frame_id)
-        print(
-            "[REPLAY DEBUG] "
-            f"sec={front_msg.header.stamp.sec}, "
-            f"nanosec={front_msg.header.stamp.nanosec}, "
-            f"frame_id={front_msg.header.frame_id}",
-            flush=True
-        )
-        
+      
 
         # self.recorder.record(dashboard_data)
 
