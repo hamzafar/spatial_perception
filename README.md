@@ -1,8 +1,10 @@
 # Spatial Perception
 
-A robotics perception engineering project focused on building **3D spatial understanding, multi-object tracking, and temporal perception** using synchronized cameras, LiDAR, IMU, and GNSS.
+A robotics perception engineering project focused on building **3D spatial understanding, multi-object tracking, and temporal perception** using synchronized cameras, LiDAR, radar, IMU, and GNSS.
 
-Built using CARLA, ROS2, OpenCV, YOLO, and LiDAR-based 3D detection, the project progresses through camera–LiDAR integration, multi-camera perception, sensor fusion, unified spatial perception, cross-camera object association, 2D/3D multi-object tracking, and ego motion estimation, establishing a foundation for 360° environmental understanding and dynamic scene perception.
+Built using CARLA, ROS2, OpenCV, YOLO, and LiDAR-based 3D detection, the project progresses from camera–LiDAR integration and multi-camera perception to sensor fusion, unified spatial perception, cross-camera object association, 2D/3D multi-object tracking, ego-motion estimation, and surrounding-object motion estimation.
+
+The project culminates in a **unified multi-sensor perception stack** for 360° spatial perception and dynamic-scene understanding.
 
 This project builds upon the 2D perception stack developed in the companion repository:
 
@@ -10,61 +12,85 @@ This project builds upon the 2D perception stack developed in the companion repo
 
 ---
 
+<h2 align="center">Phase 12 — Unified Multi-Sensor Perception Stack</h2>
+
+<p align="center">
+  <img src="assets/gifs/phase12_pipeline.gif" width="650" height="350"/>
+</p>
+
+<p align="center">
+  Consolidated multi-camera RGB perception, LiDAR-based 3D localization, radar-based motion estimation, GNSS/IMU ego-motion, and temporal tracking into a unified spatial perception stack with BEV visualization and real-time monitoring.
+</p>
+
+---
+
 ## Technology Stack
 
-| Category             | Technologies                     |
+| Category | Technologies |
 | -------------------- | -------------------------------- |
-| Simulation           | CARLA 0.9.15                     |
-| Robotics Middleware  | ROS2 Humble                      |
-| Computer Vision      | OpenCV                           |
-| Object Detection     | YOLOv8m-seg INT8 / YOLO26m FP16 |
-| 3D Detection         | PointPillars / OpenPCDet         |
-| 3D Tracking          | AB3DMOT                          |
-| 3D Sensor            | LiDAR                            |
-| Navigation Sensors   | IMU / GNSS                       |
-| Programming Language | Python                           |
-| Communication        | CycloneDDS                       |
-| Environment          | Windows 11 + WSL2 Ubuntu 22.04   |
+| Simulation | CARLA 0.9.15 |
+| Robotics Middleware | ROS2 Humble |
+| Computer Vision | OpenCV |
+| Object Detection | YOLOv8m-seg INT8 / YOLO26m-seg FP16 |
+| 3D Detection | PointPillars / OpenPCDet |
+| 2D Tracking | ByteTrack |
+| 3D Tracking | AB3DMOT |
+| 3D Sensor | LiDAR |
+| Motion Sensors | Radar / IMU / GNSS |
+| Programming Languages | Python / C++ |
+| Communication | CycloneDDS |
+| Environment | Windows 11 + WSL2 Ubuntu 22.04 |
 
 ---
 
 ## System Architecture
 
 ```text
-RGB Cameras + LiDAR
-          │
-          ▼
-Sensor Synchronization
-          │
-          ▼
-Multi-Camera Perception
-          │
-          ▼
-Camera–LiDAR Fusion
-          │
-          ▼
-360° Panoramic Perception
-          │
-          ▼
-Unified Spatial Perception
-          │
-          ▼
-Cross-Camera Object Association
-          │
-          ▼
-Unified World Representation
-          │
-          ▼
-2D Multi-Object Tracking
-          │
-          ▼
-3D Multi-Object Tracking
-          │
-          ▼
-Ego Motion Estimation
-          │
-          ▼
-Dynamic Scene Perception
+RGB Cameras + LiDAR + Radar + GNSS + IMU
+                    │
+                    ▼
+          Sensor Synchronization
+                    │
+                    ▼
+          Multi-Camera Perception
+          Detection + Segmentation
+                    │
+                    ▼
+              ByteTrack
+          2D Object Tracking
+                    │
+                    ▼
+          Camera–LiDAR Fusion
+          3D Object Localization
+                    │
+                    ▼
+          360° Spatial Perception
+                    │
+                    ▼
+       Cross-Camera Object Association
+                    │
+                    ▼
+        Unified World Representation
+             world_objects
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+   Radar Object Motion    GNSS/IMU Ego Motion
+   Range + Velocity       Position + Heading
+   Motion State            Speed + Yaw Rate
+          │                   │
+          └─────────┬─────────┘
+                    ▼
+        Temporal Scene Perception
+                    │
+                    ▼
+       2D / 3D Multi-Object Tracking
+                    │
+                    ▼
+       BEV + Dashboard Visualization
+                    │
+                    ▼
+        Dynamic Scene Understanding
 ```
 ---
 
@@ -180,9 +206,20 @@ Extending the perception pipeline with ego and surrounding-object motion estimat
   - 📁 [View Phase 11B](11_motion_estimation/11B_surrounding_object_motion_estimation/)
 
 ---
-### 🚧 Phase 12 — Perception Stack
+### ✅ Phase 12 — Unified Multi-Sensor Perception Stack
 
-Code and Documentation will be released soon
+Consolidating the complete perception pipeline into a unified multi-sensor stack that combines multi-camera RGB, LiDAR, radar, GNSS, and IMU data for spatial understanding, object tracking, motion estimation, and real-time visualization.
+
+#### Highlights
+
+- Integrated multi-camera object detection and segmentation.
+- Combined LiDAR-based 3D object localization with camera perception.
+- Incorporated radar-based range, bearing, radial velocity, and motion-state estimation.
+- Integrated GNSS/IMU-based ego-motion estimation.
+- Unified perception outputs through the central `world_objects` representation.
+- Added BEV visualization, object statistics, ego-motion information, and system monitoring through a perception dashboard.
+📁 [View Phase 12](https://github.com/hamzafar/spatial_perception/tree/main/12_unified_multi_sensor_perception_stack)
+
 ---
 ## Demonstrations
 
