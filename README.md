@@ -228,7 +228,7 @@ Consolidating the complete perception pipeline into a unified multi-sensor stack
 <h3 align="center">7A — LiDAR Integration</h3>
 
 <p align="center">
-  <img src="assets/gifs/phase7A_pipeline.gif" width="650" height="350"/>
+  <img src="assets/gifs/phase7A_pipeline.gif" width="650" height="700"/>
 </p>
 
 <p align="center">
