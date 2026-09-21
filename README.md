@@ -2,15 +2,16 @@
 
 A robotics perception engineering project focused on building **3D spatial understanding, multi-object tracking, and temporal perception** using synchronized cameras, LiDAR, radar, IMU, and GNSS.
 
-Built using CARLA, ROS2, OpenCV, YOLO, and LiDAR-based 3D detection, the project progresses from camera–LiDAR integration and multi-camera perception to sensor fusion, unified spatial perception, cross-camera object association, 2D/3D multi-object tracking, ego-motion estimation, and surrounding-object motion estimation.
+Built using CARLA, ROS2, OpenCV, YOLO, LiDAR-based 3D detection, and a C++ perception core, the project progresses from camera–LiDAR integration and multi-camera perception to sensor fusion, unified spatial perception, cross-camera object association, 2D/3D multi-object tracking, ego-motion estimation, and surrounding-object motion estimation. The latest phase ports the computational perception pipeline to C++.
 
-The project culminates in a **unified multi-sensor perception stack** for 360° spatial perception and dynamic-scene understanding.
+The project culminates in a **unified multi-sensor perception stack** for 360° spatial perception and dynamic-scene understanding, with its computational core implemented in **C++** and exposed to ROS2 through pybind11.
 
 This project builds upon the 2D perception stack developed in the companion repository:
 
 **ROS2 Autonomous Perception Stack** — [2D Perception](https://github.com/hamzafar/autonomous_perception)
 
 ---
+
 
 <h2 align="center">Phase 12 — Unified Multi-Sensor Perception Stack</h2>
 
@@ -38,6 +39,7 @@ This project builds upon the 2D perception stack developed in the companion repo
 | 3D Sensor | LiDAR |
 | Motion Sensors | Radar / IMU / GNSS |
 | Programming Languages | Python / C++ |
+| C++ Core | Eigen / OpenCV (C++) / pybind11 / CMake |
 | Communication | CycloneDDS |
 | Environment | Windows 11 + WSL2 Ubuntu 22.04 |
 
@@ -49,18 +51,18 @@ This project builds upon the 2D perception stack developed in the companion repo
 RGB Cameras + LiDAR + Radar + GNSS + IMU
                     │
                     ▼
-          Sensor Synchronization
+          Sensor Synchronization             [Python · ROS2]
                     │
                     ▼
-          Multi-Camera Perception
+          Multi-Camera Perception            [Python · TensorRT]
           Detection + Segmentation
                     │
                     ▼
-              ByteTrack
+              ByteTrack                      [Python]
           2D Object Tracking
                     │
                     ▼
-          Camera–LiDAR Fusion
+          Camera–LiDAR Fusion                [C++]
           3D Object Localization
                     │
                     ▼
@@ -70,12 +72,12 @@ RGB Cameras + LiDAR + Radar + GNSS + IMU
        Cross-Camera Object Association
                     │
                     ▼
-        Unified World Representation
+        Unified World Representation         [C++]
              world_objects
                     │
           ┌─────────┴─────────┐
           ▼                   ▼
-   Radar Object Motion    GNSS/IMU Ego Motion
+   Radar Object Motion    GNSS/IMU Ego Motion    [C++]
    Range + Velocity       Position + Heading
    Motion State            Speed + Yaw Rate
           │                   │
@@ -87,10 +89,29 @@ RGB Cameras + LiDAR + Radar + GNSS + IMU
        2D / 3D Multi-Object Tracking
                     │
                     ▼
-       BEV + Dashboard Visualization
+       BEV + Dashboard Visualization         [C++ BEV prep · Python dashboard]
                     │
                     ▼
         Dynamic Scene Understanding
+```
+
+Stages without a language tag are not part of the C++ core.
+
+### Runtime Split (Phase 13)
+
+```text
+Python / ROS2
+  Sensor sync → YOLO/TensorRT → ByteTrack
+                    │
+                    ▼   one pybind11 call per frame
+C++ PerceptionOrchestrator
+  LiDAR projection → object clouds → distance/position
+  → track-ID attachment → radar fusion (front)
+  → counts · nearest objects · BEV · GNSS · IMU
+                    │
+                    ▼   single result dictionary
+Python
+  Dashboard payload · metrics · WebSocket · CSV recording
 ```
 ---
 
@@ -220,6 +241,21 @@ Consolidating the complete perception pipeline into a unified multi-sensor stack
 - Added BEV visualization, object statistics, ego-motion information, and system monitoring through a perception dashboard.
 📁 [View Phase 12](https://github.com/hamzafar/spatial_perception/tree/main/12_unified_multi_sensor_perception_stack)
 
+---
+---
+### ✅ Phase 13 — C++ Perception Core
+
+Porting the computational core of the unified perception stack from Python to C++ and exposing it through a single pybind11 call per frame, while ROS2, YOLO/TensorRT inference, and ByteTrack stay in Python.
+
+#### Highlights
+
+- Ported LiDAR projection, mask-based object cloud extraction, and distance/position estimation to C++ (Eigen, OpenCV).
+- Moved track-ID attachment, front-camera radar fusion, object counting, nearest-object and BEV preparation to C++.
+- Reimplemented GNSS (geodetic → ENU) and IMU ego-motion estimation in C++.
+- Unified all C++ stages behind a single `PerceptionOrchestrator`, reducing 23 Python ↔ C++ calls per frame to one.
+- Kept the Phase 12 output schema, so the dashboard payload and CSV recorder work unchanged.
+- Ported incrementally, checking each stage against the Python reference before moving on.
+📁 [View Phase 13](https://github.com/hamzafar/spatial_perception/tree/main/perception_cpp)
 ---
 ## Demonstrations
 
