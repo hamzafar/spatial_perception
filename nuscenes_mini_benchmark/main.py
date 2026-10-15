@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 
 # Prediction directory in WSL
-PRED_DIR = "/mnt/e/autonomous_vision/code_backup/scripts/learned-bev/bevfusion_lightweight_predictions"
+PRED_DIR = Path("/mnt/e/autonomous_vision/code_backup/scripts/learned-bev/bevfusion_lightweight_predictions")
 
 REQUIRED_KEYS = {
     "sample_index",
@@ -15,6 +15,7 @@ REQUIRED_KEYS = {
 
 
 def load_predictions(pred_dir):
+    pred_dir = Path(pred_dir)
     files = sorted(pred_dir.rglob("*.npz"))
 
     if not files:
