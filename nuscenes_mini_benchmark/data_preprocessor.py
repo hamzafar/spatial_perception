@@ -1,7 +1,7 @@
 
 from pathlib import Path
 import numpy as np
-
+from nuscenes.nuscenes import NuScenes
 
 class NuScenesDataPreprocessor:
     REQUIRED_KEYS = {
@@ -81,3 +81,60 @@ class NuScenesDataPreprocessor:
         )
 
         return predictions
+    
+
+    def load_nuscenes(self, dataroot, version="v1.0-mini"):
+        """Load the nuScenes-mini dataset."""
+
+        nusc = NuScenes(
+            version=version,
+            dataroot=str(dataroot),
+            verbose=False,
+        )
+
+        print(f"Loaded nuScenes version: {version}")
+        print(f"Scenes: {len(nusc.scene)}")
+        print(f"Samples: {len(nusc.sample)}")
+
+        return nusc
+
+
+    def organize_scenes(self, nusc, predictions):
+        """Organize all samples chronologically within each scene."""
+
+        scenes = {}
+
+        for scene in nusc.scene:
+            scene_name = scene["name"]
+            frames = []
+            sample_token = scene["first_sample_token"]
+
+            while sample_token:
+                sample = nusc.get("sample", sample_token)
+
+                frames.append({
+                    "sample_token": sample_token,
+                    "timestamp": sample["timestamp"],
+                    "ground_truth_annotations": sample["anns"],
+                    "prediction": predictions.get(sample_token),
+                })
+
+                sample_token = sample["next"]
+
+            frames.sort(key=lambda frame: frame["timestamp"])
+            scenes[scene_name] = frames
+
+        total_frames = sum(len(frames) for frames in scenes.values())
+        missing = sum(
+            frame["prediction"] is None
+            for frames in scenes.values()
+            for frame in frames
+        )
+
+        print(f"Scenes organized: {len(scenes)}")
+        print(f"Total frames: {total_frames}")
+        print(f"Frames missing predictions: {missing}")
+
+        return scenes
+
+

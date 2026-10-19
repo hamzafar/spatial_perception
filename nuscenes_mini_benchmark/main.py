@@ -1,28 +1,49 @@
 
+from pathlib import Path
 from data_preprocessor import NuScenesDataPreprocessor
 
 
 def main():
-    pred_dir = (
+    # Paths
+    prediction_dir = Path(
         "/mnt/e/autonomous_vision/code_backup/scripts/"
         "learned-bev/bevfusion_lightweight_predictions"
     )
 
-    # Initialize preprocessor
-    preprocessor = NuScenesDataPreprocessor(pred_dir)
+    nuscenes_root = Path(
+        "/mnt/e/autonomous_vision/learned-perception/"
+        "nuScenes-mini-dataset"
+    )
 
-    # Load all predictions
+    nuscenes_version = "v1.0-mini"
+
+    # Load predictions
+    preprocessor = NuScenesDataPreprocessor(prediction_dir)
     predictions = preprocessor.load_predictions()
 
-    # Access an example sample
-    token = next(iter(predictions))
-    sample = predictions[token]
+    nusc = preprocessor.load_nuscenes(
+        dataroot="/mnt/e/autonomous_vision/learned-perception/nuScenes-mini-dataset",
+        version="v1.0-mini",
+        )
 
-    print("Sample token:", token)
-    print("Sample index:", sample["sample_index"])
-    print("Boxes shape:", sample["boxes_3d"].shape)
-    print("Scores shape:", sample["scores_3d"].shape)
-    print("Labels shape:", sample["labels_3d"].shape)
+    scenes = preprocessor.organize_scenes(nusc, predictions)
+
+    first_scene = next(iter(scenes))
+    first_frame = scenes[first_scene][0]
+
+    print("First scene:", first_scene)
+    print("First frame timestamp:", first_frame["timestamp"])
+    print("Ground-truth annotations:",
+        len(first_frame["ground_truth_annotations"]))
+    print("Predictions available:",
+        first_frame["prediction"] is not None)
+
+
+    print(f"Loaded {len(predictions)} prediction samples.")
+
+    # Dataset paths are ready for the next preprocessing step
+    print("nuScenes root:", nuscenes_root)
+    print("nuScenes version:", nuscenes_version)
 
 
 if __name__ == "__main__":
