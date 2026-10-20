@@ -72,7 +72,11 @@ def evaluate(gt_frames, pred_frames, threshold):
     id_switches=0; last_match={}
     class_stats=defaultdict(lambda: {'tp':0,'fp':0,'fn':0,'idsw':0})
     matched_rows=[]
-    for token in sorted(set(gt_frames)|set(pred_frames), key=lambda t: (pred_frames.get(t,{}).get('frame_index',10**9),t)):
+    def frame_order(token):
+        rows = pred_frames.get(token, [])
+        # Track JSON stores each sample token's detections as a list, not a metadata dict.
+        return (int(rows[0].get('frame_index', 10**9)) if rows else 10**9, token)
+    for token in sorted(set(gt_frames)|set(pred_frames), key=frame_order):
         gs=gt_frames.get(token,[]); ps=pred_frames.get(token,[])
         for g in gs: gt_counts[(g['class_id'],g['id'])]+=1
         for p in ps: pred_counts[(p['class_id'],p['id'])]+=1

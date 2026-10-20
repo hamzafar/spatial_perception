@@ -1,0 +1,68 @@
+{
+  "HOTA_distance_variant": 0.43148830007627564,
+  "DetA": 0.4903036955726308,
+  "AssA": 0.3797282271863564,
+  "MOTA": 0.2202236266407389,
+  "TP": 670,
+  "FP": 6,
+  "FN": 1387,
+  "ID_switches": 211,
+  "GT_detections": 2057,
+  "pred_detections": 676,
+  "class_stats": {
+    "0": {
+      "tp": 152,
+      "fp": 2,
+      "fn": 196,
+      "idsw": 27,
+      "name": "car",
+      "MOTA": 0.35344827586206895
+    },
+    "1": {
+      "tp": 85,
+      "fp": 4,
+      "fn": 72,
+      "idsw": 11,
+      "name": "truck",
+      "MOTA": 0.445859872611465
+    },
+    "3": {
+      "tp": 2,
+      "fp": 0,
+      "fn": 30,
+      "idsw": 0,
+      "name": "bus",
+      "MOTA": 0.0625
+    },
+    "6": {
+      "tp": 15,
+      "fp": 0,
+      "fn": 44,
+      "idsw": 8,
+      "name": "motorcycle",
+      "MOTA": 0.11864406779661019
+    },
+    "7": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 68,
+      "idsw": 0,
+      "name": "bicycle",
+      "MOTA": 0.0
+    },
+    "8": {
+      "tp": 416,
+      "fp": 0,
+      "fn": 977,
+      "idsw": 165,
+      "name": "pedestrian",
+      "MOTA": 0.1801866475233309
+    }
+  },
+  "dataset": "nuScenes-mini",
+  "scene": "scene-0061",
+  "frames": 39,
+  "matching": "same-class global 3D center distance",
+  "distance_threshold_m": 2.0,
+  "note": "HOTA_distance_variant uses one fixed center-distance threshold; it is not TrackEval standard IoU-based HOTA or official nuScenes AMOTA/AMOTP."
+}
