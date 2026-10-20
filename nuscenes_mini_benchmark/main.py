@@ -30,17 +30,26 @@ def main():
     scenes = preprocessor.organize_scenes(nusc, predictions)
 
     adapter = NuScenesAB3DMOTAdapter(nusc, predictions)
-    tracks = adapter.run(scenes)
+    # tracks = adapter.run(scenes)
+
 
     first_scene = next(iter(scenes))
-    first_frame = scenes[first_scene][0]
+    pilot_scenes = {first_scene: scenes[first_scene]}
 
-    print("First scene:", first_scene)
-    print("First frame timestamp:", first_frame["timestamp"])
-    print("Ground-truth annotations:",
-        len(first_frame["ground_truth_annotations"]))
-    print("Predictions available:",
-        first_frame["prediction"] is not None)
+    print(f"Pilot scene: {first_scene}")
+    print(f"Pilot frames: {len(pilot_scenes[first_scene])}")
+
+    tracks = adapter.run(pilot_scenes)
+
+    # first_scene = next(iter(scenes))
+    # first_frame = scenes[first_scene][0]
+
+    # print("First scene:", first_scene)
+    # print("First frame timestamp:", first_frame["timestamp"])
+    # print("Ground-truth annotations:",
+    #     len(first_frame["ground_truth_annotations"]))
+    # print("Predictions available:",
+    #     first_frame["prediction"] is not None)
 
 
     print(f"Loaded {len(predictions)} prediction samples.")
