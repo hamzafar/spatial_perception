@@ -1,6 +1,7 @@
 
 from pathlib import Path
 from data_preprocessor import NuScenesDataPreprocessor
+from ab3dmot_nuscenes_adapter import NuScenesAB3DMOTAdapter
 
 
 def main():
@@ -27,6 +28,9 @@ def main():
         )
 
     scenes = preprocessor.organize_scenes(nusc, predictions)
+
+    adapter = NuScenesAB3DMOTAdapter(nusc, predictions)
+    tracks = adapter.run(scenes)
 
     first_scene = next(iter(scenes))
     first_frame = scenes[first_scene][0]
