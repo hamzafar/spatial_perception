@@ -1,0 +1,15 @@
+2026-10-21 15:25:56,075 | INFO | Starting AB3DMOT mini_val run
+2026-10-21 15:25:56,076 | INFO | Dataset root: /mnt/e/autonomous_vision/learned-perception/nuScenes-mini-dataset
+2026-10-21 15:25:56,077 | INFO | Prediction directory: /mnt/e/autonomous_vision/code_backup/scripts/learned-bev/bevfusion_lightweight_predictions
+2026-10-21 15:26:08,677 | INFO | Loaded prediction samples: 404
+2026-10-21 15:26:08,677 | INFO | Scenes available: ['scene-0061', 'scene-0103', 'scene-0553', 'scene-0655', 'scene-0757', 'scene-0796', 'scene-0916', 'scene-1077', 'scene-1094', 'scene-1100']
+2026-10-21 15:26:08,678 | INFO | Selected mini_val scenes: ['scene-0103', 'scene-0916']
+2026-10-21 15:26:08,678 | INFO | Scene scene-0103: 40 frames
+2026-10-21 15:26:08,678 | INFO | Scene scene-0916: 41 frames
+2026-10-21 15:26:34,627 | INFO | Tracking finished.
+2026-10-21 15:26:34,628 | INFO | Scenes processed: ['scene-0103', 'scene-0916']
+2026-10-21 15:26:34,628 | INFO | Total frames: 81
+2026-10-21 15:26:34,628 | INFO | Sample tokens with track results: 81
+2026-10-21 15:26:34,628 | INFO | Track JSON: /home/hamza/spatial_perception/nuscenes_mini_benchmark/outputs/mini_val/ab3dmot_tracks_mini_val_20261021_152556.json
+2026-10-21 15:26:34,629 | INFO | AB3DMOT log: /home/hamza/spatial_perception/nuscenes_mini_benchmark/outputs/mini_val/ab3dmot_mini_val_20261021_152556.log
+2026-10-21 15:26:34,629 | INFO | Main log: /home/hamza/spatial_perception/nuscenes_mini_benchmark/outputs/mini_val/main_mini_val_20261021_152556.log
