@@ -253,21 +253,54 @@ class PerceptionStack(Node):
 
         # Detection
         t = time.perf_counter()
+
+        tfc = time.perf_counter()
         front = self.pipeline_detection.convert_ros_to_cv(front_msg)
+        print(f"front ros to cv latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
+
+        tfc = time.perf_counter()
         front, front_results = self.pipeline_detection.detect(front)
+        print(f"front detection latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
+
+        tfc = time.perf_counter()
         front_boxes, front_scores, front_classes = self.pipeline_detection.extract_detections(front_results)
+        print(f"front extraction latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
 
+        trc = time.perf_counter()
         rear = self.pipeline_detection.convert_ros_to_cv(rear_msg)
+        print(f"rear ros to cv latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
+
+        trc = time.perf_counter()
         rear, rear_results = self.pipeline_detection.detect(rear)
+        print(f"rear detection latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
+
+        trc = time.perf_counter()
         rear_boxes, rear_scores, rear_classes = self.pipeline_detection.extract_detections(rear_results)
+        print(f"rear extraction latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
 
+        tlc = time.perf_counter()
         left = self.pipeline_detection.convert_ros_to_cv(left_msg)
-        left, left_results = self.pipeline_detection.detect(left)
-        left_boxes, left_scores, left_classes = self.pipeline_detection.extract_detections(left_results)
+        print(f"left ros to cv latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
 
+        tlc = time.perf_counter()
+        left, left_results = self.pipeline_detection.detect(left)
+        print(f"left detection latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
+
+        tlc = time.perf_counter()
+        left_boxes, left_scores, left_classes = self.pipeline_detection.extract_detections(left_results)
+        print(f"left extraction latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
+
+        trtc = time.perf_counter()
         right = self.pipeline_detection.convert_ros_to_cv(right_msg)
+        print(f"right ros to cv latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
+
+        trtc = time.perf_counter()
         right, right_results = self.pipeline_detection.detect(right)
+        print(f"right detection latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
+        
+        trtc = time.perf_counter()
         right_boxes, right_scores, right_classes = self.pipeline_detection.extract_detections(right_results)
+        print(f"right extraction latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
 
         print(f"Detection latency: {(time.perf_counter() - t) * 1000:.2f} ms")
         
@@ -299,19 +332,19 @@ class PerceptionStack(Node):
         right_camera = self.dashboard_adapter.prepare_tracked_camera(right, right_targets, right_boxes,
             right_scores, right_classes, self.image_width, self.image_height, "RT")
 
-        print(f"Tracking latency: {(time.perf_counter() - t) * 1000:.2f} ms")
+        # print(f"Tracking latency: {(time.perf_counter() - t) * 1000:.2f} ms")
 
 
         # BEV(Lidar)
         t = time.perf_counter()
         lidar = self.pipeline_3d.convert_ros_to_numpy(lidar_msg)
-        print(f"lidar ros to np latency: {(time.perf_counter() - t) * 1000:.2f} ms")
+        # print(f"lidar ros to np latency: {(time.perf_counter() - t) * 1000:.2f} ms")
         
 
         # World Objects Motion (Radar)
         t = time.perf_counter()
         radar_points = self.pipeline_radar.convert_ros_to_numpy(radar_msg)
-        print(f"radar ros to np latency: {(time.perf_counter() - t) * 1000:.2f} ms")
+        # print(f"radar ros to np latency: {(time.perf_counter() - t) * 1000:.2f} ms")
 
 
         timestamp = (gnss_msg.header.stamp.sec + gnss_msg.header.stamp.nanosec * 1e-9)
@@ -342,7 +375,7 @@ class PerceptionStack(Node):
             if right_results.masks is not None
             else None
         )
-        print(f"all masks gpu to cpu movement latency: {(time.perf_counter() - t) * 1000:.2f} ms")
+        # print(f"all masks gpu to cpu movement latency: {(time.perf_counter() - t) * 1000:.2f} ms")
 
 
         #cpp operations
@@ -404,7 +437,7 @@ class PerceptionStack(Node):
             # IMU
             imu_msg,
         )
-        print(f"cpp operations latency: {(time.perf_counter() - t) * 1000:.2f} ms")
+        # print(f"cpp operations latency: {(time.perf_counter() - t) * 1000:.2f} ms")
 
 
         # (REMEMBER) latency is calcualte just before dashboard.push
