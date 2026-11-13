@@ -1,0 +1,921 @@
+import cv2
+import rclpy
+import numpy as np
+import time
+import base64
+
+import csv
+import json
+
+from cv_bridge import CvBridge
+from rclpy.node import Node
+
+from message_filters import (
+    Subscriber,
+    TimeSynchronizer,
+)
+from sensor_msgs.msg import (
+    Image,
+    PointCloud2,
+    Imu,
+    NavSatFix
+)
+from sensor_msgs_py import point_cloud2
+
+from ultralytics import YOLO
+
+from dashboard_bridge import DashboardBridge
+from dashboard_metrics import DashboardMetrics
+from yolo_detection_pipeline import DetectionPipeline
+from dashboard_adapter import DashboardAdapter
+from gnss_pipeline import GNSSPipeline
+from imu_pipeline import IMUPipeline
+from tracking_pipeline import TrackingPipeline
+from perception_3d_pipeline import Perception3DPipeline
+from perception_utils import PerceptionUtils
+from radar_perception_pipeline import RadarPerceptionPipeline
+from recorder_perception import PerceptionRecorder
+
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+
+ROOT = Path(__file__).resolve().parent.parent
+
+BYTE_TRACK_ROOT = Path.home() / "ros2_cv_ws/scripts/third_party/ByteTrack"
+sys.path.insert(0, str(BYTE_TRACK_ROOT))
+
+from yolox.tracker.byte_tracker import BYTETracker
+from yolox.tracker.basetrack import BaseTrack
+
+CPP_BUILD = ROOT / "build"
+sys.path.insert(0, str(CPP_BUILD))
+
+import perception_cpp
+
+
+class PerceptionStack(Node):
+
+    def __init__(self):
+
+        super().__init__("perception_node")
+
+        ### Recording logic
+        self.dataset_records = []
+        self.recorded_frame_numbers = set()
+        self.dataset_recording_started = False
+        self.dataset_recording_finished = False
+        ### Recording logic
+
+        self.bridge = CvBridge()
+
+        self.image_width = 640
+        self.image_height = 480
+        self.fx = 320.0
+        self.fy = 320.0
+        self.cx = 320.0
+        self.cy = 240.0
+
+        self.model = YOLO("/home/hamza/ros2_cv_ws/models/yolo26m-seg.engine")
+        # self.model =  YOLO("/home/hamza/ros2_cv_ws/scripts/phase6/engines/yolov8m-seg-trt-int8.engine")
+        self.previous_frame = None
+        self.trajectory_reset = True
+
+
+        # Initialize dashboard bridge
+        self.dashboard = DashboardBridge()
+        self.dashboard.start()
+
+        # Initialize dashboard metrics
+        self.metrics = DashboardMetrics()
+
+        # C++ initiailze orchestrator
+        self.perception_orchestrator = perception_cpp.PerceptionOrchestrator()
+
+        # Initialize detection pipeline
+        self.pipeline_detection = DetectionPipeline()
+
+        self.pipeline_detection.bridge = self.bridge
+        self.pipeline_detection.model = self.model
+
+        self.pipeline_detection.validate()
+
+        # Initialize dashboard adapter
+        self.dashboard_adapter = DashboardAdapter(self.pipeline_detection.model.names)
+
+        # Initialize Imu and Gnss pipeline
+        self.gnss_pipeline = GNSSPipeline()
+        self.imu_pipeline = IMUPipeline()
+
+        # Initailze cpp Imu and GNSS pipeline
+        # self.gnss_pipeline_cpp = perception_cpp.GNSSPipeline()
+        # self.imu_pipeline_cpp = perception_cpp.IMUPipeline()
+
+        # Initialize tracking pipeline
+        self.pipeline_tracking = TrackingPipeline()
+        
+        # Initialize ByteTrack
+        self.tracker_args = SimpleNamespace(track_thresh=0.5, track_buffer=30, match_thresh=0.8, mot20=False,)
+
+        self.front_tracker = BYTETracker(self.tracker_args, frame_rate=10)
+        self.rear_tracker = BYTETracker(self.tracker_args, frame_rate=10)
+        self.left_tracker = BYTETracker(self.tracker_args, frame_rate=10)
+        self.right_tracker = BYTETracker(self.tracker_args, frame_rate=10)
+
+        # Initialize cpp 3D perception pipeline
+        # self.pipeline_3d_cpp = perception_cpp.Perception3DPipeline()
+
+        # Initialize 3D perception pipeline
+        self.pipeline_3d = Perception3DPipeline()
+        self.pipeline_3d.bridge = self.bridge
+        self.pipeline_3d.model = self.model
+        self.cameras = {"front": {"yaw": 0}, "rear": {"yaw": 180},"left": {"yaw": -90}, "right": {"yaw": 90},}
+        self.pipeline_3d.cameras = self.cameras
+        self.pipeline_3d.fx = self.fx
+        self.pipeline_3d.fy = self.fy
+        self.pipeline_3d.cx = self.cx
+        self.pipeline_3d.cy = self.cy
+        self.pipeline_3d.validate()
+
+        # Initialize perception utils
+        self.perception_utils = PerceptionUtils()
+
+        # Initialize C++ perception utilities
+        # self.perception_utils_cpp = perception_cpp.PerceptionUtils()
+
+        # Initialize radar perception pipeline
+        self.pipeline_radar = RadarPerceptionPipeline()
+        self.pipeline_radar.velocity_threshold = 0.5
+        self.pipeline_radar.max_assoc_distance_px = 50
+        self.pipeline_radar.fx = self.fx
+        self.pipeline_radar.fy = self.fy
+        self.pipeline_radar.cx = self.cx
+        self.pipeline_radar.cy = self.cy
+        self.pipeline_radar.width = self.image_width
+        self.pipeline_radar.height = self.image_height
+
+        R = np.array([
+            [0.0,  1.0,  0.0],
+            [0.0,  0.0, -1.0],
+            [1.0,  0.0,  0.0],
+        ], dtype=np.float32)
+
+        t = np.array([
+            0.0,
+            1.4,
+            3.5,
+        ], dtype=np.float32)
+
+        T = np.eye(4, dtype=np.float32)
+        T[:3, :3] = R
+        T[:3, 3] = t
+
+        self.pipeline_radar.T_radar_to_cam = T
+
+        # Initialize C++ perception utilities
+        # self.pipeline_radar_cpp = perception_cpp.RadarPerceptionPipeline()
+
+        # Initialize perception recorder
+        self.recorder = PerceptionRecorder(output_root="/home/hamza/ros2_cv_ws/scripts/phase12/perception_recordings")
+
+        # Sensor Subsription
+        self.front_sub = Subscriber(self, Image, "/carla/ego_vehicle/rgb_front/image")
+        self.rear_sub = Subscriber(self, Image, "/carla/ego_vehicle/rgb_rear/image")
+        self.left_sub = Subscriber(self, Image, "/carla/ego_vehicle/rgb_left/image")
+        self.right_sub = Subscriber(self, Image, "/carla/ego_vehicle/rgb_right/image")
+
+        self.radar_sub = Subscriber(self, PointCloud2, "/carla/ego_vehicle/radar")
+        self.lidar_sub = Subscriber(self, PointCloud2, "/carla/ego_vehicle/lidar")
+
+        self.imu_sub = Subscriber(self, Imu, "/carla/ego_vehicle/imu")
+        self.gnss_sub = Subscriber(self, NavSatFix, "/carla/ego_vehicle/gnss")
+
+        self.sync = TimeSynchronizer(
+            [
+                self.front_sub,
+                self.rear_sub,
+                self.left_sub,
+                self.right_sub,
+                self.radar_sub,
+                self.lidar_sub,
+                self.imu_sub,
+                self.gnss_sub
+            ],
+            queue_size=10
+        )
+
+        self.sync.registerCallback(
+            self.synchronized_callback
+        )
+
+        self.get_logger().info(
+            "Perception Stack node started."
+        )
+
+    # -------------------------------------------------
+
+    def synchronized_callback(
+        self,
+        front_msg,
+        rear_msg,
+        left_msg,
+        right_msg,
+        radar_msg,
+        lidar_msg,
+        imu_msg,
+        gnss_msg
+    ): 
+        start_time = time.perf_counter()
+
+        # -------------------------------------------------
+        # Detect replay / trajectory reset
+        # -------------------------------------------------
+
+        current_frame = int(front_msg.header.frame_id.split("_")[-1])
+
+        self.trajectory_reset = False
+
+        if self.previous_frame is None:
+            self.trajectory_reset = True
+
+        elif current_frame < self.previous_frame:
+            self.trajectory_reset = True
+
+        if self.trajectory_reset:
+            self.reset_trackers()
+
+        self.previous_frame = current_frame
+
+        # Detection
+        front = self.pipeline_detection.convert_ros_to_cv(front_msg)
+        front, front_results = self.pipeline_detection.detect(front)
+        front_boxes, front_scores, front_classes = self.pipeline_detection.extract_detections(front_results)
+
+        rear = self.pipeline_detection.convert_ros_to_cv(rear_msg)
+        rear, rear_results = self.pipeline_detection.detect(rear)
+        rear_boxes, rear_scores, rear_classes = self.pipeline_detection.extract_detections(rear_results)
+
+        left = self.pipeline_detection.convert_ros_to_cv(left_msg)
+        left, left_results = self.pipeline_detection.detect(left)
+        left_boxes, left_scores, left_classes = self.pipeline_detection.extract_detections(left_results)
+
+        right = self.pipeline_detection.convert_ros_to_cv(right_msg)
+        right, right_results = self.pipeline_detection.detect(right)
+        right_boxes, right_scores, right_classes = self.pipeline_detection.extract_detections(right_results)
+
+        # front_camera = self.dashboard_adapter.prepare_camera(front, front_boxes, front_scores, front_classes)
+        # rear_camera = self.dashboard_adapter.prepare_camera(rear, rear_boxes, rear_scores, rear_classes)
+        # left_camera = self.dashboard_adapter.prepare_camera(left, left_boxes, left_scores, left_classes)
+        # right_camera = self.dashboard_adapter.prepare_camera(right, right_boxes, right_scores, right_classes)
+
+        # Tracking
+        front_dets = np.concatenate([front_boxes, front_scores.reshape(-1, 1)], axis=1)
+        front_targets = self.front_tracker.update(front_dets, (self.image_height, self.image_width), 
+            (self.image_height, self.image_width))
+
+        rear_dets = np.concatenate([rear_boxes, rear_scores.reshape(-1, 1)], axis=1)
+        rear_targets = self.rear_tracker.update(rear_dets, (self.image_height, self.image_width), 
+            (self.image_height, self.image_width))
+
+        left_dets = np.concatenate([left_boxes, left_scores.reshape(-1, 1)], axis=1)
+        left_targets = self.left_tracker.update(left_dets, (self.image_height, self.image_width), 
+            (self.image_height, self.image_width))
+
+        right_dets = np.concatenate([right_boxes, right_scores.reshape(-1, 1)], axis=1)
+        right_targets = self.right_tracker.update(right_dets, (self.image_height, self.image_width), 
+            (self.image_height, self.image_width))
+
+        front_camera = self.dashboard_adapter.prepare_tracked_camera(front, front_targets, front_boxes,
+            front_scores, front_classes, self.image_width, self.image_height, "F")
+        rear_camera = self.dashboard_adapter.prepare_tracked_camera(rear, rear_targets, rear_boxes,
+            rear_scores, rear_classes, self.image_width, self.image_height, "R")
+        left_camera = self.dashboard_adapter.prepare_tracked_camera(left, left_targets, left_boxes,
+            left_scores, left_classes, self.image_width, self.image_height, "L")
+        right_camera = self.dashboard_adapter.prepare_tracked_camera(right, right_targets, right_boxes,
+            right_scores, right_classes, self.image_width, self.image_height, "RT")
+
+        # BEV(Lidar)
+        lidar = self.pipeline_3d.convert_ros_to_numpy(lidar_msg)
+        
+
+        # World Objects Motion (Radar)
+        radar_points = self.pipeline_radar.convert_ros_to_numpy(radar_msg)
+
+
+        timestamp = (gnss_msg.header.stamp.sec + gnss_msg.header.stamp.nanosec * 1e-9)
+
+        ## C++ orchestrator call
+        front_masks = (
+            front_results.masks.data.cpu().numpy()
+            if front_results.masks is not None
+            else None
+        )
+
+        rear_masks = (
+            rear_results.masks.data.cpu().numpy()
+            if rear_results.masks is not None
+            else None
+        )
+
+        left_masks = (
+            left_results.masks.data.cpu().numpy()
+            if left_results.masks is not None
+            else None
+        )
+
+        right_masks = (
+            right_results.masks.data.cpu().numpy()
+            if right_results.masks is not None
+            else None
+        )
+
+        result = self.perception_orchestrator.process(
+            lidar,
+
+            # Front
+            front,
+            front_masks,
+            front_boxes,
+            front_scores,
+            front_classes,
+            radar_points,
+            front_targets,
+
+            # Rear
+            rear,
+            rear_masks,
+            rear_boxes,
+            rear_classes,
+            rear_targets,
+
+            # Left
+            left,
+            left_masks,
+            left_boxes,
+            left_classes,
+            left_targets,
+
+            # Right
+            right,
+            right_masks,
+            right_boxes,
+            right_classes,
+            right_targets,
+
+            # Class names
+            self.model.names,
+
+            # Image dimensions
+            front.shape[1],
+            front.shape[0],
+            rear.shape[1],
+            rear.shape[0],
+            left.shape[1],
+            left.shape[0],
+            right.shape[1],
+            right.shape[0],
+
+            # Timestamp
+            timestamp,
+
+            # GNSS
+            gnss_msg.latitude,
+            gnss_msg.longitude,
+            gnss_msg.altitude,
+
+            # IMU
+            imu_msg,
+        )
+
+        # (REMEMBER) latency is calcualte just before dashboard.push
+        latency_ms = (
+            time.perf_counter() - start_time
+        ) * 1000.0
+
+        metrics = self.metrics.get_metrics(
+            latency_ms
+        )
+
+        dashboard_data = {
+            "sensors": {
+                "cam": True,
+                "radar": True,
+                "gnss": True,
+                "imu": True,
+                "lidar": True
+            },
+
+            "frame_idx": front_msg.header.stamp.nanosec,
+
+            "fps": metrics["fps"],
+            "latency_ms": metrics["latency_ms"],
+            "gpu_pct": metrics["gpu_pct"],
+            "cpu_pct": metrics["cpu_pct"],
+
+            "objects_count": result["object_counts"],
+
+            "trajectory_reset": self.trajectory_reset,
+
+            "ego": {
+                "heading_deg": float(result["heading_deg"]),
+                "speed_mps": float(result["gnss"]["speed"]),
+
+                "accelerating":
+                    "Accelerating" in result["imu"]["motion_state"],
+
+                "braking":
+                    "Braking" in result["imu"]["motion_state"],
+
+                "turning_left":
+                    "Turning Left" in result["imu"]["motion_state"],
+
+                "turning_right":
+                    "Turning Right" in result["imu"]["motion_state"],
+
+                "world_x":
+                    float(result["gnss"]["position"][0]),
+
+                "world_y":
+                    float(result["gnss"]["position"][1]),
+            },
+
+            "cameras": {
+                "front": front_camera,
+                "left": left_camera,
+                "rear": rear_camera,
+                "right": right_camera,
+            },
+
+            "bev_objects": result["bev_objects"],
+
+            "nearest_objects": self.round_nearest_objects(result["nearest_objects"])
+        }
+
+
+
+        # self.dashboard.push(dashboard_data)
+        print(f"Latency: {latency_ms}: ms")
+        # self.record_dataset_frame(dashboard_data,front_msg.header.frame_id)
+      
+
+        # self.recorder.record(dashboard_data)
+
+
+
+    def round_nearest_objects(self, nearest_objects):
+        for obj in nearest_objects:
+            if "dist_m" in obj:
+                obj["dist_m"] = round(float(obj["dist_m"]), 3)
+
+            if "speed_mps" in obj:
+                obj["speed_mps"] = round(float(obj["speed_mps"]), 3)
+
+        return nearest_objects
+
+    def convert_world_objects_tr_cpp_py(self, cpp_world_objects):
+
+        world_objects = []
+
+        for obj in cpp_world_objects:
+
+            world_object = {
+                "class": obj.class_name,
+                "camera": obj.camera,
+                "box": obj.box,
+                "position": obj.position,
+                "distance": obj.distance
+            }
+
+            if obj.id:
+                world_object["id"] = obj.id
+
+            if obj.has_radar:
+                world_object["radar"] = {
+                    "range": obj.radar_range,
+                    "bearing": obj.radar_bearing,
+                    "velocity": obj.radar_velocity,
+                    "motion": obj.radar_motion
+                }
+
+            world_objects.append(world_object)
+
+        return world_objects
+
+    def convert_world_objects_cpp_py(self, cpp_world_objects):
+        world_objects = []
+
+        for obj in cpp_world_objects:
+            world_objects.append(
+                {
+                    "class": obj.class_name,
+                    "camera": obj.camera,
+                    "box": obj.box,
+                    "position": obj.position,
+                    "distance": obj.distance
+                }
+            )
+
+        return world_objects
+
+    def convert_cloud_cpp_py(self, cpp_cloud):
+        py_clouds = [
+            {
+                "cloud": [
+                    {
+                        "pixel": (p.u, p.v),
+                        "xyz": p.xyz
+                    }
+                    for p in obj.cloud
+                ],
+                "box": obj.box,
+                "class_name": obj.class_name
+            }
+            for obj in cpp_cloud
+        ]
+
+        return py_clouds
+
+
+
+    def reset_trackers(self):
+        
+        BaseTrack._count = 0
+
+        self.front_tracker = BYTETracker(
+            self.tracker_args,
+            frame_rate=10
+        )
+
+        self.rear_tracker = BYTETracker(
+            self.tracker_args,
+            frame_rate=10
+        )
+
+        self.left_tracker = BYTETracker(
+            self.tracker_args,
+            frame_rate=10
+        )
+
+        self.right_tracker = BYTETracker(
+            self.tracker_args,
+            frame_rate=10
+        )
+
+        self.get_logger().info(
+            "ByteTrack trackers reset."
+        )
+
+    def record_dataset_frame(self, dashboard_data, ros_frame_id):
+        """
+        Start recording at frame 1 and record frames through frame 110.
+        Frames received before frame 1 are ignored.
+        No CSV writing is performed.
+        """
+
+        try:
+            # Example: "front_camera_25" -> 25
+            frame_id = int(str(ros_frame_id).split("_")[-1])
+        except (ValueError, AttributeError):
+            self.get_logger().warning(
+                f"Invalid frame ID: {ros_frame_id}"
+            )
+            return
+
+        # Ignore frames after recording has finished
+        if self.dataset_recording_finished:
+            return
+
+        # Start recording only when frame 1 is received
+        if not self.dataset_recording_started:
+
+            if frame_id != 1:
+                self.get_logger().debug(
+                    f"Ignoring frame {frame_id}; waiting for frame 1."
+                )
+                return
+
+            self.dataset_recording_started = True
+
+            self.get_logger().info(
+                "Dataset recording started at frame 1."
+            )
+
+        # Record only frames 1 through 110
+        if not (1 <= frame_id <= 110):
+            return
+
+        # Avoid duplicate frame records
+        if frame_id in self.recorded_frame_numbers:
+            return
+
+        dataset_record = {
+            "sensors": dashboard_data.get("sensors", {}),
+            "frame_idx": dashboard_data.get("frame_idx", frame_id),
+            "fps": dashboard_data.get("fps", 0.0),
+            "latency_ms": dashboard_data.get("latency_ms", 0.0),
+            "gpu_pct": dashboard_data.get("gpu_pct", 0.0),
+            "cpu_pct": dashboard_data.get("cpu_pct", 0.0),
+            "objects_count": dashboard_data.get("objects_count", {}),
+            "trajectory_reset": dashboard_data.get(
+                "trajectory_reset",
+                False
+            ),
+            "ego": dashboard_data.get("ego", {}),
+            "cameras": dashboard_data.get("cameras", {}),
+            "bev_objects": dashboard_data.get("bev_objects", []),
+            "nearest_objects": dashboard_data.get(
+                "nearest_objects",
+                []
+            ),
+            "frame_id": frame_id,
+        }
+
+        self.dataset_records.append(dataset_record)
+        self.recorded_frame_numbers.add(frame_id)
+
+        self.get_logger().info(
+            f"Collected dataset frame {frame_id}/110"
+        )
+
+        # Stop after frame 110
+        if frame_id == 110:
+            if self.write_dataset_csv():
+                self.dataset_recording_finished = True
+
+                self.get_logger().info(
+                    f"Dataset recording completed. "
+                    f"Collected {len(self.dataset_records)} frames."
+                )
+
+    def write_dataset_csv(self):
+        """
+        Write the collected dataset records to CSV only after
+        all 110 frames have been recorded.
+
+        Output format matches the reference CSV.
+        """
+
+        expected_frames = set(range(1, 111))
+
+        # -------------------------------------------------
+        # Verify that all frames 1 through 110 are available
+        # -------------------------------------------------
+
+        if self.recorded_frame_numbers != expected_frames:
+
+            missing_frames = sorted(
+                expected_frames - self.recorded_frame_numbers
+            )
+
+            self.get_logger().warning(
+                f"Dataset is incomplete. "
+                f"Collected {len(self.dataset_records)}/110 records. "
+                f"Missing frames: {missing_frames}"
+            )
+
+            return False
+
+        # -------------------------------------------------
+        # Dataset output path
+        # -------------------------------------------------
+
+        dataset_path = Path(
+            "/home/hamza/spatial_perception/perception_cpp/csv_data/perception_log_cpp.csv"
+        )
+
+        dataset_path.parent.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        # -------------------------------------------------
+        # Exact reference CSV column order
+        # -------------------------------------------------
+
+        csv_columns = [
+            "sensors",
+            "frame_idx",
+            "fps",
+            "latency_ms",
+            "gpu_pct",
+            "cpu_pct",
+            "objects_count",
+            "trajectory_reset",
+            "ego",
+            "cameras",
+            "bev_objects",
+            "nearest_objects",
+            "frame_id",
+        ]
+
+        # -------------------------------------------------
+        # Sort records numerically by internal frame ID
+        # -------------------------------------------------
+
+        sorted_records = sorted(
+            self.dataset_records,
+            key=lambda record: record["frame_id"]
+        )
+
+        # -------------------------------------------------
+        # Helper for compact JSON serialization
+        # -------------------------------------------------
+
+        def serialize_json(value):
+            return json.dumps(
+                value,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                default=str
+            )
+
+        # -------------------------------------------------
+        # Prepare camera data exactly as a nested JSON object
+        # -------------------------------------------------
+
+        def prepare_cameras(cameras):
+            """
+            Preserve the reference camera structure.
+
+            Remove only image data if present.
+            Do not rename or alter boxes, IDs, classes,
+            confidence, or other camera fields.
+            """
+
+            if not isinstance(cameras, dict):
+                return {}
+
+            prepared_cameras = {}
+
+            # Preserve the desired camera order.
+            # Adjust only if the reference CSV uses another order.
+            camera_order = (
+                "front",
+                "left",
+                "rear",
+                "right",
+            )
+
+            # First write cameras in reference order.
+            for camera_name in camera_order:
+
+                if camera_name not in cameras:
+                    continue
+
+                camera_data = cameras[camera_name]
+
+                if isinstance(camera_data, dict):
+
+                    prepared_cameras[camera_name] = {
+                        key: value
+                        for key, value in camera_data.items()
+                        if key != "image"
+                    }
+
+                else:
+
+                    prepared_cameras[camera_name] = camera_data
+
+            # Preserve any additional camera keys.
+            for camera_name, camera_data in cameras.items():
+
+                if camera_name in prepared_cameras:
+                    continue
+
+                if isinstance(camera_data, dict):
+
+                    prepared_cameras[camera_name] = {
+                        key: value
+                        for key, value in camera_data.items()
+                        if key != "image"
+                    }
+
+                else:
+
+                    prepared_cameras[camera_name] = camera_data
+
+            return prepared_cameras
+
+        # -------------------------------------------------
+        # Write CSV
+        # -------------------------------------------------
+
+        with open(
+            dataset_path,
+            mode="w",
+            newline="",
+            encoding="utf-8"
+        ) as csv_file:
+
+            writer = csv.DictWriter(
+                csv_file,
+                fieldnames=csv_columns
+            )
+
+            writer.writeheader()
+
+            for record in sorted_records:
+
+                cameras = prepare_cameras(
+                    record.get("cameras", {})
+                )
+
+                csv_row = {
+                    "sensors": serialize_json(
+                        record.get("sensors", {})
+                    ),
+
+                    "frame_idx": record.get(
+                        "frame_idx",
+                        record["frame_id"]
+                    ),
+
+                    "fps": record.get(
+                        "fps",
+                        0.0
+                    ),
+
+                    "latency_ms": record.get(
+                        "latency_ms",
+                        0.0
+                    ),
+
+                    "gpu_pct": record.get(
+                        "gpu_pct",
+                        0.0
+                    ),
+
+                    "cpu_pct": record.get(
+                        "cpu_pct",
+                        0.0
+                    ),
+
+                    "objects_count": serialize_json(
+                        record.get("objects_count", {})
+                    ),
+
+                    # Match reference TRUE/FALSE representation
+                    "trajectory_reset": str(
+                        record.get(
+                            "trajectory_reset",
+                            False
+                        )
+                    ).upper(),
+
+                    "ego": serialize_json(
+                        record.get("ego", {})
+                    ),
+
+                    # Save cameras as one compact nested JSON object.
+                    # The camera structure itself is preserved.
+                    "cameras": serialize_json(
+                        cameras
+                    ),
+
+                    "bev_objects": serialize_json(
+                        record.get("bev_objects", [])
+                    ),
+
+                    "nearest_objects": serialize_json(
+                        record.get("nearest_objects", [])
+                    ),
+
+                    # Match the reference frame ID format.
+                    "frame_id": f"frame_{record['frame_id']:06d}",
+                }
+
+                writer.writerow(csv_row)
+
+        self.get_logger().info(
+            f"Dataset CSV written successfully: {dataset_path}"
+        )
+
+        return True
+
+
+
+def main():
+
+    rclpy.init()
+
+    node = PerceptionStack()
+
+    try:
+
+        rclpy.spin(node)
+
+    except KeyboardInterrupt:
+
+        pass
+
+
+    cv2.destroyAllWindows()
+
+    node.destroy_node()
+
+    rclpy.shutdown()
+
+
+if __name__ == "__main__":
+
+    main()
