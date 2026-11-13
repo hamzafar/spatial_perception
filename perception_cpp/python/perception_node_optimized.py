@@ -60,6 +60,10 @@ class PerceptionStack(Node):
 
         super().__init__("perception_node")
 
+        #### Optimizatoin counter
+        self.optim_counter = 0
+
+
         ### Recording logic
         self.dataset_records = []
         self.recorded_frame_numbers = set()
@@ -246,7 +250,9 @@ class PerceptionStack(Node):
 
         self.previous_frame = current_frame
 
+
         # Detection
+        t = time.perf_counter()
         front = self.pipeline_detection.convert_ros_to_cv(front_msg)
         front, front_results = self.pipeline_detection.detect(front)
         front_boxes, front_scores, front_classes = self.pipeline_detection.extract_detections(front_results)
@@ -263,12 +269,11 @@ class PerceptionStack(Node):
         right, right_results = self.pipeline_detection.detect(right)
         right_boxes, right_scores, right_classes = self.pipeline_detection.extract_detections(right_results)
 
-        # front_camera = self.dashboard_adapter.prepare_camera(front, front_boxes, front_scores, front_classes)
-        # rear_camera = self.dashboard_adapter.prepare_camera(rear, rear_boxes, rear_scores, rear_classes)
-        # left_camera = self.dashboard_adapter.prepare_camera(left, left_boxes, left_scores, left_classes)
-        # right_camera = self.dashboard_adapter.prepare_camera(right, right_boxes, right_scores, right_classes)
+        print(f"Detection latency: {(time.perf_counter() - t) * 1000:.2f} ms")
+        
 
         # Tracking
+        t = time.perf_counter()
         front_dets = np.concatenate([front_boxes, front_scores.reshape(-1, 1)], axis=1)
         front_targets = self.front_tracker.update(front_dets, (self.image_height, self.image_width), 
             (self.image_height, self.image_width))
@@ -294,17 +299,26 @@ class PerceptionStack(Node):
         right_camera = self.dashboard_adapter.prepare_tracked_camera(right, right_targets, right_boxes,
             right_scores, right_classes, self.image_width, self.image_height, "RT")
 
+        print(f"Tracking latency: {(time.perf_counter() - t) * 1000:.2f} ms")
+
+
         # BEV(Lidar)
+        t = time.perf_counter()
         lidar = self.pipeline_3d.convert_ros_to_numpy(lidar_msg)
+        print(f"lidar ros to np latency: {(time.perf_counter() - t) * 1000:.2f} ms")
         
 
         # World Objects Motion (Radar)
+        t = time.perf_counter()
         radar_points = self.pipeline_radar.convert_ros_to_numpy(radar_msg)
+        print(f"radar ros to np latency: {(time.perf_counter() - t) * 1000:.2f} ms")
 
 
         timestamp = (gnss_msg.header.stamp.sec + gnss_msg.header.stamp.nanosec * 1e-9)
 
         ## C++ orchestrator call
+        t = time.perf_counter()
+
         front_masks = (
             front_results.masks.data.cpu().numpy()
             if front_results.masks is not None
@@ -328,7 +342,11 @@ class PerceptionStack(Node):
             if right_results.masks is not None
             else None
         )
+        print(f"all masks gpu to cpu movement latency: {(time.perf_counter() - t) * 1000:.2f} ms")
 
+
+        #cpp operations
+        t = time.perf_counter()
         result = self.perception_orchestrator.process(
             lidar,
 
@@ -386,6 +404,8 @@ class PerceptionStack(Node):
             # IMU
             imu_msg,
         )
+        print(f"cpp operations latency: {(time.perf_counter() - t) * 1000:.2f} ms")
+
 
         # (REMEMBER) latency is calcualte just before dashboard.push
         latency_ms = (
@@ -455,6 +475,11 @@ class PerceptionStack(Node):
 
         # self.dashboard.push(dashboard_data)
         print(f"Latency: {latency_ms}: ms")
+        
+        if self.optim_counter > 50:
+            input('one iteration completed')
+        self.optim_counter +=1
+
         # self.record_dataset_frame(dashboard_data,front_msg.header.frame_id)
       
 
