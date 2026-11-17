@@ -41,6 +41,22 @@ class DetectionPipeline:
 
         return image, results[0]
 
+
+    def detect_batch(self, images):
+        """images: list of BGR numpy arrays, in a fixed order.
+        Returns a list of Results in the same order.
+        The original (unmasked) images are unchanged, as in detect()."""
+
+        inference_images = [self.remove_hood(img) for img in images]
+
+        results = self.model.predict(inference_images, verbose=False)
+
+        assert len(results) == len(images), (
+            f"Expected {len(images)} results, got {len(results)}"
+        )
+
+        return list(results)
+        
     def extract_detections(self, results):
 
         boxes = results.boxes.xyxy.cpu().numpy()

@@ -80,7 +80,8 @@ class PerceptionStack(Node):
         self.cx = 320.0
         self.cy = 240.0
 
-        self.model = YOLO("/home/hamza/ros2_cv_ws/models/yolo26m-seg.engine")
+        # self.model = YOLO("/home/hamza/ros2_cv_ws/models/yolo26m-seg-b1.engine")
+        self.model = YOLO("/home/hamza/ros2_cv_ws/models/yolo26m-seg-b4.engine")
         # self.model =  YOLO("/home/hamza/ros2_cv_ws/scripts/phase6/engines/yolov8m-seg-trt-int8.engine")
         self.previous_frame = None
         self.trajectory_reset = True
