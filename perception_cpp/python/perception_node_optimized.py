@@ -255,55 +255,72 @@ class PerceptionStack(Node):
         # Detection
         t = time.perf_counter()
 
-        tfc = time.perf_counter()
         front = self.pipeline_detection.convert_ros_to_cv(front_msg)
-        print(f"front ros to cv latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
-
-        tfc = time.perf_counter()
-        front, front_results = self.pipeline_detection.detect(front)
-        print(f"front detection latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
-
-        tfc = time.perf_counter()
-        front_boxes, front_scores, front_classes = self.pipeline_detection.extract_detections(front_results)
-        print(f"front extraction latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
-
-        trc = time.perf_counter()
-        rear = self.pipeline_detection.convert_ros_to_cv(rear_msg)
-        print(f"rear ros to cv latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
-
-        trc = time.perf_counter()
-        rear, rear_results = self.pipeline_detection.detect(rear)
-        print(f"rear detection latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
-
-        trc = time.perf_counter()
-        rear_boxes, rear_scores, rear_classes = self.pipeline_detection.extract_detections(rear_results)
-        print(f"rear extraction latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
-
-        tlc = time.perf_counter()
-        left = self.pipeline_detection.convert_ros_to_cv(left_msg)
-        print(f"left ros to cv latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
-
-        tlc = time.perf_counter()
-        left, left_results = self.pipeline_detection.detect(left)
-        print(f"left detection latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
-
-        tlc = time.perf_counter()
-        left_boxes, left_scores, left_classes = self.pipeline_detection.extract_detections(left_results)
-        print(f"left extraction latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
-
-        trtc = time.perf_counter()
+        rear  = self.pipeline_detection.convert_ros_to_cv(rear_msg)
+        left  = self.pipeline_detection.convert_ros_to_cv(left_msg)
         right = self.pipeline_detection.convert_ros_to_cv(right_msg)
-        print(f"right ros to cv latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
 
-        trtc = time.perf_counter()
-        right, right_results = self.pipeline_detection.detect(right)
-        print(f"right detection latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
-        
-        trtc = time.perf_counter()
+        tb = time.perf_counter()
+        front_results, rear_results, left_results, right_results = \
+            self.pipeline_detection.detect_batch([front, rear, left, right])
+        print(f"batched detection latency: {(time.perf_counter() - tb) * 1000:.2f} ms")
+
+        front_boxes, front_scores, front_classes = self.pipeline_detection.extract_detections(front_results)
+        rear_boxes,  rear_scores,  rear_classes  = self.pipeline_detection.extract_detections(rear_results)
+        left_boxes,  left_scores,  left_classes  = self.pipeline_detection.extract_detections(left_results)
         right_boxes, right_scores, right_classes = self.pipeline_detection.extract_detections(right_results)
-        print(f"right extraction latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
 
         print(f"Detection latency: {(time.perf_counter() - t) * 1000:.2f} ms")
+
+        # tfc = time.perf_counter()
+        # front = self.pipeline_detection.convert_ros_to_cv(front_msg)
+        # print(f"front ros to cv latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
+
+        # tfc = time.perf_counter()
+        # front, front_results = self.pipeline_detection.detect(front)
+        # print(f"front detection latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
+
+        # tfc = time.perf_counter()
+        # front_boxes, front_scores, front_classes = self.pipeline_detection.extract_detections(front_results)
+        # print(f"front extraction latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
+
+        # trc = time.perf_counter()
+        # rear = self.pipeline_detection.convert_ros_to_cv(rear_msg)
+        # print(f"rear ros to cv latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
+
+        # trc = time.perf_counter()
+        # rear, rear_results = self.pipeline_detection.detect(rear)
+        # print(f"rear detection latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
+
+        # trc = time.perf_counter()
+        # rear_boxes, rear_scores, rear_classes = self.pipeline_detection.extract_detections(rear_results)
+        # print(f"rear extraction latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
+
+        # tlc = time.perf_counter()
+        # left = self.pipeline_detection.convert_ros_to_cv(left_msg)
+        # print(f"left ros to cv latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
+
+        # tlc = time.perf_counter()
+        # left, left_results = self.pipeline_detection.detect(left)
+        # print(f"left detection latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
+
+        # tlc = time.perf_counter()
+        # left_boxes, left_scores, left_classes = self.pipeline_detection.extract_detections(left_results)
+        # print(f"left extraction latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
+
+        # trtc = time.perf_counter()
+        # right = self.pipeline_detection.convert_ros_to_cv(right_msg)
+        # print(f"right ros to cv latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
+
+        # trtc = time.perf_counter()
+        # right, right_results = self.pipeline_detection.detect(right)
+        # print(f"right detection latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
+        
+        # trtc = time.perf_counter()
+        # right_boxes, right_scores, right_classes = self.pipeline_detection.extract_detections(right_results)
+        # print(f"right extraction latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
+
+        # print(f"Detection latency: {(time.perf_counter() - t) * 1000:.2f} ms")
         
 
         # Tracking
