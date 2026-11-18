@@ -80,7 +80,7 @@ class PerceptionStack(Node):
         self.cx = 320.0
         self.cy = 240.0
 
-        # self.model = YOLO("/home/hamza/ros2_cv_ws/models/yolo26m-seg-b1.engine")
+        self.model_b1 = YOLO("/home/hamza/ros2_cv_ws/models/yolo26m-seg-b1.engine")
         self.model = YOLO("/home/hamza/ros2_cv_ws/models/yolo26m-seg-b4.engine")
         # self.model =  YOLO("/home/hamza/ros2_cv_ws/scripts/phase6/engines/yolov8m-seg-trt-int8.engine")
         self.previous_frame = None
@@ -263,68 +263,18 @@ class PerceptionStack(Node):
         tb = time.perf_counter()
         front_results, rear_results, left_results, right_results = \
             self.pipeline_detection.detect_batch([front, rear, left, right])
-        print(f"batched detection latency: {(time.perf_counter() - tb) * 1000:.2f} ms")
+        # print(f"batched detection latency: {(time.perf_counter() - tb) * 1000:.2f} ms")
 
         front_boxes, front_scores, front_classes = self.pipeline_detection.extract_detections(front_results)
         rear_boxes,  rear_scores,  rear_classes  = self.pipeline_detection.extract_detections(rear_results)
         left_boxes,  left_scores,  left_classes  = self.pipeline_detection.extract_detections(left_results)
         right_boxes, right_scores, right_classes = self.pipeline_detection.extract_detections(right_results)
 
-        print(f"Detection latency: {(time.perf_counter() - t) * 1000:.2f} ms")
-
-        # tfc = time.perf_counter()
-        # front = self.pipeline_detection.convert_ros_to_cv(front_msg)
-        # print(f"front ros to cv latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
-
-        # tfc = time.perf_counter()
-        # front, front_results = self.pipeline_detection.detect(front)
-        # print(f"front detection latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
-
-        # tfc = time.perf_counter()
-        # front_boxes, front_scores, front_classes = self.pipeline_detection.extract_detections(front_results)
-        # print(f"front extraction latency: {(time.perf_counter() - tfc) * 1000:.2f} ms")
-
-        # trc = time.perf_counter()
-        # rear = self.pipeline_detection.convert_ros_to_cv(rear_msg)
-        # print(f"rear ros to cv latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
-
-        # trc = time.perf_counter()
-        # rear, rear_results = self.pipeline_detection.detect(rear)
-        # print(f"rear detection latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
-
-        # trc = time.perf_counter()
-        # rear_boxes, rear_scores, rear_classes = self.pipeline_detection.extract_detections(rear_results)
-        # print(f"rear extraction latency: {(time.perf_counter() - trc) * 1000:.2f} ms")
-
-        # tlc = time.perf_counter()
-        # left = self.pipeline_detection.convert_ros_to_cv(left_msg)
-        # print(f"left ros to cv latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
-
-        # tlc = time.perf_counter()
-        # left, left_results = self.pipeline_detection.detect(left)
-        # print(f"left detection latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
-
-        # tlc = time.perf_counter()
-        # left_boxes, left_scores, left_classes = self.pipeline_detection.extract_detections(left_results)
-        # print(f"left extraction latency: {(time.perf_counter() - tlc) * 1000:.2f} ms")
-
-        # trtc = time.perf_counter()
-        # right = self.pipeline_detection.convert_ros_to_cv(right_msg)
-        # print(f"right ros to cv latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
-
-        # trtc = time.perf_counter()
-        # right, right_results = self.pipeline_detection.detect(right)
-        # print(f"right detection latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
-        
-        # trtc = time.perf_counter()
-        # right_boxes, right_scores, right_classes = self.pipeline_detection.extract_detections(right_results)
-        # print(f"right extraction latency: {(time.perf_counter() - trtc) * 1000:.2f} ms")
-
         # print(f"Detection latency: {(time.perf_counter() - t) * 1000:.2f} ms")
-        
 
+   
         # Tracking
-        t = time.perf_counter()
+        # t = time.perf_counter()
         front_dets = np.concatenate([front_boxes, front_scores.reshape(-1, 1)], axis=1)
         front_targets = self.front_tracker.update(front_dets, (self.image_height, self.image_width), 
             (self.image_height, self.image_width))
@@ -354,13 +304,13 @@ class PerceptionStack(Node):
 
 
         # BEV(Lidar)
-        t = time.perf_counter()
+        # t = time.perf_counter()
         lidar = self.pipeline_3d.convert_ros_to_numpy(lidar_msg)
         # print(f"lidar ros to np latency: {(time.perf_counter() - t) * 1000:.2f} ms")
         
 
         # World Objects Motion (Radar)
-        t = time.perf_counter()
+        # t = time.perf_counter()
         radar_points = self.pipeline_radar.convert_ros_to_numpy(radar_msg)
         # print(f"radar ros to np latency: {(time.perf_counter() - t) * 1000:.2f} ms")
 
@@ -368,7 +318,7 @@ class PerceptionStack(Node):
         timestamp = (gnss_msg.header.stamp.sec + gnss_msg.header.stamp.nanosec * 1e-9)
 
         ## C++ orchestrator call
-        t = time.perf_counter()
+        # t = time.perf_counter()
 
         front_masks = (
             front_results.masks.data.cpu().numpy()
@@ -397,7 +347,7 @@ class PerceptionStack(Node):
 
 
         #cpp operations
-        t = time.perf_counter()
+        # t = time.perf_counter()
         result = self.perception_orchestrator.process(
             lidar,
 
@@ -527,11 +477,11 @@ class PerceptionStack(Node):
         # self.dashboard.push(dashboard_data)
         print(f"Latency: {latency_ms}: ms")
         
-        if self.optim_counter > 50:
-            input('one iteration completed')
-        self.optim_counter +=1
+        # if self.optim_counter > 111:
+        #     input('one iteration completed')
+        # self.optim_counter +=1
 
-        # self.record_dataset_frame(dashboard_data,front_msg.header.frame_id)
+        self.record_dataset_frame(dashboard_data,front_msg.header.frame_id)
       
 
         # self.recorder.record(dashboard_data)
@@ -756,7 +706,7 @@ class PerceptionStack(Node):
         # -------------------------------------------------
 
         dataset_path = Path(
-            "/home/hamza/spatial_perception/perception_cpp/csv_data/perception_log_cpp.csv"
+            "/home/hamza/spatial_perception/perception_cpp/csv_data/perception_log_cpp_batch.csv"
         )
 
         dataset_path.parent.mkdir(
